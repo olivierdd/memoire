@@ -1,0 +1,1618 @@
+[
+  {
+    "Period":"Jan 2010",
+    "Date":"2009-12-31",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":1837.5,
+    "S&P 500 TR (Yahoo)":1837.5,
+    "S&P 500 TR (FinanceDatabase)":1837.5
+  },
+  {
+    "Period":"Feb 2010",
+    "Date":"2010-02-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":1796.67,
+    "S&P 500 TR (Yahoo)":1796.6700439453,
+    "S&P 500 TR (FinanceDatabase)":1796.67
+  },
+  {
+    "Period":"Mar 2010",
+    "Date":"2010-03-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":1844.87,
+    "S&P 500 TR (Yahoo)":1844.8699951172,
+    "S&P 500 TR (FinanceDatabase)":1844.87
+  },
+  {
+    "Period":"Apr 2010",
+    "Date":"2010-04-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":1950.91,
+    "S&P 500 TR (Yahoo)":1950.9100341797,
+    "S&P 500 TR (FinanceDatabase)":1950.91
+  },
+  {
+    "Period":"May 2010",
+    "Date":"2010-05-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":1992.87,
+    "S&P 500 TR (Yahoo)":1992.8699951172,
+    "S&P 500 TR (FinanceDatabase)":1992.87
+  },
+  {
+    "Period":"Jun 2010",
+    "Date":"2010-06-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":1778.99,
+    "S&P 500 TR (Yahoo)":1778.9899902344,
+    "S&P 500 TR (FinanceDatabase)":1778.99
+  },
+  {
+    "Period":"Jul 2010",
+    "Date":"2010-07-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":1709.77,
+    "S&P 500 TR (Yahoo)":1709.7700195312,
+    "S&P 500 TR (FinanceDatabase)":1709.77
+  },
+  {
+    "Period":"Aug 2010",
+    "Date":"2010-08-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":1875.85,
+    "S&P 500 TR (Yahoo)":1875.8499755859,
+    "S&P 500 TR (FinanceDatabase)":1875.85
+  },
+  {
+    "Period":"Sep 2010",
+    "Date":"2010-09-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":1804.46,
+    "S&P 500 TR (Yahoo)":1804.4599609375,
+    "S&P 500 TR (FinanceDatabase)":1804.46
+  },
+  {
+    "Period":"Oct 2010",
+    "Date":"2010-10-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":1917.42,
+    "S&P 500 TR (Yahoo)":1917.4200439453,
+    "S&P 500 TR (FinanceDatabase)":1917.42
+  },
+  {
+    "Period":"Nov 2010",
+    "Date":"2010-11-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":1983.47,
+    "S&P 500 TR (Yahoo)":1983.4699707031,
+    "S&P 500 TR (FinanceDatabase)":1983.47
+  },
+  {
+    "Period":"Dec 2010",
+    "Date":"2010-12-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2024.97,
+    "S&P 500 TR (Yahoo)":2024.9699707031,
+    "S&P 500 TR (FinanceDatabase)":2024.97
+  },
+  {
+    "Period":"Jan 2011",
+    "Date":"2011-01-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2138.3,
+    "S&P 500 TR (Yahoo)":2138.3000488281,
+    "S&P 500 TR (FinanceDatabase)":2138.3
+  },
+  {
+    "Period":"Feb 2011",
+    "Date":"2011-02-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2200.54,
+    "S&P 500 TR (Yahoo)":2200.5400390625,
+    "S&P 500 TR (FinanceDatabase)":2200.54
+  },
+  {
+    "Period":"Mar 2011",
+    "Date":"2011-03-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2203.32,
+    "S&P 500 TR (Yahoo)":2203.3200683594,
+    "S&P 500 TR (FinanceDatabase)":2203.3201
+  },
+  {
+    "Period":"Apr 2011",
+    "Date":"2011-04-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2250.58,
+    "S&P 500 TR (Yahoo)":2250.580078125,
+    "S&P 500 TR (FinanceDatabase)":2250.5801
+  },
+  {
+    "Period":"May 2011",
+    "Date":"2011-05-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2301.72,
+    "S&P 500 TR (Yahoo)":2301.7199707031,
+    "S&P 500 TR (FinanceDatabase)":2301.72
+  },
+  {
+    "Period":"Jun 2011",
+    "Date":"2011-06-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2227.96,
+    "S&P 500 TR (Yahoo)":2227.9599609375,
+    "S&P 500 TR (FinanceDatabase)":2227.96
+  },
+  {
+    "Period":"Jul 2011",
+    "Date":"2011-07-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2274.26,
+    "S&P 500 TR (Yahoo)":2274.2600097656,
+    "S&P 500 TR (FinanceDatabase)":2274.26
+  },
+  {
+    "Period":"Aug 2011",
+    "Date":"2011-08-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2187.0,
+    "S&P 500 TR (Yahoo)":2187.0,
+    "S&P 500 TR (FinanceDatabase)":2187.0
+  },
+  {
+    "Period":"Sep 2011",
+    "Date":"2011-09-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2052.3,
+    "S&P 500 TR (Yahoo)":2052.3000488281,
+    "S&P 500 TR (FinanceDatabase)":2052.3
+  },
+  {
+    "Period":"Oct 2011",
+    "Date":"2011-10-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":1875.95,
+    "S&P 500 TR (Yahoo)":1875.9499511719,
+    "S&P 500 TR (FinanceDatabase)":1875.95
+  },
+  {
+    "Period":"Nov 2011",
+    "Date":"2011-11-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2081.97,
+    "S&P 500 TR (Yahoo)":2081.9699707031,
+    "S&P 500 TR (FinanceDatabase)":2081.97
+  },
+  {
+    "Period":"Dec 2011",
+    "Date":"2011-12-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2133.07,
+    "S&P 500 TR (Yahoo)":2133.0700683594,
+    "S&P 500 TR (FinanceDatabase)":2133.0701
+  },
+  {
+    "Period":"Jan 2012",
+    "Date":"2011-12-30",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2158.94,
+    "S&P 500 TR (Yahoo)":2158.9399414062,
+    "S&P 500 TR (FinanceDatabase)":2158.9399
+  },
+  {
+    "Period":"Feb 2012",
+    "Date":"2012-02-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2276.24,
+    "S&P 500 TR (Yahoo)":2276.2399902344,
+    "S&P 500 TR (FinanceDatabase)":2276.24
+  },
+  {
+    "Period":"Mar 2012",
+    "Date":"2012-03-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2367.87,
+    "S&P 500 TR (Yahoo)":2367.8701171875,
+    "S&P 500 TR (FinanceDatabase)":2367.8701
+  },
+  {
+    "Period":"Apr 2012",
+    "Date":"2012-04-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2449.08,
+    "S&P 500 TR (Yahoo)":2449.080078125,
+    "S&P 500 TR (FinanceDatabase)":2449.0801
+  },
+  {
+    "Period":"May 2012",
+    "Date":"2012-05-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2429.1,
+    "S&P 500 TR (Yahoo)":2429.1000976562,
+    "S&P 500 TR (FinanceDatabase)":2429.1001
+  },
+  {
+    "Period":"Jun 2012",
+    "Date":"2012-06-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2214.41,
+    "S&P 500 TR (Yahoo)":2214.4099121094,
+    "S&P 500 TR (FinanceDatabase)":2214.4099
+  },
+  {
+    "Period":"Jul 2012",
+    "Date":"2012-07-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2369.75,
+    "S&P 500 TR (Yahoo)":2369.75,
+    "S&P 500 TR (FinanceDatabase)":2369.75
+  },
+  {
+    "Period":"Aug 2012",
+    "Date":"2012-08-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2389.73,
+    "S&P 500 TR (Yahoo)":2389.7299804688,
+    "S&P 500 TR (FinanceDatabase)":2389.73
+  },
+  {
+    "Period":"Sep 2012",
+    "Date":"2012-08-31",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2450.6,
+    "S&P 500 TR (Yahoo)":2450.6000976562,
+    "S&P 500 TR (FinanceDatabase)":2450.6001
+  },
+  {
+    "Period":"Oct 2012",
+    "Date":"2012-10-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2520.71,
+    "S&P 500 TR (Yahoo)":2520.7099609375,
+    "S&P 500 TR (FinanceDatabase)":2520.71
+  },
+  {
+    "Period":"Nov 2012",
+    "Date":"2012-11-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2494.67,
+    "S&P 500 TR (Yahoo)":2494.669921875,
+    "S&P 500 TR (FinanceDatabase)":2494.6699
+  },
+  {
+    "Period":"Dec 2012",
+    "Date":"2012-12-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2470.07,
+    "S&P 500 TR (Yahoo)":2470.0700683594,
+    "S&P 500 TR (FinanceDatabase)":2470.0701
+  },
+  {
+    "Period":"Jan 2013",
+    "Date":"2012-12-31",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2504.44,
+    "S&P 500 TR (Yahoo)":2504.4399414062,
+    "S&P 500 TR (FinanceDatabase)":2504.4399
+  },
+  {
+    "Period":"Feb 2013",
+    "Date":"2013-02-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2660.7,
+    "S&P 500 TR (Yahoo)":2660.6999511719,
+    "S&P 500 TR (FinanceDatabase)":2660.7
+  },
+  {
+    "Period":"Mar 2013",
+    "Date":"2013-03-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2676.18,
+    "S&P 500 TR (Yahoo)":2676.1799316406,
+    "S&P 500 TR (FinanceDatabase)":2676.1799
+  },
+  {
+    "Period":"Apr 2013",
+    "Date":"2013-04-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2757.83,
+    "S&P 500 TR (Yahoo)":2757.830078125,
+    "S&P 500 TR (FinanceDatabase)":2757.8301
+  },
+  {
+    "Period":"May 2013",
+    "Date":"2013-05-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2797.28,
+    "S&P 500 TR (Yahoo)":2797.2800292969,
+    "S&P 500 TR (FinanceDatabase)":2797.28
+  },
+  {
+    "Period":"Jun 2013",
+    "Date":"2013-06-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2906.91,
+    "S&P 500 TR (Yahoo)":2906.9099121094,
+    "S&P 500 TR (FinanceDatabase)":2906.9099
+  },
+  {
+    "Period":"Jul 2013",
+    "Date":"2013-07-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2866.41,
+    "S&P 500 TR (Yahoo)":2866.4099121094,
+    "S&P 500 TR (FinanceDatabase)":2866.4099
+  },
+  {
+    "Period":"Aug 2013",
+    "Date":"2013-08-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3033.59,
+    "S&P 500 TR (Yahoo)":3033.5900878906,
+    "S&P 500 TR (FinanceDatabase)":3033.5901
+  },
+  {
+    "Period":"Sep 2013",
+    "Date":"2013-08-30",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":2908.96,
+    "S&P 500 TR (Yahoo)":2908.9599609375,
+    "S&P 500 TR (FinanceDatabase)":2908.96
+  },
+  {
+    "Period":"Oct 2013",
+    "Date":"2013-10-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3024.38,
+    "S&P 500 TR (Yahoo)":3024.3798828125,
+    "S&P 500 TR (FinanceDatabase)":3024.3799
+  },
+  {
+    "Period":"Nov 2013",
+    "Date":"2013-11-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3147.21,
+    "S&P 500 TR (Yahoo)":3147.2099609375,
+    "S&P 500 TR (FinanceDatabase)":3147.21
+  },
+  {
+    "Period":"Dec 2013",
+    "Date":"2013-12-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3225.06,
+    "S&P 500 TR (Yahoo)":3225.0600585938,
+    "S&P 500 TR (FinanceDatabase)":3225.0601
+  },
+  {
+    "Period":"Jan 2014",
+    "Date":"2013-12-31",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3315.59,
+    "S&P 500 TR (Yahoo)":3315.5900878906,
+    "S&P 500 TR (FinanceDatabase)":3315.5901
+  },
+  {
+    "Period":"Feb 2014",
+    "Date":"2014-02-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3127.87,
+    "S&P 500 TR (Yahoo)":3127.8701171875,
+    "S&P 500 TR (FinanceDatabase)":3127.8701
+  },
+  {
+    "Period":"Mar 2014",
+    "Date":"2014-03-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3322.85,
+    "S&P 500 TR (Yahoo)":3322.8500976562,
+    "S&P 500 TR (FinanceDatabase)":3322.8501
+  },
+  {
+    "Period":"Apr 2014",
+    "Date":"2014-04-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3399.51,
+    "S&P 500 TR (Yahoo)":3399.5100097656,
+    "S&P 500 TR (FinanceDatabase)":3399.51
+  },
+  {
+    "Period":"May 2014",
+    "Date":"2014-05-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3400.2,
+    "S&P 500 TR (Yahoo)":3400.1999511719,
+    "S&P 500 TR (FinanceDatabase)":3400.2
+  },
+  {
+    "Period":"Jun 2014",
+    "Date":"2014-06-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3483.14,
+    "S&P 500 TR (Yahoo)":3483.1398925781,
+    "S&P 500 TR (FinanceDatabase)":3483.1399
+  },
+  {
+    "Period":"Jul 2014",
+    "Date":"2014-07-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3576.55,
+    "S&P 500 TR (Yahoo)":3576.5500488281,
+    "S&P 500 TR (FinanceDatabase)":3576.55
+  },
+  {
+    "Period":"Aug 2014",
+    "Date":"2014-08-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3493.18,
+    "S&P 500 TR (Yahoo)":3493.1799316406,
+    "S&P 500 TR (FinanceDatabase)":3493.1799
+  },
+  {
+    "Period":"Sep 2014",
+    "Date":"2014-08-29",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3643.34,
+    "S&P 500 TR (Yahoo)":3643.330078125,
+    "S&P 500 TR (FinanceDatabase)":3643.3301
+  },
+  {
+    "Period":"Oct 2014",
+    "Date":"2014-10-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3544.98,
+    "S&P 500 TR (Yahoo)":3544.9799804688,
+    "S&P 500 TR (FinanceDatabase)":3544.98
+  },
+  {
+    "Period":"Nov 2014",
+    "Date":"2014-11-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3679.58,
+    "S&P 500 TR (Yahoo)":3679.580078125,
+    "S&P 500 TR (FinanceDatabase)":3679.5801
+  },
+  {
+    "Period":"Dec 2014",
+    "Date":"2014-12-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3753.31,
+    "S&P 500 TR (Yahoo)":3753.3100585938,
+    "S&P 500 TR (FinanceDatabase)":3753.3101
+  },
+  {
+    "Period":"Jan 2015",
+    "Date":"2014-12-31",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3769.44,
+    "S&P 500 TR (Yahoo)":3769.4399414062,
+    "S&P 500 TR (FinanceDatabase)":3769.4399
+  },
+  {
+    "Period":"Feb 2015",
+    "Date":"2015-02-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3703.77,
+    "S&P 500 TR (Yahoo)":3703.7700195312,
+    "S&P 500 TR (FinanceDatabase)":3703.77
+  },
+  {
+    "Period":"Mar 2015",
+    "Date":"2015-03-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3890.32,
+    "S&P 500 TR (Yahoo)":3890.3200683594,
+    "S&P 500 TR (FinanceDatabase)":3890.3201
+  },
+  {
+    "Period":"Apr 2015",
+    "Date":"2015-04-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3790.66,
+    "S&P 500 TR (Yahoo)":3790.6599121094,
+    "S&P 500 TR (FinanceDatabase)":3790.6599
+  },
+  {
+    "Period":"May 2015",
+    "Date":"2015-05-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3883.75,
+    "S&P 500 TR (Yahoo)":3883.75,
+    "S&P 500 TR (FinanceDatabase)":3883.75
+  },
+  {
+    "Period":"Jun 2015",
+    "Date":"2015-06-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3899.59,
+    "S&P 500 TR (Yahoo)":3899.5900878906,
+    "S&P 500 TR (FinanceDatabase)":3899.5901
+  },
+  {
+    "Period":"Jul 2015",
+    "Date":"2015-07-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3843.26,
+    "S&P 500 TR (Yahoo)":3843.2600097656,
+    "S&P 500 TR (FinanceDatabase)":3843.26
+  },
+  {
+    "Period":"Aug 2015",
+    "Date":"2015-08-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3885.07,
+    "S&P 500 TR (Yahoo)":3885.0700683594,
+    "S&P 500 TR (FinanceDatabase)":3885.0701
+  },
+  {
+    "Period":"Sep 2015",
+    "Date":"2015-09-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3552.65,
+    "S&P 500 TR (Yahoo)":3552.6499023438,
+    "S&P 500 TR (FinanceDatabase)":3552.6499
+  },
+  {
+    "Period":"Oct 2015",
+    "Date":"2015-10-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3577.47,
+    "S&P 500 TR (Yahoo)":3577.4699707031,
+    "S&P 500 TR (FinanceDatabase)":3577.47
+  },
+  {
+    "Period":"Nov 2015",
+    "Date":"2015-11-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3917.3,
+    "S&P 500 TR (Yahoo)":3917.3000488281,
+    "S&P 500 TR (FinanceDatabase)":3917.3
+  },
+  {
+    "Period":"Dec 2015",
+    "Date":"2015-12-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3924.63,
+    "S&P 500 TR (Yahoo)":3924.6298828125,
+    "S&P 500 TR (FinanceDatabase)":3924.6299
+  },
+  {
+    "Period":"Jan 2016",
+    "Date":"2015-12-31",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3821.6,
+    "S&P 500 TR (Yahoo)":3821.6000976562,
+    "S&P 500 TR (FinanceDatabase)":3821.6001
+  },
+  {
+    "Period":"Feb 2016",
+    "Date":"2016-02-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3630.46,
+    "S&P 500 TR (Yahoo)":3630.4599609375,
+    "S&P 500 TR (FinanceDatabase)":3630.46
+  },
+  {
+    "Period":"Mar 2016",
+    "Date":"2016-03-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3713.7,
+    "S&P 500 TR (Yahoo)":3713.6999511719,
+    "S&P 500 TR (FinanceDatabase)":3713.7
+  },
+  {
+    "Period":"Apr 2016",
+    "Date":"2016-04-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3897.66,
+    "S&P 500 TR (Yahoo)":3897.6599121094,
+    "S&P 500 TR (FinanceDatabase)":3897.6599
+  },
+  {
+    "Period":"May 2016",
+    "Date":"2016-05-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3918.53,
+    "S&P 500 TR (Yahoo)":3918.5300292969,
+    "S&P 500 TR (FinanceDatabase)":3918.53
+  },
+  {
+    "Period":"Jun 2016",
+    "Date":"2016-06-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3963.1,
+    "S&P 500 TR (Yahoo)":3963.1000976562,
+    "S&P 500 TR (FinanceDatabase)":3963.1001
+  },
+  {
+    "Period":"Jul 2016",
+    "Date":"2016-07-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":3976.68,
+    "S&P 500 TR (Yahoo)":3976.6799316406,
+    "S&P 500 TR (FinanceDatabase)":3976.6799
+  },
+  {
+    "Period":"Aug 2016",
+    "Date":"2016-08-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":4109.28,
+    "S&P 500 TR (Yahoo)":4109.2797851562,
+    "S&P 500 TR (FinanceDatabase)":4109.2798
+  },
+  {
+    "Period":"Sep 2016",
+    "Date":"2016-09-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":4120.17,
+    "S&P 500 TR (Yahoo)":4120.169921875,
+    "S&P 500 TR (FinanceDatabase)":4120.1699
+  },
+  {
+    "Period":"Oct 2016",
+    "Date":"2016-10-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":4108.13,
+    "S&P 500 TR (Yahoo)":4108.1298828125,
+    "S&P 500 TR (FinanceDatabase)":4108.1299
+  },
+  {
+    "Period":"Nov 2016",
+    "Date":"2016-11-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":4018.47,
+    "S&P 500 TR (Yahoo)":4018.4699707031,
+    "S&P 500 TR (FinanceDatabase)":4018.47
+  },
+  {
+    "Period":"Dec 2016",
+    "Date":"2016-12-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":4181.15,
+    "S&P 500 TR (Yahoo)":4181.1499023438,
+    "S&P 500 TR (FinanceDatabase)":4181.1499
+  },
+  {
+    "Period":"Jan 2017",
+    "Date":"2016-12-30",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":4278.66,
+    "S&P 500 TR (Yahoo)":4278.66015625,
+    "S&P 500 TR (FinanceDatabase)":4278.6602
+  },
+  {
+    "Period":"Feb 2017",
+    "Date":"2017-02-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":4362.1,
+    "S&P 500 TR (Yahoo)":4362.1000976562,
+    "S&P 500 TR (FinanceDatabase)":4362.1001
+  },
+  {
+    "Period":"Mar 2017",
+    "Date":"2017-03-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":4595.73,
+    "S&P 500 TR (Yahoo)":4595.7299804688,
+    "S&P 500 TR (FinanceDatabase)":4595.73
+  },
+  {
+    "Period":"Apr 2017",
+    "Date":"2017-04-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":4530.98,
+    "S&P 500 TR (Yahoo)":4530.9799804688,
+    "S&P 500 TR (FinanceDatabase)":4530.98
+  },
+  {
+    "Period":"May 2017",
+    "Date":"2017-05-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":4592.78,
+    "S&P 500 TR (Yahoo)":4592.7797851562,
+    "S&P 500 TR (FinanceDatabase)":4592.7798
+  },
+  {
+    "Period":"Jun 2017",
+    "Date":"2017-06-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":4685.11,
+    "S&P 500 TR (Yahoo)":4685.1098632812,
+    "S&P 500 TR (FinanceDatabase)":4685.1099
+  },
+  {
+    "Period":"Jul 2017",
+    "Date":"2017-07-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":4689.61,
+    "S&P 500 TR (Yahoo)":4689.6098632812,
+    "S&P 500 TR (FinanceDatabase)":4689.6099
+  },
+  {
+    "Period":"Aug 2017",
+    "Date":"2017-08-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":4786.27,
+    "S&P 500 TR (Yahoo)":4786.2700195312,
+    "S&P 500 TR (FinanceDatabase)":4786.27
+  },
+  {
+    "Period":"Sep 2017",
+    "Date":"2017-09-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":4798.99,
+    "S&P 500 TR (Yahoo)":4798.990234375,
+    "S&P 500 TR (FinanceDatabase)":4798.9902
+  },
+  {
+    "Period":"Oct 2017",
+    "Date":"2017-10-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":4906.92,
+    "S&P 500 TR (Yahoo)":4906.919921875,
+    "S&P 500 TR (FinanceDatabase)":4906.9199
+  },
+  {
+    "Period":"Nov 2017",
+    "Date":"2017-11-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5009.99,
+    "S&P 500 TR (Yahoo)":5009.990234375,
+    "S&P 500 TR (FinanceDatabase)":5009.9902
+  },
+  {
+    "Period":"Dec 2017",
+    "Date":"2017-12-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5145.21,
+    "S&P 500 TR (Yahoo)":5145.2099609375,
+    "S&P 500 TR (FinanceDatabase)":5145.21
+  },
+  {
+    "Period":"Jan 2018",
+    "Date":"2017-12-29",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5212.76,
+    "S&P 500 TR (Yahoo)":5212.759765625,
+    "S&P 500 TR (FinanceDatabase)":5212.7598
+  },
+  {
+    "Period":"Feb 2018",
+    "Date":"2018-02-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5508.7,
+    "S&P 500 TR (Yahoo)":5508.7001953125,
+    "S&P 500 TR (FinanceDatabase)":5508.7002
+  },
+  {
+    "Period":"Mar 2018",
+    "Date":"2018-03-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5238.18,
+    "S&P 500 TR (Yahoo)":5238.1801757812,
+    "S&P 500 TR (FinanceDatabase)":5238.1802
+  },
+  {
+    "Period":"Apr 2018",
+    "Date":"2018-04-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5057.69,
+    "S&P 500 TR (Yahoo)":5057.6899414062,
+    "S&P 500 TR (FinanceDatabase)":5057.6899
+  },
+  {
+    "Period":"May 2018",
+    "Date":"2018-05-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5206.31,
+    "S&P 500 TR (Yahoo)":5206.3100585938,
+    "S&P 500 TR (FinanceDatabase)":5206.3101
+  },
+  {
+    "Period":"Jun 2018",
+    "Date":"2018-06-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5376.29,
+    "S&P 500 TR (Yahoo)":5376.2900390625,
+    "S&P 500 TR (FinanceDatabase)":5376.29
+  },
+  {
+    "Period":"Jul 2018",
+    "Date":"2018-07-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5367.49,
+    "S&P 500 TR (Yahoo)":5367.490234375,
+    "S&P 500 TR (FinanceDatabase)":5367.4902
+  },
+  {
+    "Period":"Aug 2018",
+    "Date":"2018-08-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5544.19,
+    "S&P 500 TR (Yahoo)":5544.1899414062,
+    "S&P 500 TR (FinanceDatabase)":5544.1899
+  },
+  {
+    "Period":"Sep 2018",
+    "Date":"2018-08-31",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5730.8,
+    "S&P 500 TR (Yahoo)":5730.7998046875,
+    "S&P 500 TR (FinanceDatabase)":5730.7998
+  },
+  {
+    "Period":"Oct 2018",
+    "Date":"2018-10-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5784.45,
+    "S&P 500 TR (Yahoo)":5784.4501953125,
+    "S&P 500 TR (FinanceDatabase)":5784.4502
+  },
+  {
+    "Period":"Nov 2018",
+    "Date":"2018-11-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5426.33,
+    "S&P 500 TR (Yahoo)":5426.330078125,
+    "S&P 500 TR (FinanceDatabase)":5426.3301
+  },
+  {
+    "Period":"Dec 2018",
+    "Date":"2018-12-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5538.86,
+    "S&P 500 TR (Yahoo)":5538.8598632812,
+    "S&P 500 TR (FinanceDatabase)":5538.8599
+  },
+  {
+    "Period":"Jan 2019",
+    "Date":"2018-12-31",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":4984.22,
+    "S&P 500 TR (Yahoo)":4984.2202148438,
+    "S&P 500 TR (FinanceDatabase)":4984.2202
+  },
+  {
+    "Period":"Feb 2019",
+    "Date":"2019-02-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5389.19,
+    "S&P 500 TR (Yahoo)":5389.1899414062,
+    "S&P 500 TR (FinanceDatabase)":5389.1899
+  },
+  {
+    "Period":"Mar 2019",
+    "Date":"2019-03-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5595.11,
+    "S&P 500 TR (Yahoo)":5595.1098632812,
+    "S&P 500 TR (FinanceDatabase)":5595.1099
+  },
+  {
+    "Period":"Apr 2019",
+    "Date":"2019-04-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5730.04,
+    "S&P 500 TR (Yahoo)":5730.0400390625,
+    "S&P 500 TR (FinanceDatabase)":5730.04
+  },
+  {
+    "Period":"May 2019",
+    "Date":"2019-05-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5849.65,
+    "S&P 500 TR (Yahoo)":5849.6499023438,
+    "S&P 500 TR (FinanceDatabase)":5849.6499
+  },
+  {
+    "Period":"Jun 2019",
+    "Date":"2019-06-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5504.05,
+    "S&P 500 TR (Yahoo)":5504.0498046875,
+    "S&P 500 TR (FinanceDatabase)":5504.0498
+  },
+  {
+    "Period":"Jul 2019",
+    "Date":"2019-07-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5953.63,
+    "S&P 500 TR (Yahoo)":5953.6298828125,
+    "S&P 500 TR (FinanceDatabase)":5953.6299
+  },
+  {
+    "Period":"Aug 2019",
+    "Date":"2019-08-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5939.83,
+    "S&P 500 TR (Yahoo)":5939.830078125,
+    "S&P 500 TR (FinanceDatabase)":5939.8301
+  },
+  {
+    "Period":"Sep 2019",
+    "Date":"2019-08-30",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5898.23,
+    "S&P 500 TR (Yahoo)":5898.2299804688,
+    "S&P 500 TR (FinanceDatabase)":5898.23
+  },
+  {
+    "Period":"Oct 2019",
+    "Date":"2019-10-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5935.2,
+    "S&P 500 TR (Yahoo)":5935.2001953125,
+    "S&P 500 TR (FinanceDatabase)":5935.2002
+  },
+  {
+    "Period":"Nov 2019",
+    "Date":"2019-11-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":6198.59,
+    "S&P 500 TR (Yahoo)":6198.58984375,
+    "S&P 500 TR (FinanceDatabase)":6198.5898
+  },
+  {
+    "Period":"Dec 2019",
+    "Date":"2019-12-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":6306.88,
+    "S&P 500 TR (Yahoo)":6306.8798828125,
+    "S&P 500 TR (FinanceDatabase)":6306.8799
+  },
+  {
+    "Period":"Jan 2020",
+    "Date":"2019-12-31",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":6553.57,
+    "S&P 500 TR (Yahoo)":6553.5698242188,
+    "S&P 500 TR (FinanceDatabase)":6553.5698
+  },
+  {
+    "Period":"Feb 2020",
+    "Date":"2020-02-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":6598.63,
+    "S&P 500 TR (Yahoo)":6598.6298828125,
+    "S&P 500 TR (FinanceDatabase)":6598.6299
+  },
+  {
+    "Period":"Mar 2020",
+    "Date":"2020-03-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":6288.64,
+    "S&P 500 TR (Yahoo)":6288.6401367188,
+    "S&P 500 TR (FinanceDatabase)":6288.6401
+  },
+  {
+    "Period":"Apr 2020",
+    "Date":"2020-04-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5036.64,
+    "S&P 500 TR (Yahoo)":5036.6401367188,
+    "S&P 500 TR (FinanceDatabase)":5036.6401
+  },
+  {
+    "Period":"May 2020",
+    "Date":"2020-05-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":5778.53,
+    "S&P 500 TR (Yahoo)":5778.5297851562,
+    "S&P 500 TR (FinanceDatabase)":5778.5298
+  },
+  {
+    "Period":"Jun 2020",
+    "Date":"2020-06-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":6251.48,
+    "S&P 500 TR (Yahoo)":6251.4799804688,
+    "S&P 500 TR (FinanceDatabase)":6251.48
+  },
+  {
+    "Period":"Jul 2020",
+    "Date":"2020-07-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":6383.76,
+    "S&P 500 TR (Yahoo)":6383.759765625,
+    "S&P 500 TR (FinanceDatabase)":6383.7598
+  },
+  {
+    "Period":"Aug 2020",
+    "Date":"2020-08-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":6758.2,
+    "S&P 500 TR (Yahoo)":6758.2001953125,
+    "S&P 500 TR (FinanceDatabase)":6758.2002
+  },
+  {
+    "Period":"Sep 2020",
+    "Date":"2020-09-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":7246.37,
+    "S&P 500 TR (Yahoo)":7246.3701171875,
+    "S&P 500 TR (FinanceDatabase)":7246.3701
+  },
+  {
+    "Period":"Oct 2020",
+    "Date":"2020-10-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":6956.2,
+    "S&P 500 TR (Yahoo)":6956.2001953125,
+    "S&P 500 TR (FinanceDatabase)":6956.2002
+  },
+  {
+    "Period":"Nov 2020",
+    "Date":"2020-11-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":6817.89,
+    "S&P 500 TR (Yahoo)":6817.8901367188,
+    "S&P 500 TR (FinanceDatabase)":6817.8901
+  },
+  {
+    "Period":"Dec 2020",
+    "Date":"2020-12-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":7556.51,
+    "S&P 500 TR (Yahoo)":7556.509765625,
+    "S&P 500 TR (FinanceDatabase)":7556.5098
+  },
+  {
+    "Period":"Jan 2021",
+    "Date":"2020-12-31",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":7759.35,
+    "S&P 500 TR (Yahoo)":7759.3500976562,
+    "S&P 500 TR (FinanceDatabase)":7759.3501
+  },
+  {
+    "Period":"Feb 2021",
+    "Date":"2021-02-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":7804.31,
+    "S&P 500 TR (Yahoo)":7804.3100585938,
+    "S&P 500 TR (FinanceDatabase)":7804.3101
+  },
+  {
+    "Period":"Mar 2021",
+    "Date":"2021-03-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":8080.78,
+    "S&P 500 TR (Yahoo)":8080.7797851562,
+    "S&P 500 TR (FinanceDatabase)":8080.7798
+  },
+  {
+    "Period":"Apr 2021",
+    "Date":"2021-04-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":8335.91,
+    "S&P 500 TR (Yahoo)":8335.91015625,
+    "S&P 500 TR (FinanceDatabase)":8335.9102
+  },
+  {
+    "Period":"May 2021",
+    "Date":"2021-05-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":8702.02,
+    "S&P 500 TR (Yahoo)":8702.01953125,
+    "S&P 500 TR (FinanceDatabase)":8702.0195
+  },
+  {
+    "Period":"Jun 2021",
+    "Date":"2021-06-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":8734.74,
+    "S&P 500 TR (Yahoo)":8734.740234375,
+    "S&P 500 TR (FinanceDatabase)":8734.7402
+  },
+  {
+    "Period":"Jul 2021",
+    "Date":"2021-07-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":8990.08,
+    "S&P 500 TR (Yahoo)":8990.080078125,
+    "S&P 500 TR (FinanceDatabase)":8990.0801
+  },
+  {
+    "Period":"Aug 2021",
+    "Date":"2021-08-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":9138.36,
+    "S&P 500 TR (Yahoo)":9138.3603515625,
+    "S&P 500 TR (FinanceDatabase)":9138.3604
+  },
+  {
+    "Period":"Sep 2021",
+    "Date":"2021-09-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":9437.15,
+    "S&P 500 TR (Yahoo)":9437.150390625,
+    "S&P 500 TR (FinanceDatabase)":9437.1504
+  },
+  {
+    "Period":"Oct 2021",
+    "Date":"2021-10-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":9098.25,
+    "S&P 500 TR (Yahoo)":9098.25,
+    "S&P 500 TR (FinanceDatabase)":9098.25
+  },
+  {
+    "Period":"Nov 2021",
+    "Date":"2021-11-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":9642.44,
+    "S&P 500 TR (Yahoo)":9642.4404296875,
+    "S&P 500 TR (FinanceDatabase)":9642.4404
+  },
+  {
+    "Period":"Dec 2021",
+    "Date":"2021-12-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":9446.21,
+    "S&P 500 TR (Yahoo)":9446.2099609375,
+    "S&P 500 TR (FinanceDatabase)":9446.21
+  },
+  {
+    "Period":"Jan 2022",
+    "Date":"2022-01-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":10050.41,
+    "S&P 500 TR (Yahoo)":10050.41015625,
+    "S&P 500 TR (FinanceDatabase)":10050.4102
+  },
+  {
+    "Period":"Feb 2022",
+    "Date":"2022-02-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":9534.95,
+    "S&P 500 TR (Yahoo)":9534.9501953125,
+    "S&P 500 TR (FinanceDatabase)":9534.9502
+  },
+  {
+    "Period":"Mar 2022",
+    "Date":"2022-03-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":9044.47,
+    "S&P 500 TR (Yahoo)":9044.4697265625,
+    "S&P 500 TR (FinanceDatabase)":9044.4697
+  },
+  {
+    "Period":"Apr 2022",
+    "Date":"2022-04-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":9559.95,
+    "S&P 500 TR (Yahoo)":9559.9501953125,
+    "S&P 500 TR (FinanceDatabase)":9559.9502
+  },
+  {
+    "Period":"May 2022",
+    "Date":"2022-05-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":8746.05,
+    "S&P 500 TR (Yahoo)":8746.0498046875,
+    "S&P 500 TR (FinanceDatabase)":8746.0498
+  },
+  {
+    "Period":"Jun 2022",
+    "Date":"2022-06-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":8648.28,
+    "S&P 500 TR (Yahoo)":8648.2802734375,
+    "S&P 500 TR (FinanceDatabase)":8648.2803
+  },
+  {
+    "Period":"Jul 2022",
+    "Date":"2022-07-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":8077.89,
+    "S&P 500 TR (Yahoo)":8077.8901367188,
+    "S&P 500 TR (FinanceDatabase)":8077.8901
+  },
+  {
+    "Period":"Aug 2022",
+    "Date":"2022-08-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":8705.87,
+    "S&P 500 TR (Yahoo)":8705.8701171875,
+    "S&P 500 TR (FinanceDatabase)":8705.8701
+  },
+  {
+    "Period":"Sep 2022",
+    "Date":"2022-09-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":8400.96,
+    "S&P 500 TR (Yahoo)":8400.9599609375,
+    "S&P 500 TR (FinanceDatabase)":8400.96
+  },
+  {
+    "Period":"Oct 2022",
+    "Date":"2022-10-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":7800.0,
+    "S&P 500 TR (Yahoo)":7800.0,
+    "S&P 500 TR (FinanceDatabase)":7800.0
+  },
+  {
+    "Period":"Nov 2022",
+    "Date":"2022-11-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":8185.07,
+    "S&P 500 TR (Yahoo)":8185.0698242188,
+    "S&P 500 TR (FinanceDatabase)":8185.0698
+  },
+  {
+    "Period":"Dec 2022",
+    "Date":"2022-12-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":8671.9,
+    "S&P 500 TR (Yahoo)":8671.900390625,
+    "S&P 500 TR (FinanceDatabase)":8671.9004
+  },
+  {
+    "Period":"Jan 2023",
+    "Date":"2022-12-30",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":8178.02,
+    "S&P 500 TR (Yahoo)":8178.0200195312,
+    "S&P 500 TR (FinanceDatabase)":8178.02
+  },
+  {
+    "Period":"Feb 2023",
+    "Date":"2023-02-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":8782.77,
+    "S&P 500 TR (Yahoo)":8782.76953125,
+    "S&P 500 TR (FinanceDatabase)":8782.7695
+  },
+  {
+    "Period":"Mar 2023",
+    "Date":"2023-03-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":8440.25,
+    "S&P 500 TR (Yahoo)":8440.25,
+    "S&P 500 TR (FinanceDatabase)":8440.25
+  },
+  {
+    "Period":"Apr 2023",
+    "Date":"2023-04-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":8823.66,
+    "S&P 500 TR (Yahoo)":8823.66015625,
+    "S&P 500 TR (FinanceDatabase)":8823.6602
+  },
+  {
+    "Period":"May 2023",
+    "Date":"2023-05-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":8924.92,
+    "S&P 500 TR (Yahoo)":8924.919921875,
+    "S&P 500 TR (FinanceDatabase)":8924.9199
+  },
+  {
+    "Period":"Jun 2023",
+    "Date":"2023-06-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":9057.17,
+    "S&P 500 TR (Yahoo)":9057.169921875,
+    "S&P 500 TR (FinanceDatabase)":9057.1699
+  },
+  {
+    "Period":"Jul 2023",
+    "Date":"2023-07-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":9571.35,
+    "S&P 500 TR (Yahoo)":9571.349609375,
+    "S&P 500 TR (FinanceDatabase)":9571.3496
+  },
+  {
+    "Period":"Aug 2023",
+    "Date":"2023-08-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":9840.71,
+    "S&P 500 TR (Yahoo)":9840.7099609375,
+    "S&P 500 TR (FinanceDatabase)":9840.71
+  },
+  {
+    "Period":"Sep 2023",
+    "Date":"2023-09-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":9727.64,
+    "S&P 500 TR (Yahoo)":9727.6396484375,
+    "S&P 500 TR (FinanceDatabase)":9727.6396
+  },
+  {
+    "Period":"Oct 2023",
+    "Date":"2023-10-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":9247.51,
+    "S&P 500 TR (Yahoo)":9247.509765625,
+    "S&P 500 TR (FinanceDatabase)":9247.5098
+  },
+  {
+    "Period":"Nov 2023",
+    "Date":"2023-11-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":9147.45,
+    "S&P 500 TR (Yahoo)":9147.4501953125,
+    "S&P 500 TR (FinanceDatabase)":9147.4502
+  },
+  {
+    "Period":"Dec 2023",
+    "Date":"2023-12-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":9937.89,
+    "S&P 500 TR (Yahoo)":9937.8896484375,
+    "S&P 500 TR (FinanceDatabase)":9937.8896
+  },
+  {
+    "Period":"Jan 2024",
+    "Date":"2023-12-29",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":10327.83,
+    "S&P 500 TR (Yahoo)":10327.830078125,
+    "S&P 500 TR (FinanceDatabase)":10327.8301
+  },
+  {
+    "Period":"Feb 2024",
+    "Date":"2024-02-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":10633.14,
+    "S&P 500 TR (Yahoo)":10633.1396484375,
+    "S&P 500 TR (FinanceDatabase)":10633.1396
+  },
+  {
+    "Period":"Mar 2024",
+    "Date":"2024-03-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":11151.34,
+    "S&P 500 TR (Yahoo)":11151.33984375,
+    "S&P 500 TR (FinanceDatabase)":11151.3398
+  },
+  {
+    "Period":"Apr 2024",
+    "Date":"2024-04-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":11395.08,
+    "S&P 500 TR (Yahoo)":11395.080078125,
+    "S&P 500 TR (FinanceDatabase)":11395.0801
+  },
+  {
+    "Period":"May 2024",
+    "Date":"2024-05-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":10914.11,
+    "S&P 500 TR (Yahoo)":10914.1103515625,
+    "S&P 500 TR (FinanceDatabase)":10914.1104
+  },
+  {
+    "Period":"Jun 2024",
+    "Date":"2024-06-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":11508.89,
+    "S&P 500 TR (Yahoo)":11508.8896484375,
+    "S&P 500 TR (FinanceDatabase)":11508.8896
+  },
+  {
+    "Period":"Jul 2024",
+    "Date":"2024-07-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":11939.38,
+    "S&P 500 TR (Yahoo)":11939.3798828125,
+    "S&P 500 TR (FinanceDatabase)":11939.3799
+  },
+  {
+    "Period":"Aug 2024",
+    "Date":"2024-08-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":11887.54,
+    "S&P 500 TR (Yahoo)":11887.5400390625,
+    "S&P 500 TR (FinanceDatabase)":11887.54
+  },
+  {
+    "Period":"Sep 2024",
+    "Date":"2024-08-30",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":12344.43,
+    "S&P 500 TR (Yahoo)":12344.4296875,
+    "S&P 500 TR (FinanceDatabase)":12344.4297
+  },
+  {
+    "Period":"Oct 2024",
+    "Date":"2024-10-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":12490.87,
+    "S&P 500 TR (Yahoo)":12490.8701171875,
+    "S&P 500 TR (FinanceDatabase)":12490.8701
+  },
+  {
+    "Period":"Nov 2024",
+    "Date":"2024-11-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":12545.4,
+    "S&P 500 TR (Yahoo)":12545.400390625,
+    "S&P 500 TR (FinanceDatabase)":12545.4004
+  },
+  {
+    "Period":"Dec 2024",
+    "Date":"2024-12-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":13261.08,
+    "S&P 500 TR (Yahoo)":13261.080078125,
+    "S&P 500 TR (FinanceDatabase)":13261.0801
+  },
+  {
+    "Period":"Jan 2025",
+    "Date":"2024-12-31",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":12911.82,
+    "S&P 500 TR (Yahoo)":12911.8203125,
+    "S&P 500 TR (FinanceDatabase)":12911.8203
+  },
+  {
+    "Period":"Feb 2025",
+    "Date":"2025-02-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":13171.21,
+    "S&P 500 TR (Yahoo)":13171.2099609375,
+    "S&P 500 TR (FinanceDatabase)":13171.21
+  },
+  {
+    "Period":"Mar 2025",
+    "Date":"2025-03-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":12868.95,
+    "S&P 500 TR (Yahoo)":12868.9501953125,
+    "S&P 500 TR (FinanceDatabase)":12868.9502
+  },
+  {
+    "Period":"Apr 2025",
+    "Date":"2025-04-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":12407.26,
+    "S&P 500 TR (Yahoo)":12407.259765625,
+    "S&P 500 TR (FinanceDatabase)":12407.2598
+  },
+  {
+    "Period":"May 2025",
+    "Date":"2025-05-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":12353.87,
+    "S&P 500 TR (Yahoo)":12353.8701171875,
+    "S&P 500 TR (FinanceDatabase)":12353.8701
+  },
+  {
+    "Period":"Jun 2025",
+    "Date":"2025-06-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":13104.24,
+    "S&P 500 TR (Yahoo)":13104.240234375,
+    "S&P 500 TR (FinanceDatabase)":13104.2402
+  },
+  {
+    "Period":"Jul 2025",
+    "Date":"2025-07-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":13697.68,
+    "S&P 500 TR (Yahoo)":13697.6796875,
+    "S&P 500 TR (FinanceDatabase)":13697.6797
+  },
+  {
+    "Period":"Aug 2025",
+    "Date":"2025-08-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":13796.83,
+    "S&P 500 TR (Yahoo)":13796.830078125,
+    "S&P 500 TR (FinanceDatabase)":13796.8301
+  },
+  {
+    "Period":"Sep 2025",
+    "Date":"2025-08-29",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":14304.68,
+    "S&P 500 TR (Yahoo)":14304.6796875,
+    "S&P 500 TR (FinanceDatabase)":14304.6797
+  },
+  {
+    "Period":"Oct 2025",
+    "Date":"2025-10-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":14877.96,
+    "S&P 500 TR (Yahoo)":14877.9599609375,
+    "S&P 500 TR (FinanceDatabase)":14877.96
+  },
+  {
+    "Period":"Nov 2025",
+    "Date":"2025-11-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":15201.0,
+    "S&P 500 TR (Yahoo)":15201.0,
+    "S&P 500 TR (FinanceDatabase)":15201.0
+  },
+  {
+    "Period":"Dec 2025",
+    "Date":"2025-12-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":15132.0,
+    "S&P 500 TR (Yahoo)":15132.0,
+    "S&P 500 TR (FinanceDatabase)":15132.0
+  },
+  {
+    "Period":"Jan 2026",
+    "Date":"2025-12-31",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":15220.45,
+    "S&P 500 TR (Yahoo)":15220.4501953125,
+    "S&P 500 TR (FinanceDatabase)":15220.4502
+  },
+  {
+    "Period":"Feb 2026",
+    "Date":"2026-02-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":15525.11,
+    "S&P 500 TR (Yahoo)":15525.1103515625,
+    "S&P 500 TR (FinanceDatabase)":15525.1104
+  },
+  {
+    "Period":"Mar 2026",
+    "Date":"2026-03-02",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":15331.18,
+    "S&P 500 TR (Yahoo)":15331.1796875,
+    "S&P 500 TR (FinanceDatabase)":15331.1797
+  },
+  {
+    "Period":"Apr 2026",
+    "Date":"2026-04-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":14665.68,
+    "S&P 500 TR (Yahoo)":14665.6796875,
+    "S&P 500 TR (FinanceDatabase)":14665.6797
+  },
+  {
+    "Period":"May 2026",
+    "Date":"2026-05-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":16136.03,
+    "S&P 500 TR (Yahoo)":16136.0302734375,
+    "S&P 500 TR (FinanceDatabase)":16136.0303
+  },
+  {
+    "Period":"Jun 2026",
+    "Date":"2026-06-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":16981.1,
+    "S&P 500 TR (Yahoo)":16981.099609375,
+    "S&P 500 TR (FinanceDatabase)":16981.0996
+  },
+  {
+    "Period":"Jul 2026",
+    "Date":"2026-07-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":16738.56,
+    "S&P 500 TR (Yahoo)":16738.560546875,
+    "S&P 500 TR (FinanceDatabase)":16738.5605
+  },
+  {
+    "Period":"Aug 2026",
+    "Date":"2026-08-03",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":17012.38,
+    "S&P 500 TR (Yahoo)":17012.380859375,
+    "S&P 500 TR (FinanceDatabase)":17012.3809
+  },
+  {
+    "Period":"Sep 2026",
+    "Date":"2026-09-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":17099.0,
+    "S&P 500 TR (Yahoo)":17099.0,
+    "S&P 500 TR (FinanceDatabase)":17099.0
+  },
+  {
+    "Period":"Oct 2026",
+    "Date":"2026-10-01",
+    "Time":"Close",
+    "S&P 500 TR (Lipper)":17194.24,
+    "S&P 500 TR (Yahoo)":17194.240234375,
+    "S&P 500 TR (FinanceDatabase)":17194.2402
+  }
+]

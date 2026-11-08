@@ -1,0 +1,529 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.25.2",
+    "script_metadata_hash": "46819302bcd49586c52376c5d3977765"
+  },
+  "cells": [
+    {
+      "id": "Hbol",
+      "code_hash": "1d0db38904205bec4d6f6f6a1f6cec3e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "MJUe",
+      "code_hash": "39d3f12b76f92c776dec170ba148bd6c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "3c899c617e1eed76024cc3703e6bab59",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "535828fa9eef893e680c36489956888c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h1 id=\"load-and-analyze-funds-v2\">Load and analyze funds (V2)</h1>\n<span class=\"paragraph\">The workbook loads immediately. Each later step that calls OpenFIGI, EDGAR, or Jev, or that writes an Excel file, waits for its button. <code>selected_funds</code> stays the sheet selection. Later tables are copies: <code>funds_with_cusip</code>, <code>funds_openfigi</code>, <code>funds_edgar</code>, <code>funds_classified</code>, and <code>funds_with_timeseries</code>.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "04180e98a8963952051bb9eb142403e6",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-callout-output data-html='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003ch3 id=&#92;&quot;1-load-the-data&#92;&quot;&#92;u003e1. Load the data&#92;u003c/h3&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eLoad the &#92;u003cstrong&#92;u003eFunds&#92;u003c/strong&#92;u003e sheet of &#92;u003ccode&#92;u003eCLEAN_RECOLTE DONNEES-EXCEL-V2.xlsx&#92;u003c/code&#92;u003e from &#92;u003ccode&#92;u003einput-data-alix/clean/&#92;u003c/code&#92;u003e.&#92;nThen place the selected funds in a new dataframe called &#92;u003ccode&#92;u003eselected_funds&#92;u003c/code&#92;u003e.&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;info&quot;'></marimo-callout-output>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "dc63e9d5dd8bc8585dd4e3457bb15f41",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "11941842eded46499a35a5654a5410fd",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Loaded <code>/Users/olivierdedecker/Documents/02 - Enfants/Alix/Me\u0301moire Alix/data/input-data-alix/clean/CLEAN_RECOLTE DONNEES-EXCEL-V2.xlsx</code></span>\n<span class=\"paragraph\"><strong>Funds:</strong> 2,610 rows, 65 columns</span>\n<span class=\"paragraph\"><strong>selected_funds:</strong> 606 rows</span></span><marimo-ui-element object-id='Xref-0' random-id='b353e6d9-222c-5237-d719-3b89bb7bf128'><marimo-table data-initial-value='[]' data-label='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eselected_funds by fund_type&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-data='&quot;[{&#92;&quot;fund_type&#92;&quot;:&#92;&quot;Active&#92;&quot;,&#92;&quot;funds&#92;&quot;:514},{&#92;&quot;fund_type&#92;&quot;:&#92;&quot;Passive&#92;&quot;,&#92;&quot;funds&#92;&quot;:72},{&#92;&quot;fund_type&#92;&quot;:&#92;&quot;To Check&#92;&quot;,&#92;&quot;funds&#92;&quot;:20}]&quot;' data-total-rows='3' data-total-columns='2' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='false' data-page-size='3' data-field-types='[[&quot;fund_type&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;funds&quot;,[&quot;integer&quot;,&quot;int64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false' data-max-height='420'></marimo-table></marimo-ui-element></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "SFPL",
+      "code_hash": "0e46c8da21cd369990a52473f5228b84",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-callout-output data-html='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003ch3 id=&#92;&quot;2-verify-if-isin-and-cusip-are-unique&#92;&quot;&#92;u003e2. Verify if ISIN and CUSIP are unique&#92;u003c/h3&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;info&quot;'></marimo-callout-output>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "BYtC",
+      "code_hash": "bc7924818630c757f2ef56be1b71ff32",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\"><strong>ISIN:</strong> 606 unique values among 606 non-empty (0 missing) \u2014 unique</span>\n<span class=\"paragraph\"><strong>CUSIP:</strong> 605 unique values among 605 non-empty (1 missing) \u2014 unique</span></span><span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">No funds share an ISIN or a CUSIP.</span></span><span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\"><strong>1 fund is missing an ISIN or a CUSIP</strong></span></span><marimo-ui-element object-id='BYtC-0' random-id='30117120-717e-6da1-d54f-0894dc8fd9cf'><marimo-table data-initial-value='[]' data-label='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eMissing ISIN or CUSIP&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-data='&quot;[{&#92;&quot;Index0&#92;&quot;:14,&#92;&quot;missing_identifier&#92;&quot;:&#92;&quot;CUSIP&#92;&quot;,&#92;&quot;Name&#92;&quot;:&#92;&quot;American Funds Growth Fund of America;R1&#92;&quot;,&#92;&quot;ISIN&#92;&quot;:&#92;&quot;US3998748749&#92;&quot;,&#92;&quot;CUSIP&#92;&quot;:NaN,&#92;&quot;fund_type&#92;&quot;:&#92;&quot;Active&#92;&quot;}]&quot;' data-total-rows='1' data-total-columns='5' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='false' data-page-size='1' data-field-types='[[&quot;missing_identifier&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;Name&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;ISIN&quot;,[&quot;string&quot;,&quot;string&quot;]],[&quot;CUSIP&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;fund_type&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;Index0&quot;,[&quot;integer&quot;,&quot;int64&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false' data-max-height='420'></marimo-table></marimo-ui-element></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "RGSE",
+      "code_hash": "aa54a35ae1214e58ad55b0603d4c8f5b",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-callout-output data-html='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003e&#92;u003cstrong&#92;u003eDataset enrichment&#92;u003c/strong&#92;u003e&#92;u003c/span&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eA US ISIN is &#92;u003ccode&#92;u003eUS&#92;u003c/code&#92;u003e, then the 9-character CUSIP, then one check digit. For each selected fund with an empty CUSIP and a US ISIN, that middle value is sent to OpenFIGI (&#92;u003ccode&#92;u003eID_CUSIP&#92;u003c/code&#92;u003e).&#92;u003c/span&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eThe CUSIP is written into &#92;u003ccode&#92;u003efunds_with_cusip&#92;u003c/code&#92;u003e only when OpenFIGI returns the same listing as the ISIN. The same FIGI means the same listing. Any other result is left blank. &#92;u003ccode&#92;u003eselected_funds&#92;u003c/code&#92;u003e is left unchanged.&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;warn&quot;' data-title='&quot;Dataset enrichment&quot;'></marimo-callout-output>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Kclp",
+      "code_hash": "14d42aa3ba66b0bf8ad24009cdeefcad",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='Kclp-0' random-id='6bb40172-a9b3-b752-e7fe-c8261d0aa7f5'><marimo-button data-initial-value='0' data-label='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eFill missing CUSIPs from OpenFIGI&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;neutral&quot;' data-disabled='false' data-full-width='false'></marimo-button></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "emfo",
+      "code_hash": "5bfb7eb8093a8fa63fe2b61f493b9f3a",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Hstk",
+      "code_hash": "4568dcff190b4b165a0fbeaac98864a4",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Click <strong>Fill missing CUSIPs from OpenFIGI</strong> to query OpenFIGI.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "nWHF",
+      "code_hash": "bcc2c58f5978f4e0cf715f6fab14e0b7",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-callout-output data-html='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003ch3 id=&#92;&quot;4-verify-isins-and-enrich-dataset-with-openfigi&#92;&quot;&#92;u003e4. Verify ISINs and enrich dataset with OpenFIGI&#92;u003c/h3&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eEach ISIN is sent to the OpenFIGI mapping API (&#92;u003ccode&#92;u003eID_ISIN&#92;u003c/code&#92;u003e).&#92;u003c/span&#92;u003e&#92;n&#92;u003cul&#92;u003e&#92;n&#92;u003cli&#92;u003e&#92;u003ccode&#92;u003eisin_found&#92;u003c/code&#92;u003e is true when OpenFIGI returns a record.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003e&#92;u003ccode&#92;u003ename_matches&#92;u003c/code&#92;u003e compares the sheet name with that record&#x27;s name. OpenFIGI short forms (&#92;u003ccode&#92;u003eLRG&#92;u003c/code&#92;u003e, &#92;u003ccode&#92;u003eINST&#92;u003c/code&#92;u003e, &#92;u003ccode&#92;u003eAMER FND&#92;u003c/code&#92;u003e) count as the same name. A different word, such as Core versus Growth, does not.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003eEach file CUSIP is also sent to OpenFIGI (&#92;u003ccode&#92;u003eID_CUSIP&#92;u003c/code&#92;u003e). &#92;u003ccode&#92;u003ecusip_matches&#92;u003c/code&#92;u003e is true when that lookup returns the same listing as the ISIN. The same FIGI means the same listing. A missing CUSIP, a miss, or a different listing is false.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003eThe ISIN record&#x27;s ticker and name are written to &#92;u003ccode&#92;u003eopenfigi_market_id&#92;u003c/code&#92;u003e and &#92;u003ccode&#92;u003eopenfigi_name&#92;u003c/code&#92;u003e. A different value already in either column is replaced, and the log shows an alert.&#92;u003c/li&#92;u003e&#92;n&#92;u003c/ul&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eISIN records are cached in &#92;u003ccode&#92;u003ecache/cache-isin-openfigi-record.json&#92;u003c/code&#92;u003e. CUSIP listings are cached in &#92;u003ccode&#92;u003ecache/cache-cusip-openfigi.json&#92;u003c/code&#92;u003e.&#92;u003c/span&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eFunds that are not in OpenFIGI are saved as &#92;u003ccode&#92;u003eoutput-data/v2-no-matching-OPENFIGI.xlsx&#92;u003c/code&#92;u003e.&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;info&quot;'></marimo-callout-output>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "iLit",
+      "code_hash": "eb117d7b7cdd4ffbccd451c18d9576c6",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-callout-output data-html='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003e&#92;u003cstrong&#92;u003eSome records have no OpenFIGI match and will have no market ticker and no possibility to match with EDGAR.&#92;u003c/strong&#92;u003e&#92;u003c/span&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eFunds with no match are saved in &#92;u003ccode&#92;u003eoutput-data/v2-no-matching-OPENFIGI.xlsx&#92;u003c/code&#92;u003e.&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;warn&quot;'></marimo-callout-output>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ZHCJ",
+      "code_hash": "78bb104291e3b9868da7877f16ea560e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='ZHCJ-0' random-id='fb55c605-8a99-e987-25c0-6ad62bfc1427'><marimo-button data-initial-value='0' data-label='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eVerify ISINs with OpenFIGI&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;neutral&quot;' data-disabled='true' data-tooltip='&quot;Fill missing CUSIPs first&quot;' data-full-width='false'></marimo-button></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ROlb",
+      "code_hash": "a6338af1b0d7939b20e2f002d7824b0e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "qnkX",
+      "code_hash": "3cb60f55c94aef3f6e980b05e2b07e97",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Fill missing CUSIPs first. This step reads <code>funds_with_cusip</code>.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "TqIu",
+      "code_hash": "9749201b4de1256ca8747dbc8db910ef",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-callout-output data-html='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003ch3 id=&#92;&quot;5-verify-and-enrich-isins-with-edgar&#92;&quot;&#92;u003e5. Verify and enrich ISINs with EDGAR&#92;u003c/h3&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eThe SEC fund reference is keyed by ticker. Each ISIN is resolved with its OpenFIGI ticker, then looked up in that reference. The CUSIP resolves to the same ticker, so it is not looked up separately.&#92;u003c/span&#92;u003e&#92;n&#92;u003cul&#92;u003e&#92;n&#92;u003cli&#92;u003e&#92;u003ccode&#92;u003eedgar_isin_found&#92;u003c/code&#92;u003e is true when the ISIN&#x27;s ticker has an EDGAR record.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003e&#92;u003ccode&#92;u003eedgar_name&#92;u003c/code&#92;u003e is that row&#x27;s series name and share class. It is empty when the ISIN does not match.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003e&#92;u003ccode&#92;u003eedgar_name_match&#92;u003c/code&#92;u003e compares the sheet name with &#92;u003ccode&#92;u003eedgar_name&#92;u003c/code&#92;u003e. Short forms count as the same name, and a different word such as Core versus Growth does not. It is false when &#92;u003ccode&#92;u003eedgar_name&#92;u003c/code&#92;u003e is empty.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003e&#92;u003ccode&#92;u003eedgartools_cik&#92;u003c/code&#92;u003e is the registrant. One CIK is the investment company.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003e&#92;u003ccode&#92;u003eedgar_company_name&#92;u003c/code&#92;u003e is that registrant&#x27;s name.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003e&#92;u003ccode&#92;u003eedgartools_series_id&#92;u003c/code&#92;u003e is the series inside the registrant.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003e&#92;u003ccode&#92;u003eedgar_series_name&#92;u003c/code&#92;u003e is that series name.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003e&#92;u003ccode&#92;u003eedgartools_class_id&#92;u003c/code&#92;u003e is the share class inside the series.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003e&#92;u003ccode&#92;u003eedgar_class_name&#92;u003c/code&#92;u003e is that share class name.&#92;u003c/li&#92;u003e&#92;n&#92;u003c/ul&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eThe CIK, series, and share class fields come from the ISIN&#x27;s EDGAR row. They are empty when the ISIN does not match.&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;info&quot;'></marimo-callout-output>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Vxnm",
+      "code_hash": "9bfe2f4c5f411c75e2d7996f8a04d71b",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-callout-output data-html='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003e&#92;u003cstrong&#92;u003eSome records have no EDGAR match and will not be enriched.&#92;u003c/strong&#92;u003e&#92;u003c/span&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eFunds with no match are saved in &#92;u003ccode&#92;u003eoutput-data/v2-no-matching-EDGAR.xlsx&#92;u003c/code&#92;u003e.&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;warn&quot;'></marimo-callout-output>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "DnEU",
+      "code_hash": "4d0781bcdb340b7828e15ed6cfca766c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='DnEU-0' random-id='00a75743-4db0-5690-1705-0709e12d902f'><marimo-button data-initial-value='0' data-label='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eMatch EDGAR identifiers&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;neutral&quot;' data-disabled='true' data-tooltip='&quot;Verify ISINs with OpenFIGI first&quot;' data-full-width='false'></marimo-button></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ulZA",
+      "code_hash": "b63696ef329419a6a680ab7067a826d9",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ecfG",
+      "code_hash": "551371939b73c04dad9d76e8e4f9997a",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Verify ISINs with OpenFIGI first. This step reads <code>funds_openfigi</code>.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Pvdt",
+      "code_hash": "c170452de6c7551f77b1cdce6c417578",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-callout-output data-html='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003ch3 id=&#92;&quot;6-verify-if-some-funds-belong-to-the-same-series&#92;&quot;&#92;u003e6. Verify if some funds belong to the same series&#92;u003c/h3&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eFunds are filed in EDGAR as a registrant (CIK), then a series, then a share class. One CIK is the investment company. It can offer several series, and each series can offer several share classes of the same portfolio.&#92;u003c/span&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eThe selected funds are all supposed to be primary share classes: the main share class among many. Therefore we don&#x27;t expect to see rows in our table that belong to the same CIK and series.&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;info&quot;'></marimo-callout-output>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ZBYS",
+      "code_hash": "0690ecc82486a26cd9eb1283a448432a",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "aLJB",
+      "code_hash": "4145e5802bd250e2ddc99e1f94aea348",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Match EDGAR identifiers first. This step reads <code>funds_edgar</code>.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "nHfw",
+      "code_hash": "ae47a18a40697b5845f344392fb969c3",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-callout-output data-html='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003e&#92;u003cstrong&#92;u003eSome records have no EDGAR share class id.&#92;u003c/strong&#92;u003e&#92;u003c/span&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eThose funds are saved in &#92;u003ccode&#92;u003eoutput-data/v2-no-matching-EDGAR_SHARE_CLASS.xlsx&#92;u003c/code&#92;u003e.&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;warn&quot;'></marimo-callout-output>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "xXTn",
+      "code_hash": "ecc8c049a9dc565fcbda127c0d5bf95d",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-callout-output data-html='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003e&#92;u003cstrong&#92;u003eSome records share classes belonging to the same fund series.&#92;u003c/strong&#92;u003e&#92;u003c/span&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eThose funds are saved in &#92;u003ccode&#92;u003eoutput-data/v2-common-fund-series.xlsx&#92;u003c/code&#92;u003e.&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;warn&quot;'></marimo-callout-output>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "AjVT",
+      "code_hash": "efb4545a7376bc288dac886d8c74ebad",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='AjVT-0' random-id='b192cc2b-4339-a0b1-357a-6fd5d050ebd7'><marimo-button data-initial-value='0' data-label='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eSave series workbooks&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;neutral&quot;' data-disabled='true' data-tooltip='&quot;Match EDGAR identifiers first&quot;' data-full-width='false'></marimo-button></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "pHFh",
+      "code_hash": "189e3495cd8be7f3e78c9e787f912e8f",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "NCOB",
+      "code_hash": "bdb8f7165634b7998694ff903aeb720c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Match EDGAR identifiers first.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "aqbW",
+      "code_hash": "a086f61dd6040412cdd497ce64cc6b1e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-callout-output data-html='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003ch3 id=&#92;&quot;7-verify-fund-type-active-vs-passive&#92;&quot;&#92;u003e7. Verify fund type (active vs passive)&#92;u003c/h3&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eEach fund is classified at the EDGAR series: one registrant (CIK) and one series id. Share classes of that series receive the same label. The label is Passive, Active, Other, or Unknown. The first source that decides wins.&#92;u003c/span&#92;u003e&#92;n&#92;u003col&#92;u003e&#92;n&#92;u003cli&#92;u003eThe latest N-CEN filing for the CIK. The questionnaire for &#92;u003ccode&#92;u003eedgartools_series_id&#92;u003c/code&#92;u003e is read from the filing XML.&#92;u003cul&#92;u003e&#92;n&#92;u003cli&#92;u003e&#92;u003ccode&#92;u003eindexFundInfo&#92;u003c/code&#92;u003e with fund type Index Fund means Passive. That block is the SEC census flag that the series tracks an index.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003eA fund type of Target Date Fund, Fund of Funds, or Interval Fund, with no &#92;u003ccode&#92;u003eindexFundInfo&#92;u003c/code&#92;u003e, means Other.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003eAnother fund type, including Exchange-Traded Fund, with no &#92;u003ccode&#92;u003eindexFundInfo&#92;u003c/code&#92;u003e, means Active. An ETF is a wrapper. The SEC adds &#92;u003ccode&#92;u003eindexFundInfo&#92;u003c/code&#92;u003e when that series is an index fund.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003eA fund type of N/A, or a series id absent from that filing, moves to the next source.&#92;u003c/li&#92;u003e&#92;n&#92;u003c/ul&#92;u003e&#92;n&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003eWhen N-CEN does not decide, Jev (&#92;u003ccode&#92;u003ejev-latest&#92;u003c/code&#92;u003e) reads the prospectus and chooses Passive, Active, or Other.&#92;u003cul&#92;u003e&#92;n&#92;u003cli&#92;u003eThe text is the whole 497K investment objective for that series.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003eWhen the 497K has no objective, the text is the investment-objective section and the principal-strategy section of the latest 485BPOS or 485APOS. The table of contents is left out.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003ePassive means the fund&#x27;s job is to track, match, or approximate an index.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003eActive means a manager selects securities. An index named only as a comparison, or as a list of stocks the manager may buy, does not make the fund passive.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003eOther means a target-date fund, a fund of funds, or an interval fund.&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003eA choice with confidence below 0.60 stays Unknown.&#92;u003c/li&#92;u003e&#92;n&#92;u003c/ul&#92;u003e&#92;n&#92;u003c/li&#92;u003e&#92;n&#92;u003cli&#92;u003eA row with no CIK or no series id is Unknown and is not sent to EDGAR. A series with no prospectus text is Unknown and is not sent to Jev.&#92;u003c/li&#92;u003e&#92;n&#92;u003c/ol&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eThe parsed N-CEN field &#92;u003ccode&#92;u003efund_type&#92;u003c/code&#92;u003e is left unused: edgartools copies a single &#92;u003ccode&#92;u003efundType&#92;u003c/code&#92;u003e tag and drops &#92;u003ccode&#92;u003eindexFundInfo&#92;u003c/code&#92;u003e. Portfolio turnover and the word Index in the fund name are left unused.&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;info&quot;'></marimo-callout-output>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "TRpd",
+      "code_hash": "f7d3b3cb79c406f500e49817c1e93d55",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-callout-output data-html='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003e&#92;u003cstrong&#92;u003eSome funds have an invalidated fund type.&#92;u003c/strong&#92;u003e&#92;u003c/span&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eFunds whose sheet fund type does not match the classified fund type are saved in &#92;u003ccode&#92;u003eoutput-data/v2-fund-type-mismatch.xlsx&#92;u003c/code&#92;u003e.&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;warn&quot;'></marimo-callout-output>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "TXez",
+      "code_hash": "01dae025d77c8c3ed449dc45ff875e21",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='TXez-0' random-id='af68e08a-afa8-7685-ab5f-936f790b60a0'><marimo-button data-initial-value='0' data-label='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eClassify fund type&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;neutral&quot;' data-disabled='true' data-tooltip='&quot;Match EDGAR identifiers first&quot;' data-full-width='false'></marimo-button></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "dNNg",
+      "code_hash": "efb698d405ccbec6baf7d9d313a8c9b7",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "yCnT",
+      "code_hash": "680e48cd62c5cc88aef7b2195bb995e1",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Match EDGAR identifiers first. This step reads <code>funds_edgar</code>.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "wlCL",
+      "code_hash": "8129054d3bf3ab70cbc6a6939dba9b54",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-callout-output data-html='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003ch3 id=&#92;&quot;8-verify-if-there-is-a-time-series&#92;&quot;&#92;u003e8. Verify if there is a time series&#92;u003c/h3&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eLoad the &#92;u003cstrong&#92;u003eD-Timeseries&#92;u003c/strong&#92;u003e sheet of the same workbook. The first rows are labels, not a column header. A daily total return series is a column whose note is &#92;u003ccode&#92;u003eTotal return index, daily&#92;u003c/code&#92;u003e and that has at least one value.&#92;u003c/span&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eEach selected fund is matched on ISIN. The Datastream name on that column is then checked against the fund. The sheet name is used first. When that name does not confirm the series, the OpenFIGI name is used, then the EDGAR name. A shortened Datastream name still counts as the same fund. A different word, such as Value versus Equity, does not.&#92;u003c/span&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003e&#92;u003ccode&#92;u003ehas_daily_total_return&#92;u003c/code&#92;u003e is true when the series exists. &#92;u003ccode&#92;u003edaily_tr_observations&#92;u003c/code&#92;u003e is the number of daily points. &#92;u003ccode&#92;u003edaily_tr_name&#92;u003c/code&#92;u003e is the Datastream name. &#92;u003ccode&#92;u003edaily_tr_name_match&#92;u003c/code&#92;u003e is true when one of the three names confirms it, and &#92;u003ccode&#92;u003edaily_tr_name_source&#92;u003c/code&#92;u003e is the name that did.&#92;u003c/span&#92;u003e&#92;n&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eFunds with no series are written to &#92;u003ccode&#92;u003eoutput-data/v2-no-daily-total-return.xlsx&#92;u003c/code&#92;u003e. Funds whose series name does not match are written to &#92;u003ccode&#92;u003eoutput-data/v2-no-matching-D-TIMESERIES-NAME.xlsx&#92;u003c/code&#92;u003e.&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;info&quot;'></marimo-callout-output>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "kqZH",
+      "code_hash": "d8b1bff4b062d1905c5703e5a02d27e1",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='kqZH-0' random-id='80b02229-d78a-5714-654d-af071d252dde'><marimo-button data-initial-value='0' data-label='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eMatch daily total return&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-kind='&quot;neutral&quot;' data-disabled='true' data-tooltip='&quot;Classify fund type first&quot;' data-full-width='false'></marimo-button></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "wAgl",
+      "code_hash": "6957ce60a5f4c339f8922f54fb856997",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "rEll",
+      "code_hash": "cf6f2a15dd4cdea451137183bc2388d8",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Classify fund type first. This step reads <code>funds_classified</code>.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    }
+  ]
+}

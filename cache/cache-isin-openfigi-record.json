@@ -1,0 +1,3005 @@
+{
+  "US3499031793": {
+    "ticker": "AUXFX",
+    "name": "AUXIER FOCUS FUND-INV",
+    "figi": "BBG000HJ2211"
+  },
+  "US3998748749": {
+    "ticker": "RGAAX",
+    "name": "AMER FND GRW FD OF AM-R1",
+    "figi": "BBG000BW9FT2"
+  },
+  "US74253Q7887": {
+    "ticker": "PLFIX",
+    "name": "PRINCIPAL L/C S&P 500-IS",
+    "figi": "BBG000C0RC90"
+  },
+  "US3159114202": {
+    "ticker": "FLAHX",
+    "name": "FIDELITY ADV LRG CAP STK-M",
+    "figi": "BBG01S306DN3"
+  },
+  "US25434D8231": {
+    "ticker": "DFUSX",
+    "name": "DFA US LRG COMP PORT-INST",
+    "figi": "BBG000BSYK94"
+  },
+  "US5434872199": {
+    "ticker": "LGRCX",
+    "name": "LOOMIS SAYLES GROWTH-C",
+    "figi": "BBG000BN8DZ1"
+  },
+  "US9220401007": {
+    "ticker": "VINIX",
+    "name": "VANGUARD INST INDEX-INST",
+    "figi": "BBG000BBVG11"
+  },
+  "US3998747915": {
+    "ticker": "RGEBX",
+    "name": "AMER FND GRW FD OF AM-R2E",
+    "figi": "BBG006XPK822"
+  },
+  "US4613088016": {
+    "ticker": "CICEX",
+    "name": "AMER FND INV CO OF AM-529E",
+    "figi": "BBG000BL6LD3"
+  },
+  "US34984T4105": {
+    "ticker": "AUXIX",
+    "name": "AUXIER FOCUS FUND-INST",
+    "figi": "BBG0049FL4B4"
+  },
+  "US3608023004": {
+    "ticker": "AFICX",
+    "name": "AMER FND FNDMNTL INVST-C",
+    "figi": "BBG000BWS121"
+  },
+  "US87245M1457": {
+    "ticker": "TISAX",
+    "name": "NUVEEN S&P 500 INDEX-I",
+    "figi": "BBG00BGZ8528"
+  },
+  "US8162211051": {
+    "ticker": "SLASX",
+    "name": "SELECTED AMERICAN SHARES-S",
+    "figi": "BBG000BCHWB9"
+  },
+  "US78413L6965": {
+    "ticker": "SDYAX",
+    "name": "SIMT DYNAMIC ASSET ALLOC-F",
+    "figi": "BBG009QNDYG5"
+  },
+  "US34984Y5592": {
+    "ticker": "SSHVX",
+    "name": "SOUND SHORE FUND INC-INST",
+    "figi": "BBG025P72KM2"
+  },
+  "US3998748335": {
+    "ticker": "RGAFX",
+    "name": "AMER FND GRW FD OF AM-R5",
+    "figi": "BBG000BW9HY2"
+  },
+  "US0669235337": {
+    "ticker": "BSPSX",
+    "name": "ISHARES S&P 500 INDEX-SRV",
+    "figi": "BBG0039FYZY8"
+  },
+  "US4613088271": {
+    "ticker": "ICAFX",
+    "name": "AMER FND INV CO OF AM-F2",
+    "figi": "BBG000N015T9"
+  },
+  "US0155653514": {
+    "ticker": "AGIZX",
+    "name": "ALGER GROWTH & INCOME-Z",
+    "figi": "BBG002DS7Y70"
+  },
+  "US00142J5864": {
+    "ticker": "SPIDX",
+    "name": "INVESCO S&P 500 INDEX-Y",
+    "figi": "BBG000C18NW9"
+  },
+  "US56065F3165": {
+    "ticker": "FCUIX",
+    "name": "NYLIM PINESTONE US EQTY-I",
+    "figi": "BBG01J3RYCB8"
+  },
+  "US0682787611": {
+    "ticker": "BDAIX",
+    "name": "BARON DURABLE ADVANTAGE-INST",
+    "figi": "BBG00JM9SSQ4"
+  },
+  "US47103E3045": {
+    "ticker": "JACNX",
+    "name": "JANUS HNDRSN CONTARIAN-D",
+    "figi": "BBG000W883P4"
+  },
+  "US5730128049": {
+    "ticker": "MIFOX",
+    "name": "MARSICO FOCUS FUND-INST",
+    "figi": "BBG0139T1454"
+  },
+  "US6412246059": {
+    "ticker": "NBSRX",
+    "name": "NEUBERGER QUALITY EQUITY FUN",
+    "figi": "BBG000BFYJH6"
+  },
+  "US0276818657": {
+    "ticker": "RMFBX",
+    "name": "AMER FNDS MUTUAL FND-R2",
+    "figi": "BBG000BVZXC4"
+  },
+  "US3608028623": {
+    "ticker": "RFNBX",
+    "name": "AMER FND FNDMNTL INVST-R2",
+    "figi": "BBG000BW1H34"
+  },
+  "US4791648656": null,
+  "US5529813918": {
+    "ticker": "MFRKX",
+    "name": "MFS RESEARCH FUND-R6",
+    "figi": "BBG000C3MTW6"
+  },
+  "US45407J3005": {
+    "ticker": "INDEX",
+    "name": "CYBER HORNET S&P 500-NO LOAD",
+    "figi": "BBG0083671W0"
+  },
+  "US3538258886": {
+    "ticker": "FRISX",
+    "name": "FRANKLIN RISING DIVIDEND-R6",
+    "figi": "BBG004QJCNV3"
+  },
+  "US3160667867": {
+    "ticker": "FMAMX",
+    "name": "FIDELITY STOCK SELECTOR-A",
+    "figi": "BBG003M571X1"
+  },
+  "US19766P6943": {
+    "ticker": "CLEYX",
+    "name": "COLUMBIA CORNERSTONE EQ-I3",
+    "figi": "BBG00G723ST6"
+  },
+  "US4166456792": {
+    "ticker": "HAIAX",
+    "name": "HARTFORD CORE EQUITY-A",
+    "figi": "BBG000BV9Z10"
+  },
+  "US4613088438": {
+    "ticker": "RICEX",
+    "name": "AMER FND INV CO OF AM-R4",
+    "figi": "BBG000BTBNP3"
+  },
+  "US19766B5131": {
+    "ticker": "CLCRX",
+    "name": "COLUMBIA CORNERSTONE EQ-I2",
+    "figi": "BBG003BW0BD1"
+  },
+  "US5529817067": {
+    "ticker": "MRFIX",
+    "name": "MFS RESEARCH FUND-I",
+    "figi": "BBG000BQH5J9"
+  },
+  "US1011564044": {
+    "ticker": "BTEFX",
+    "name": "BOSTON TRUST EQUITY FUND",
+    "figi": "BBG000BT6JY8"
+  },
+  "US18143P1049": {
+    "ticker": "TARKX",
+    "name": "TARKIO FUND",
+    "figi": "BBG0035HFBV5"
+  },
+  "US9393308179": {
+    "ticker": "RWMGX",
+    "name": "AMER FND WASH MUT INV-R6",
+    "figi": "BBG000GPNCV0"
+  },
+  "US01878T8484": {
+    "ticker": "WPSGX",
+    "name": "AB CONCENTRATED GROWTH-ADV",
+    "figi": "BBG000BXDDM7"
+  },
+  "US6412246547": {
+    "ticker": "NBSLX",
+    "name": "NEUBE QUALITY EQUITY FUND-IN",
+    "figi": "BBG000QHSMC1"
+  },
+  "US3998748178": {
+    "ticker": "RGAGX",
+    "name": "AMER FND GRW FD OF AM-R6",
+    "figi": "BBG000C6QX65"
+  },
+  "US4812A11420": {
+    "ticker": "JMUEX",
+    "name": "JPMORGAN US EQUITY-L",
+    "figi": "BBG000BM51S0"
+  },
+  "US5434888450": {
+    "ticker": "LGRNX",
+    "name": "LOOMIS SAYLES GROWTH-N2",
+    "figi": "BBG0042MQWT0"
+  },
+  "US40171W6295": {
+    "ticker": "GEQYX",
+    "name": "GUIDESTONE EQUITY INDEX-GS2",
+    "figi": "BBG000CH6F44"
+  },
+  "US9393304038": {
+    "ticker": "WSHFX",
+    "name": "AMER FND WASH MUT INV-F1",
+    "figi": "BBG000BVBND1"
+  },
+  "US7468028839": {
+    "ticker": "PNRAX",
+    "name": "PUTNAM US RESEARCH FND-A USD",
+    "figi": "BBG000C087P4"
+  },
+  "US63872R8482": {
+    "ticker": "NESYX",
+    "name": "NATIXIS US EQTY OPPORT-Y",
+    "figi": "BBG000BMB899"
+  },
+  "US5574922879": {
+    "ticker": "MIVIX",
+    "name": "MADISON LARGE CAP FUND-I",
+    "figi": "BBG00X7L19B0"
+  },
+  "US74441J6881": {
+    "ticker": "PTMQX",
+    "name": "PGIM QUANT SOL L/C COR-R6",
+    "figi": "BBG00FP2WDY3"
+  },
+  "US00141B7588": {
+    "ticker": "OMSYX",
+    "name": "INVESCO MAIN ST ALL CAP-A",
+    "figi": "BBG00P3CY701"
+  },
+  "US52469H7199": {
+    "ticker": "SBSDX",
+    "name": "FRANK S&P 500 INDEX FUND - D",
+    "figi": "BBG000DLJJ33"
+  },
+  "US3163892041": {
+    "ticker": "FGRIX",
+    "name": "FIDELITY GRWTH & INC PORT",
+    "figi": "BBG000BBWV99"
+  },
+  "US56063J1795": {
+    "ticker": "MSXAX",
+    "name": "NYLIM S&P 500 INDEX-A",
+    "figi": "BBG000BTNYJ3"
+  },
+  "US52468E4026": {
+    "ticker": "SAPYX",
+    "name": "CLEARBRIDGE APPRECIATION-I",
+    "figi": "BBG000BRGYD1"
+  },
+  "US25159R2058": {
+    "ticker": "BTIEX",
+    "name": "DWS EQUITY 500 INDEX-S",
+    "figi": "BBG000BMNYH0"
+  },
+  "US36240H3049": {
+    "ticker": "GVCCX",
+    "name": "GABELLI VALUE 25-C",
+    "figi": "BBG000BWQHY3"
+  },
+  "US0276813039": {
+    "ticker": "AMFCX",
+    "name": "AMER FNDS MUTUAL FND-C",
+    "figi": "BBG000BWTY28"
+  },
+  "US85749T7569": {
+    "ticker": "SSEYX",
+    "name": "STATE ST EQ 500 INDX PORT II",
+    "figi": "BBG006T5WHK8"
+  },
+  "US7839808240": {
+    "ticker": "SCPAX",
+    "name": "SIIT LARGE CAP DISC EQ-A",
+    "figi": "BBG000RFDBV3"
+  },
+  "US45890C7395": {
+    "ticker": "IGIUX",
+    "name": "INTGRTY GRWTH & INCOME FND-C",
+    "figi": "BBG009PNWW24"
+  },
+  "US3160664062": {
+    "ticker": "FTQGX",
+    "name": "FIDELITY FOCUSED STOCK FUND",
+    "figi": "BBG000BGXPN4"
+  },
+  "US0276815018": {
+    "ticker": "CMLAX",
+    "name": "AMER FNDS MUTUAL FND-529A",
+    "figi": "BBG000BP4BG5"
+  },
+  "US2390804019": {
+    "ticker": "DNVYX",
+    "name": "DAVIS NEW YORK VENTURE-Y",
+    "figi": "BBG000BPWVK5"
+  },
+  "US72200Q7299": {
+    "ticker": "PSPRX",
+    "name": "PIMCO STKS+BND ALPHA FND-RUI",
+    "figi": "BBG000NHJ087"
+  },
+  "US7839806269": {
+    "ticker": "SPINX",
+    "name": "SIIT S&P 500 INDEX FUND-A",
+    "figi": "BBG005K4S364"
+  },
+  "US00770G5163": {
+    "ticker": "STFGX",
+    "name": "STATE FARM GROWTH FUND",
+    "figi": "BBG012BD5QC7"
+  },
+  "US56065F2829": {
+    "ticker": "FCUPX",
+    "name": "NYLIM PINESTONE US EQTY-P",
+    "figi": "BBG01GY6BFZ8"
+  },
+  "US3161841008": {
+    "ticker": "FMAGX",
+    "name": "FIDELITY MAGELLAN FUND",
+    "figi": "BBG000BBR8B3"
+  },
+  "US74160Q1031": {
+    "ticker": "POGRX",
+    "name": "PRIMECAP ODYSSEY GROWTH",
+    "figi": "BBG000QPWGX8"
+  },
+  "US0079898096": {
+    "ticker": "CHASX",
+    "name": "CHASE GROWTH FUND-N",
+    "figi": "BBG000C081K2"
+  },
+  "US52468E6005": {
+    "ticker": "LMPIX",
+    "name": "CLEARBRIDGE APPRECIATION-FI",
+    "figi": "BBG000C49267"
+  },
+  "US62827M5168": {
+    "ticker": "CPEIX",
+    "name": "CATALYST DYNAMIC ALPHA-I",
+    "figi": "BBG006LH5JP1"
+  },
+  "US01879K1016": {
+    "ticker": "ADGAX",
+    "name": "AB CORE OPPORTUNITIES-A",
+    "figi": "BBG000F9Z2Z2"
+  },
+  "US4613741002": {
+    "ticker": "TIHGX",
+    "name": "INVESTMENT HOUSE GROWTH",
+    "figi": "BBG000PM8D06"
+  },
+  "US63867V1926": {
+    "ticker": "NGISX",
+    "name": "NTNWD BNYM DYM US-INST SRV",
+    "figi": "BBG00284SRW3"
+  },
+  "US6412241423": {
+    "ticker": "NRARX",
+    "name": "NEUBE QUALITY EQUITY FUND-R3",
+    "figi": "BBG000RGLKM2"
+  },
+  "US63872T5130": {
+    "ticker": "VNSAX",
+    "name": "VAUGHAN NELSON SELECT-A",
+    "figi": "BBG0034YLX62"
+  },
+  "US63867U2933": {
+    "ticker": "GRMSX",
+    "name": "NATIONWD S&P 500 INX-SRV",
+    "figi": "BBG000BXFDH1"
+  },
+  "US0263934053": {
+    "ticker": "AMRCX",
+    "name": "AMERICAN GROWTH-SER 1-C",
+    "figi": "BBG000BH80J0"
+  },
+  "US38150B1860": {
+    "ticker": "GSEPX",
+    "name": "GLDMN SCHS US EQTY INSG-P",
+    "figi": "BBG00KK4LV84"
+  },
+  "US25159R8741": {
+    "ticker": "SCPIX",
+    "name": "DWS S&P 500 INDEX-S",
+    "figi": "BBG000BXQLP2"
+  },
+  "US63867R2417": {
+    "ticker": "GGFRX",
+    "name": "NTNWD BNYM DYM US-R",
+    "figi": "BBG000BRCY63"
+  },
+  "US38141W6205": {
+    "ticker": "GSSQX",
+    "name": "GLDMN SCHS US EQTY INSG-A",
+    "figi": "BBG000BFT3N0"
+  },
+  "US3160718694": {
+    "ticker": "FZANX",
+    "name": "FIDELITY ADV NW INSGHTS-Z",
+    "figi": "BBG004WFY415"
+  },
+  "US93208V3042": {
+    "ticker": "EWMCX",
+    "name": "EVERCORE EQUITY FUND",
+    "figi": "BBG000BC1865"
+  },
+  "US5529884125": {
+    "ticker": "UIVMX",
+    "name": "MFS INTRINSIC EQUITY FUND-R1",
+    "figi": "BBG01587G3X3"
+  },
+  "US31617F8749": {
+    "ticker": "FFDKX",
+    "name": "FIDELITY FUND-K",
+    "figi": "BBG000LH2SY7"
+  },
+  "US5534221065": {
+    "ticker": "DRIPX",
+    "name": "MP 63 FUND",
+    "figi": "BBG000BTMFV1"
+  },
+  "US56062F2699": {
+    "ticker": "MGOCX",
+    "name": "NYLIM WMC ENDURING CAP-C",
+    "figi": "BBG000F96462"
+  },
+  "US56063J1613": {
+    "ticker": "MSPIX",
+    "name": "NYLIM S&P 500 INDEX-I",
+    "figi": "BBG000BFM4X4"
+  },
+  "US64122Q1682": {
+    "ticker": "NRAEX",
+    "name": "NEUBER QUALITY EQUITY FUND-E",
+    "figi": "BBG01H8YHDH3"
+  },
+  "US00141A1319": {
+    "ticker": "SPISX",
+    "name": "INVESCO S&P 500 INDEX-R6",
+    "figi": "BBG00GFPXJ86"
+  },
+  "US47803N5547": {
+    "ticker": "JLCNX",
+    "name": "JH FNDMNTL LRG CAP CORE-NAV",
+    "figi": "BBG00MDXNPP6"
+  },
+  "US4812A11677": {
+    "ticker": "JUECX",
+    "name": "JPMORGAN US EQUITY-C",
+    "figi": "BBG000BWMHL1"
+  },
+  "US04045F4366": {
+    "ticker": "ARILX",
+    "name": "ARISTOTLE CORE EQUITY-I",
+    "figi": "BBG01FM975N7"
+  },
+  "US74253Q7960": {
+    "ticker": "PSPJX",
+    "name": "PRINCIPAL L/C S&P 500-J",
+    "figi": "BBG000C0RW87"
+  },
+  "US63872R8557": {
+    "ticker": "NECCX",
+    "name": "NATIXIS US EQTY OPPORT-C",
+    "figi": "BBG000BKPCS8"
+  },
+  "US38145N6426": {
+    "ticker": "GSUTX",
+    "name": "GLDMN SCHS US EQTY INSG-INV",
+    "figi": "BBG000C58JR5"
+  },
+  "US04537W2026": {
+    "ticker": "REDWX",
+    "name": "GREENFI REDWOOD FUND",
+    "figi": "BBG009L21F70"
+  },
+  "US61766J8311": {
+    "ticker": "MUOAX",
+    "name": "MSIF US CORE PORTFOLIO-A",
+    "figi": "BBG00CG84PZ0"
+  },
+  "US2586208223": {
+    "ticker": "DSEEX",
+    "name": "DOUBLELINE SHL ENH CAPE-I",
+    "figi": "BBG005CM15W8"
+  },
+  "US60934G8024": {
+    "ticker": "MONTX",
+    "name": "MONETTA FUND INC",
+    "figi": "BBG000BCQ1F3"
+  },
+  "US4377696079": {
+    "ticker": "HSTIX",
+    "name": "HOMESTEAD STOCK INDEX",
+    "figi": "BBG000BSYLV7"
+  },
+  "US41013P1030": {
+    "ticker": "TAGRX",
+    "name": "JH FNDMNTL LRG CAP CORE-A",
+    "figi": "BBG000BBD999"
+  },
+  "US7429354068": {
+    "ticker": "OSTFX",
+    "name": "OSTERWEIS FUND-INV",
+    "figi": "BBG000BWPPC0"
+  },
+  "US3160667941": {
+    "ticker": "FSJHX",
+    "name": "FIDELITY STOCK SELECTOR-M",
+    "figi": "BBG003M57CV9"
+  },
+  "US74160Q3011": {
+    "ticker": "POSKX",
+    "name": "PRIMECAP ODYSSEY STOCK",
+    "figi": "BBG000QPWH66"
+  },
+  "US4613081086": {
+    "ticker": "AIVSX",
+    "name": "AMER FND INV CO OF AM-A",
+    "figi": "BBG000BBRQG8"
+  },
+  "US9229081081": {
+    "ticker": "VFINX",
+    "name": "VANGUARD 500 INDEX-INV",
+    "figi": "BBG000BHTMY2"
+  },
+  "US78250G3395": {
+    "ticker": "RTMTX",
+    "name": "RUSSELL TAX-MGD US L/C-M",
+    "figi": "BBG00GP27L71"
+  },
+  "US3161273079": {
+    "ticker": "FDTOX",
+    "name": "FIDELITY ADV DIVER STOCK-A",
+    "figi": "BBG000BNR4C5"
+  },
+  "US0233751082": {
+    "ticker": "AMCPX",
+    "name": "AMCAP FUND-A",
+    "figi": "BBG000BBZGS8"
+  },
+  "US92646A2520": {
+    "ticker": "MUXAX",
+    "name": "VICTORY S&P 500 INDEX-A",
+    "figi": "BBG000BNFL30"
+  },
+  "US7468024879": {
+    "ticker": "PURYX",
+    "name": "PUTNAM US RESEARCH FND-Y USD",
+    "figi": "BBG000FG36Q2"
+  },
+  "US00141B6838": {
+    "ticker": "MIGYX",
+    "name": "INVESCO MAIN STREET-Y",
+    "figi": "BBG00P3CY7S1"
+  },
+  "US8874326072": {
+    "ticker": "TLVAX",
+    "name": "TIMOTHY PL LRG/MD CAP VL-A",
+    "figi": "BBG000P3X8G4"
+  },
+  "US3998744037": {
+    "ticker": "GFAFX",
+    "name": "AMER FND GRW FD OF AM-F1",
+    "figi": "BBG000BWTDR7"
+  },
+  "US90267D5894": {
+    "ticker": "DVRUX",
+    "name": "UBS US DIVIDEND RULER-P",
+    "figi": "BBG00VY20115"
+  },
+  "US9393308419": {
+    "ticker": "RWMEX",
+    "name": "AMER FND WASH MUT INV-R4",
+    "figi": "BBG000BSX2M0"
+  },
+  "US9441741017": {
+    "ticker": "WAYFX",
+    "name": "WAYCROSS FOCUSED CORE EQ",
+    "figi": "BBG00XNQGCR1"
+  },
+  "US74316P6521": {
+    "ticker": "BRGIX",
+    "name": "BRIDGES INVESTMENT FUND-I",
+    "figi": "BBG01C991LN0"
+  },
+  "US19765H3396": {
+    "ticker": "NEIAX",
+    "name": "COLUMBIA LARGE CAP INDEX-A",
+    "figi": "BBG000BPX807"
+  },
+  "US9219362095": {
+    "ticker": "VPMAX",
+    "name": "VANGUARD PRIMECAP FUND-ADM",
+    "figi": "BBG000BTRSY5"
+  },
+  "US00774Q8740": {
+    "ticker": "GQEPX",
+    "name": "GQG PRTRS US SEL EQTY-INV",
+    "figi": "BBG00M37VZY3"
+  },
+  "US2586208140": {
+    "ticker": "DSENX",
+    "name": "DOUBLELINE SHL ENH CAPE-N",
+    "figi": "BBG005CM1B28"
+  },
+  "US4660001631": {
+    "ticker": "ICIEX",
+    "name": "NOMURA CORE EQUITY FUND-INST",
+    "figi": "BBG000C4SWX0"
+  },
+  "US62827Q6089": {
+    "ticker": "ETLIX",
+    "name": "EVENTIDE LARGE CAP FOCUS-I",
+    "figi": "BBG0175W8PC0"
+  },
+  "US3620082293": {
+    "ticker": "GQLOX",
+    "name": "GMO QUALITY FUND-VI",
+    "figi": "BBG000RF6G86"
+  },
+  "US0233758434": {
+    "ticker": "RAFEX",
+    "name": "AMCAP FUND-R4",
+    "figi": "BBG000BVZ7B2"
+  },
+  "US5434871100": {
+    "ticker": "LSGRX",
+    "name": "LOOMIS SAYLES GROWTH-Y",
+    "figi": "BBG000BHV6T0"
+  },
+  "US3620141776": {
+    "ticker": "GQESX",
+    "name": "GMO QUALITY FUND-R6",
+    "figi": "BBG00PP0R4D4"
+  },
+  "US5574924933": {
+    "ticker": "MINVX",
+    "name": "MADISON LARGE CAP FUND-Y",
+    "figi": "BBG000BX1PY0"
+  },
+  "US4613088198": {
+    "ticker": "RICGX",
+    "name": "AMER FND INV CO OF AM-R6",
+    "figi": "BBG000GPK1N6"
+  },
+  "US6537351008": {
+    "ticker": "NICSX",
+    "name": "NICHOLAS FUND INC",
+    "figi": "BBG000BCBMV5"
+  },
+  "US7839806830": {
+    "ticker": "SDLAX",
+    "name": "SIIT DYNAMIC ASSET ALL-A",
+    "figi": "BBG000BGC659"
+  },
+  "US9393305027": {
+    "ticker": "CWMAX",
+    "name": "AMER FND WASH MUT INV-529A",
+    "figi": "BBG000BL3VJ8"
+  },
+  "US63872R8714": {
+    "ticker": "NEFSX",
+    "name": "NATIXIS US EQTY OPPORT-A",
+    "figi": "BBG000BKQLC4"
+  },
+  "US01877E2972": {
+    "ticker": "AUUYX",
+    "name": "AB SELECT US EQUITY-ADV",
+    "figi": "BBG0029YFS12"
+  },
+  "US02507M7092": {
+    "ticker": "BEQAX",
+    "name": "AMER CENT DIS CRE EQTY FND-A",
+    "figi": "BBG000BQZ4D8"
+  },
+  "US8085098064": {
+    "ticker": "SWANX",
+    "name": "SCHWAB CORE EQUITY",
+    "figi": "BBG000GZKWP4"
+  },
+  "US2779027224": {
+    "ticker": "EILGX",
+    "name": "ETN VAN-ATL CAP FOC GRW-I",
+    "figi": "BBG000CG8H59"
+  },
+  "US5529883960": {
+    "ticker": "UIVNX",
+    "name": "MFS INTRINSIC EQUITY FUND-R2",
+    "figi": "BBG01587G4B5"
+  },
+  "US0669231948": {
+    "ticker": "BSPGX",
+    "name": "ISHARES S&P 500 INDEX-G",
+    "figi": "BBG00PNF6874"
+  },
+  "US3998743047": {
+    "ticker": "GFACX",
+    "name": "AMER FND GRW FD OF AM-C",
+    "figi": "BBG000BWTDG9"
+  },
+  "US0014134425": {
+    "ticker": "CHRRX",
+    "name": "INVESCO CHARTER FUND-R",
+    "figi": "BBG000BZYXD5"
+  },
+  "US9393308336": {
+    "ticker": "RWMFX",
+    "name": "AMER FND WASH MUT INV-R5",
+    "figi": "BBG000BSX2T3"
+  },
+  "US52469H7272": {
+    "ticker": "SBSPX",
+    "name": "FRANK S&P 500 INDEX FUND - A",
+    "figi": "BBG000C21MJ1"
+  },
+  "US4660001060": {
+    "ticker": "WCEAX",
+    "name": "NOMURA CORE EQUITY FUND-A",
+    "figi": "BBG000BVWW66"
+  },
+  "US38145N6590": {
+    "ticker": "GSURX",
+    "name": "GLDMN SCHS US EQTY INSG-R",
+    "figi": "BBG000C58J68"
+  },
+  "US7839253165": {
+    "ticker": "SSPIX",
+    "name": "SIMT S&P 500 INDEX FUND-F",
+    "figi": "BBG000BXDC21"
+  },
+  "US3499034193": {
+    "ticker": "DFDPX",
+    "name": "DF DENT PREMIER GROWTH",
+    "figi": "BBG000JS6XG1"
+  },
+  "US3161274069": {
+    "ticker": "FDTTX",
+    "name": "FIDELITY ADV CAP DEVELOP-A",
+    "figi": "BBG000BNR4M4"
+  },
+  "US39137E4347": {
+    "ticker": "MXKWX",
+    "name": "EMPOWER S&P 500 INDEX-INST",
+    "figi": "BBG008HKHXB6"
+  },
+  "US55273W6084": {
+    "ticker": "MUECX",
+    "name": "MFS BLEND RSRCH COR EQ-C",
+    "figi": "BBG000M91ZG9"
+  },
+  "US2779025400": {
+    "ticker": "EIFGX",
+    "name": "EATON VANCE FOC GR OPP-I",
+    "figi": "BBG001K7LS86"
+  },
+  "US6706903381": {
+    "ticker": "FLRYX",
+    "name": "NUVEEN LARGE CAP SELECT-I",
+    "figi": "BBG000PN7WF7"
+  },
+  "US7431857041": {
+    "ticker": "BLPIX",
+    "name": "BULL PROFUND-INV",
+    "figi": "BBG000BS27Z9"
+  },
+  "US3160668105": {
+    "ticker": "FLACX",
+    "name": "FIDELITY STOCK SELECTOR-C",
+    "figi": "BBG003M57BV1"
+  },
+  "US63872T1097": {
+    "ticker": "NEFOX",
+    "name": "NATIXIS OAKMARK FUND-A",
+    "figi": "BBG000BMRBQ6"
+  },
+  "US61768B7947": {
+    "ticker": "MSHOX",
+    "name": "MSIF PERMANENCE PORT-C",
+    "figi": "BBG00SMSS350"
+  },
+  "US8874328052": {
+    "ticker": "TLVCX",
+    "name": "TIMOTHY PL LRG/MD CAP VL-C",
+    "figi": "BBG000MPS865"
+  },
+  "US90386H7355": {
+    "ticker": "MRFOX",
+    "name": "MARSHFIELD CONCENTRATED OPP",
+    "figi": "BBG00BS51BX1"
+  },
+  "US7617241036": {
+    "ticker": "RBCGX",
+    "name": "REYNOLDS BLUE CHIP GROWTH",
+    "figi": "BBG000BFVY95"
+  },
+  "US00769G3948": {
+    "ticker": "LVAMX",
+    "name": "LSV US MANAGED VOLATIL-INV",
+    "figi": "BBG006LYLFZ3"
+  },
+  "US74405V1070": {
+    "ticker": "PROVX",
+    "name": "PROVIDENT TRUST STRATEGY",
+    "figi": "BBG000D51M58"
+  },
+  "US2779118304": {
+    "ticker": "ETTGX",
+    "name": "EATON VANCE TAX MGD G 1.1-A",
+    "figi": "BBG000H0YSV7"
+  },
+  "US31678R6760": null,
+  "US10803R8503": {
+    "ticker": "BBTLX",
+    "name": "BRIDGE BLDR TAX MGD LRG CAP",
+    "figi": "BBG016C6D3W2"
+  },
+  "US31617F8178": null,
+  "US14919E8295": {
+    "ticker": "CRQSX",
+    "name": "CATHOLIC RI EQTY INDX-INST",
+    "figi": "BBG013X1DJF1"
+  },
+  "US3624014086": {
+    "ticker": "SRIDX",
+    "name": "GABELLI SRI FUND-I",
+    "figi": "BBG000QYT2Q2"
+  },
+  "US38141W3723": {
+    "ticker": "GSELX",
+    "name": "GLDMN SCHS US EQTY INSG-INST",
+    "figi": "BBG000BJ85W0"
+  },
+  "US9393301067": {
+    "ticker": "AWSHX",
+    "name": "AMER FND WASH MTL INV-A",
+    "figi": "BBG000BBLXP9"
+  },
+  "US3998745026": {
+    "ticker": "CGFAX",
+    "name": "AMER FND GRW FD OF AM-529A",
+    "figi": "BBG000BNRZB7"
+  },
+  "US4166496558": {
+    "ticker": "ITHRX",
+    "name": "HARTFORD CAPITAL APPREC-R3",
+    "figi": "BBG000QBHBL0"
+  },
+  "US3160667115": {
+    "ticker": "FSFJX",
+    "name": "FIDELITY ADV FOCUS STOCK-M",
+    "figi": "BBG01P7B9289"
+  },
+  "US00141B7257": {
+    "ticker": "MSIGX",
+    "name": "INVESCO MAIN STREET-A",
+    "figi": "BBG00P3CY783"
+  },
+  "US9229087104": {
+    "ticker": "VFIAX",
+    "name": "VANGUARD 500 INDEX-ADM",
+    "figi": "BBG000BSRLX3"
+  },
+  "US34984Y5675": {
+    "ticker": "SSHFX",
+    "name": "SOUND SHORE FUND INC-INV",
+    "figi": "BBG025P72KK4"
+  },
+  "US87244W4096": {
+    "ticker": "TIGRX",
+    "name": "NUVEEN CORE EQUITY FUND-R6",
+    "figi": "BBG000CMVJV7"
+  },
+  "US89360T1521": {
+    "ticker": "TLACX",
+    "name": "TRANSAMERICA LRG CORE ESG-A",
+    "figi": "BBG01CC960L9"
+  },
+  "US02507M6003": {
+    "ticker": "BEQGX",
+    "name": "AMER CENT DIS CRE EQT FD-INV",
+    "figi": "BBG000BFV650"
+  },
+  "US56062X7167": {
+    "ticker": "MSOIX",
+    "name": "NYLIM WMC ENDURING CAP-I",
+    "figi": "BBG000HHL7T3"
+  },
+  "US00777X5959": {
+    "ticker": "MVISX",
+    "name": "PATIENT OPPORTUNITY TR-IS",
+    "figi": "BBG01KDX7P86"
+  },
+  "US7469161050": {
+    "ticker": "PNOPX",
+    "name": "PUTNAM SUSTAIN LDRS-A",
+    "figi": "BBG000BG2CN7"
+  },
+  "US78472P1093": {
+    "ticker": "SVSPX",
+    "name": "ST STRT S&P 500 INDEX FD-N",
+    "figi": "BBG000BHWPZ0"
+  },
+  "US6412241670": {
+    "ticker": "NRACX",
+    "name": "NEUBER QUALITY EQUITY FUND-C",
+    "figi": "BBG000RDSLS4"
+  },
+  "US56166Y5298": {
+    "ticker": "PSQGX",
+    "name": "PORT ST INV SOL QLTY GR-INST",
+    "figi": "BBG005PCDYZ7"
+  },
+  "US63872T4976": {
+    "ticker": "VNSCX",
+    "name": "VAUGHAN NELSON SELECT-C",
+    "figi": "BBG0034YNMN5"
+  },
+  "US6651625906": {
+    "ticker": "NOLCX",
+    "name": "NORTHERN LARGE CAP CORE",
+    "figi": "BBG000HT2WC1"
+  },
+  "US0263933063": {
+    "ticker": "AMRBX",
+    "name": "AMERICAN GROWTH-SER 1-B",
+    "figi": "BBG000BPM6R4"
+  },
+  "US09532K1034": {
+    "ticker": "BCIFX",
+    "name": "BLUE CHIP INVESTOR FUND",
+    "figi": "BBG000MV1J85"
+  },
+  "US32008F8793": {
+    "ticker": "FEVCX",
+    "name": "FIRST EAGLE US FUND-C",
+    "figi": "BBG000KLLLW5"
+  },
+  "US66667Q1076": {
+    "ticker": "NQCFX",
+    "name": "NORTHQUEST CAPITAL FUND INC",
+    "figi": "BBG0032FPLP6"
+  },
+  "US14042Y8093": {
+    "ticker": "CUSEX",
+    "name": "CAPITAL GROUP US EQUITY",
+    "figi": "BBG001M0WNH8"
+  },
+  "US4812A42789": {
+    "ticker": "JUEZX",
+    "name": "JPMORGAN US EQUITY-R2",
+    "figi": "BBG000DH7YJ5"
+  },
+  "US3608751570": {
+    "ticker": "GNNDX",
+    "name": "GOTHAM INDEX PLUS-INV",
+    "figi": "BBG00JC32620"
+  },
+  "US5757368635": {
+    "ticker": "MIRTX",
+    "name": "MFS MASS INV TRUST-R2",
+    "figi": "BBG000BSMPM1"
+  },
+  "US7469167099": {
+    "ticker": "PSLGX",
+    "name": "PUTNAM SUSTAIN LDRS-R6",
+    "figi": "BBG00KVYSCQ1"
+  },
+  "US00141B5848": {
+    "ticker": "OARDX",
+    "name": "INVESCO RISING DIVIDENDS-A",
+    "figi": "BBG00P51SMF1"
+  },
+  "US74251T3398": {
+    "ticker": "PLFPX",
+    "name": "PRINCIPAL L/C S&P 500-R5",
+    "figi": "BBG000NWB643"
+  },
+  "US0919373912": {
+    "ticker": "STSEX",
+    "name": "BLACKROCK EXCHANGE PORT-BR",
+    "figi": "BBG000BCJGN9"
+  },
+  "US4763132002": {
+    "ticker": "JENRX",
+    "name": "JENSEN QUALITY GROWTH-R",
+    "figi": "BBG000BQ5389"
+  },
+  "US2779116811": {
+    "ticker": "EITMX",
+    "name": "EATON VANCE TAX MGD G 1.1-I",
+    "figi": "BBG000ND5KW0"
+  },
+  "US5757362026": {
+    "ticker": "MITBX",
+    "name": "MFS MASS INV TRUST-B",
+    "figi": "BBG000BMNZ69"
+  },
+  "US62827L4840": {
+    "ticker": "INSCX",
+    "name": "CATALYST INSIDER BUYING FD-C",
+    "figi": "BBG001XX14T7"
+  },
+  "US4166493092": {
+    "ticker": "ITHIX",
+    "name": "HARTFORD CAPITAL APPREC-I",
+    "figi": "BBG000PNQ2F2"
+  },
+  "US04314H5431": {
+    "ticker": "ARTTX",
+    "name": "ARTISAN FOCUS-INV",
+    "figi": "BBG00G6RXH13"
+  },
+  "US6122635096": {
+    "ticker": "MVEIX",
+    "name": "MONTEAGLE SELECT VALUE FUND",
+    "figi": "BBG000BDP484"
+  },
+  "US7824783093": {
+    "ticker": "RTLCX",
+    "name": "RUSSELL TAX-MGD US L/C-C",
+    "figi": "BBG000CQCKF4"
+  },
+  "US2571323086": {
+    "ticker": "DSFRX",
+    "name": "DOMINI IMPACT EQUITY-R",
+    "figi": "BBG000BTZGY2"
+  },
+  "US8855726514": {
+    "ticker": "HIOIX",
+    "name": "M3SIXTY INCOME & OPPORT-INS",
+    "figi": "BBG00BNJP7L2"
+  },
+  "US19763T6249": {
+    "ticker": "RDCEX",
+    "name": "COLUMBIA DISCIPLINE CORE-C",
+    "figi": "BBG000RPD722"
+  },
+  "US3161843087": {
+    "ticker": "FMKFX",
+    "name": "FIDELITY MAGELLAN K6 FUND",
+    "figi": "BBG00PG3XJB0"
+  },
+  "US45890C8468": {
+    "ticker": "IGIAX",
+    "name": "INTGRTY GRWTH & INCOME FND-A",
+    "figi": "BBG000BSMZL0"
+  },
+  "US9393307759": {
+    "ticker": "FWMIX",
+    "name": "AMER FND WASH MUT INV-F3",
+    "figi": "BBG00G02V692"
+  },
+  "US8174181060": {
+    "ticker": "SEQUX",
+    "name": "SEQUOIA FUND",
+    "figi": "BBG000BCHCV1"
+  },
+  "US6710811075": {
+    "ticker": "WOGSX",
+    "name": "WHITE OAK SELECT GROWTH",
+    "figi": "BBG000BLK6T3"
+  },
+  "US41664R1840": {
+    "ticker": "HAITX",
+    "name": "HARTFORD CORE EQUITY-R6",
+    "figi": "BBG0087517Y9"
+  },
+  "US9393303048": {
+    "ticker": "WSHCX",
+    "name": "AMER FND WASH MUT INV-C",
+    "figi": "BBG000BVBN23"
+  },
+  "US1888501012": {
+    "ticker": "CFIMX",
+    "name": "CLIPPER FUND",
+    "figi": "BBG000BC0SB6"
+  },
+  "US22540Y8663": null,
+  "US4763131012": {
+    "ticker": "JENSX",
+    "name": "JENSEN QUALITY GROWTH-J",
+    "figi": "BBG000C24TK1"
+  },
+  "US25159R8667": {
+    "ticker": "BTIRX",
+    "name": "DWS EQUITY 500 INDEX-R6",
+    "figi": "BBG00GFPRCR7"
+  },
+  "US0155657739": {
+    "ticker": "ALBCX",
+    "name": "ALGER GROWTH & INCOME-C",
+    "figi": "BBG000GD6916"
+  },
+  "US0276818087": {
+    "ticker": "CMLEX",
+    "name": "AMER FNDS MUTUAL FND-529E",
+    "figi": "BBG000BP4LV6"
+  },
+  "US63868D8039": {
+    "ticker": "NWABX",
+    "name": "NATIONWIDE FUND-R6",
+    "figi": "BBG00KBC0BK9"
+  },
+  "US4812A18375": {
+    "ticker": "JDEUX",
+    "name": "JPM US RSRCH ENHNCD EQTY-R6",
+    "figi": "BBG000D4M4V9"
+  },
+  "US9393307833": {
+    "ticker": "RWMHX",
+    "name": "AMER FND WASH MUT INV-R5E",
+    "figi": "BBG00BH63WY2"
+  },
+  "US78356A6579": {
+    "ticker": "RYSOX",
+    "name": "RYDEX S&P 500 FUND-A",
+    "figi": "BBG000DYGPD3"
+  },
+  "US8863157611": {
+    "ticker": "TIIRX",
+    "name": "NUVEEN CORE EQUITY FUND-A",
+    "figi": "BBG000R3RG35"
+  },
+  "US87244W7636": {
+    "ticker": "TRGIX",
+    "name": "NUVEEN CORE EQUITY FUND-RTRM",
+    "figi": "BBG000BVDMY8"
+  },
+  "US5757368148": {
+    "ticker": "MITJX",
+    "name": "MFS MASS INV TRUST-R5",
+    "figi": "BBG008H7JF40"
+  },
+  "US00141B5764": {
+    "ticker": "OCRDX",
+    "name": "INVESCO RISING DIVIDENDS-C",
+    "figi": "BBG00P51SMV3"
+  },
+  "US3623951056": {
+    "ticker": "GABAX",
+    "name": "GABELLI ASSET FUND-AAA",
+    "figi": "BBG000BC5VL3"
+  },
+  "US48121L8173": {
+    "ticker": "JUEMX",
+    "name": "JPMORGAN US EQUITY-R6",
+    "figi": "BBG0019K0BB6"
+  },
+  "US19766B4977": {
+    "ticker": "CLXRX",
+    "name": "COLUMBIA LARGE CAP INDEX-I2",
+    "figi": "BBG003CYCXR0"
+  },
+  "US56062F5411": {
+    "ticker": "MSOAX",
+    "name": "NYLIM WMC ENDURING CAP-A",
+    "figi": "BBG000C55K13"
+  },
+  "US36240H4039": {
+    "ticker": "GVCIX",
+    "name": "GABELLI VALUE 25-I",
+    "figi": "BBG000D9VPF9"
+  },
+  "US31678R6273": null,
+  "US90386H6514": {
+    "ticker": "HVEIX",
+    "name": "HVIA EQUITY FUND-INST",
+    "figi": "BBG00DLXYYQ5"
+  },
+  "US74160Q2021": {
+    "ticker": "POAGX",
+    "name": "PRIMECAP ODYSSEY AGGR GRW",
+    "figi": "BBG000QPWDZ3"
+  },
+  "US0669222046": {
+    "ticker": "WFSPX",
+    "name": "ISHARES S&P 500 INDEX-K",
+    "figi": "BBG000BN9W79"
+  },
+  "US56065F3249": {
+    "ticker": "FCUCX",
+    "name": "NYLIM PINESTONE US EQTY-C",
+    "figi": "BBG01GY6BFX0"
+  },
+  "US09661L3024": {
+    "ticker": "PEOPX",
+    "name": "BNYM S&P 500 INDEX",
+    "figi": "BBG000BJ7PS2"
+  },
+  "US41664T6771": {
+    "ticker": "HGIFX",
+    "name": "HARTFORD CORE EQUITY-F",
+    "figi": "BBG00G4Y02R1"
+  },
+  "US4812A02767": {
+    "ticker": "JICCX",
+    "name": "JPMORGAN US SUST LDRS-C",
+    "figi": "BBG000BPZPJ7"
+  },
+  "US9229083483": {
+    "ticker": "VFFSX",
+    "name": "VANGUARD 500 INDEX-INST SEL",
+    "figi": "BBG00CDNCFH3"
+  },
+  "US0250831148": {
+    "ticker": "AFDCX",
+    "name": "AMER CNTRY LRG CAP EQT FND-C",
+    "figi": "BBG000GPCDN9"
+  },
+  "US12811U3059": {
+    "ticker": "SROIX",
+    "name": "CALAMOS ANTEPO SUST EQ-I",
+    "figi": "BBG019H01PQ5"
+  },
+  "US0276814029": {
+    "ticker": "AMFFX",
+    "name": "AMER FNDS MUTUAL FND-F1",
+    "figi": "BBG000BWTY91"
+  },
+  "US64122Q4991": {
+    "ticker": "NRSRX",
+    "name": "NEUBE QUALITY EQUITY FUND-R6",
+    "figi": "BBG0043ZYVR5"
+  },
+  "US3160662082": {
+    "ticker": "FDEQX",
+    "name": "FIDELITY DISCIPLINED EQUIT",
+    "figi": "BBG000B9X7L2"
+  },
+  "US1386242002": {
+    "ticker": "FICIX",
+    "name": "CANTOR FITZ LRG CAP FOC-R6",
+    "figi": "BBG019RLB180"
+  },
+  "US3608025082": {
+    "ticker": "CFNAX",
+    "name": "AMER FND FNDMNTL INVST-529A",
+    "figi": "BBG000BNRXJ4"
+  },
+  "US00791R7807": {
+    "ticker": "VNUYX",
+    "name": "VONTOBEL US EQUITY FUND-Y",
+    "figi": "BBG01PL62ZM2"
+  },
+  "US00777X6379": {
+    "ticker": "LMOFX",
+    "name": "PATIENT OPPORTUNITY TR-FI",
+    "figi": "BBG01KDX7GT3"
+  },
+  "US00141B7661": {
+    "ticker": "OMSNX",
+    "name": "INVESCO MAIN ST ALL CAP-R",
+    "figi": "BBG00P3CY6L0"
+  },
+  "US3160667297": {
+    "ticker": "FSFGX",
+    "name": "FIDELITY ADV FOCUS STOCK-A",
+    "figi": "BBG01P7B8TW4"
+  },
+  "US88166L1089": {
+    "ticker": "WESWX",
+    "name": "TETON WESTWD EQUITY FUND-AAA",
+    "figi": "BBG000BC1Z74"
+  },
+  "US02508H2875": {
+    "ticker": "AFYDX",
+    "name": "AMER CNTRY LRG CAP EQT FND-Y",
+    "figi": "BBG00GK88R06"
+  },
+  "US36240H1068": {
+    "ticker": "GABVX",
+    "name": "GABELLI VALUE 25-A",
+    "figi": "BBG000BBF826"
+  },
+  "US48127B4822": {
+    "ticker": "JUEPX",
+    "name": "JPMORGAN US EQUITY-R3",
+    "figi": "BBG00DSL6B76"
+  },
+  "US3029332059": {
+    "ticker": "FMIHX",
+    "name": "FMI LARGE CAP FUND-INV",
+    "figi": "BBG000L3G3S5"
+  },
+  "US4613088768": {
+    "ticker": "RICAX",
+    "name": "AMER FND INV CO OF AM-R1",
+    "figi": "BBG000BTBMR3"
+  },
+  "US87244W7552": {
+    "ticker": "TRSCX",
+    "name": "NUVEEN LRG CAP RESP EQ-RTRMT",
+    "figi": "BBG000P9KF60"
+  },
+  "US55273W4832": {
+    "ticker": "MUEVX",
+    "name": "MFS BLEND RSRCH COR EQ-R5",
+    "figi": "BBG002ZRGJ26"
+  },
+  "US7220056425": {
+    "ticker": "PSPTX",
+    "name": "PIMCO STOC PB ABS RET AF-IUI",
+    "figi": "BBG000K4CSY6"
+  },
+  "US9219131094": {
+    "ticker": "VQNPX",
+    "name": "VANGUARD GROWTH & INCOME-INV",
+    "figi": "BBG000BCKTH6"
+  },
+  "US3159114384": {
+    "ticker": "FLAFX",
+    "name": "FIDELITY ADV LRG CAP STK-A",
+    "figi": "BBG01S306XM0"
+  },
+  "US3608024093": {
+    "ticker": "AFIFX",
+    "name": "AMER FND FNDMNTL INVST-F1",
+    "figi": "BBG000BWS1F7"
+  },
+  "US78413L6882": {
+    "ticker": "SDYYX",
+    "name": "SIMT DYNAMIC ASSET ALLOC-Y",
+    "figi": "BBG009QNDZ27"
+  },
+  "US78356A6322": {
+    "ticker": "RYSPX",
+    "name": "RYDEX S&P 500 FUND-H",
+    "figi": "BBG000DYGSJ1"
+  },
+  "US4613087935": {
+    "ticker": "RIBEX",
+    "name": "AMER FND INV CO OF AM-R2E",
+    "figi": "BBG006XPLTP0"
+  },
+  "US63868D6967": {
+    "ticker": "NWAVX",
+    "name": "NTWD GQG US QLTY EQ-R6",
+    "figi": "BBG00Z0Y62T5"
+  },
+  "US00777X6296": {
+    "ticker": "LMORX",
+    "name": "PATIENT OPPORTUNITY TR-R",
+    "figi": "BBG01KDX7KH7"
+  },
+  "US01988X8790": {
+    "ticker": "AEPIX",
+    "name": "ALLSPRING MGD ACC CRBLD-EPI",
+    "figi": "BBG01GKC7C73"
+  },
+  "US0276817824": {
+    "ticker": "RMFHX",
+    "name": "AMER FNDS MUTUAL FND-R5E",
+    "figi": "BBG00BH5YSS6"
+  },
+  "US3161278771": {
+    "ticker": "FDECX",
+    "name": "FIDELITY ADV CAP DEVELOP-C",
+    "figi": "BBG000HH38T1"
+  },
+  "US3161272089": {
+    "ticker": "FDETX",
+    "name": "FIDELITY ADV CAP DEVELOP-O",
+    "figi": "BBG000BBNH72"
+  },
+  "US3998741066": {
+    "ticker": "AGTHX",
+    "name": "AMER FND GRW FD OF AM-A",
+    "figi": "BBG000BBZ245"
+  },
+  "US2779237443": {
+    "ticker": "EIERX",
+    "name": "EATON VANCE STOCK FUND-I",
+    "figi": "BBG000VMSPV6"
+  },
+  "US3608028706": {
+    "ticker": "RFNAX",
+    "name": "AMER FND FNDMNTL INVST-R1",
+    "figi": "BBG000BW1GQ1"
+  },
+  "US8040968732": {
+    "ticker": "SGZFX",
+    "name": "SATURNA GROWTH FUND-Z",
+    "figi": "BBG00GX8TMF4"
+  },
+  "US3623955016": {
+    "ticker": "GABIX",
+    "name": "GABELLI ASSET FUND-I",
+    "figi": "BBG000D9VMG5"
+  },
+  "US70472Q2030": {
+    "ticker": "USBOX",
+    "name": "PEAR TREE QUALITY FUND-ORD",
+    "figi": "BBG000BBXKL8"
+  },
+  "US64122Q1013": {
+    "ticker": "NMUAX",
+    "name": "NEUBERGER MULTI-CAP OPPORT-A",
+    "figi": "BBG000Q0LQX3"
+  },
+  "US3167865654": null,
+  "US3608027062": {
+    "ticker": "CFNCX",
+    "name": "AMER FND FNDMNTL INVST-529C",
+    "figi": "BBG000BNRY48"
+  },
+  "US72201M5601": {
+    "ticker": "PTOPX",
+    "name": "PIMCO STOC PB ABS RET AF-I2U",
+    "figi": "BBG000S99HC9"
+  },
+  "US94988V8607": {
+    "ticker": "EGORX",
+    "name": "ALLSPRING LRG CAP COR-R6",
+    "figi": "BBG00B454XY5"
+  },
+  "US09661D4097": {
+    "ticker": "DRTHX",
+    "name": "BNYM SUSTAIN US EQTY-Z",
+    "figi": "BBG000BBWMF2"
+  },
+  "US4763134081": {
+    "ticker": "JENYX",
+    "name": "JENSEN QUALITY GROWTH-Y",
+    "figi": "BBG00DZNJ948"
+  },
+  "US8040961059": {
+    "ticker": "SSGFX",
+    "name": "SATURNA GROWTH FUND",
+    "figi": "BBG000BPCRL5"
+  },
+  "US4613084056": {
+    "ticker": "AICFX",
+    "name": "AMER FND INV CO OF AM-F1",
+    "figi": "BBG000BV9JN2"
+  },
+  "US63872T4067": {
+    "ticker": "NEOYX",
+    "name": "NATIXIS OAKMARK FUND-Y",
+    "figi": "BBG000BRVTL6"
+  },
+  "US3160718363": {
+    "ticker": "FLCNX",
+    "name": "FIDELITY CONTRAFUND K6",
+    "figi": "BBG00GW2FSJ6"
+  },
+  "US19765H3214": {
+    "ticker": "NINDX",
+    "name": "COLUMBIA LARGE CAP INDEX-I",
+    "figi": "BBG000BFLY23"
+  },
+  "US84860V8072": {
+    "ticker": "SOIVX",
+    "name": "SPIRIT OF AMER L/C VAL-INST",
+    "figi": "BBG00T7RN058"
+  },
+  "US4812A37755": {
+    "ticker": "JUSRX",
+    "name": "JPMORGAN US EQUITY-R5",
+    "figi": "BBG000C3P0L8"
+  },
+  "US0276817741": {
+    "ticker": "AFMFX",
+    "name": "AMER FNDS MUTUAL FND-F3",
+    "figi": "BBG00FY3XPW5"
+  },
+  "US8085098551": {
+    "ticker": "SWPPX",
+    "name": "SCHWAB S&P 500 INDEX-SEL",
+    "figi": "BBG000J9ZH30"
+  },
+  "US00777X6528": {
+    "ticker": "LGOAX",
+    "name": "PATIENT OPPORTUNITY TR-A",
+    "figi": "BBG01KDX6YB4"
+  },
+  "US0233754052": {
+    "ticker": "AMPFX",
+    "name": "AMCAP FUND F-1",
+    "figi": "BBG000BWTZ70"
+  },
+  "US3538251022": {
+    "ticker": "FRDPX",
+    "name": "FRANKLIN RISING DIVIDEND-A",
+    "figi": "BBG000BC5040"
+  },
+  "US2862811005": {
+    "ticker": "ELFNX",
+    "name": "ELFUN TRUSTS",
+    "figi": "BBG000BC31J4"
+  },
+  "US87245R1858": {
+    "ticker": "TGIHX",
+    "name": "NUVEEN CORE EQUITY FUND-I",
+    "figi": "BBG00BGZ83T4"
+  },
+  "US56065F2902": {
+    "ticker": "FCUDX",
+    "name": "NYLIM PINESTONE US EQTY-R6",
+    "figi": "BBG01GY6BFY9"
+  },
+  "US9695576028": {
+    "ticker": "JAMEX",
+    "name": "JAMESTOWN EQUITY FUND",
+    "figi": "BBG000BFMZ56"
+  },
+  "US3160661092": {
+    "ticker": "FDCAX",
+    "name": "FIDELITY CAPITAL APPREC",
+    "figi": "BBG000BC3RP0"
+  },
+  "US5757361036": {
+    "ticker": "MITTX",
+    "name": "MFS MASS INV TRUST-A",
+    "figi": "BBG000BC9L22"
+  },
+  "US05588F8573": {
+    "ticker": "DEYCX",
+    "name": "BNYM LRG CAP EQTY-C",
+    "figi": "BBG000DGWLX1"
+  },
+  "US8874324747": {
+    "ticker": "TMVIX",
+    "name": "TIMOTHY PL LRG/MD CAP VL-I",
+    "figi": "BBG004KGKQC0"
+  },
+  "US3160666950": {
+    "ticker": "FSFMX",
+    "name": "FIDELITY ADV FOCUS STOCK-C",
+    "figi": "BBG01P7B81N5"
+  },
+  "US5529812019": {
+    "ticker": "MFRBX",
+    "name": "MFS RESEARCH FUND-B",
+    "figi": "BBG000BMV8H8"
+  },
+  "US34985G1022": {
+    "ticker": "BMPEX",
+    "name": "BECK MACK & OLIVER PARTNERS",
+    "figi": "BBG000PYJHX3"
+  },
+  "US4812A11594": {
+    "ticker": "JUESX",
+    "name": "JPMORGAN US EQUITY-I",
+    "figi": "BBG000BWGNY1"
+  },
+  "US05589Q1004": {
+    "ticker": "DGAGX",
+    "name": "BNYM APPRECIATION-A",
+    "figi": "BBG000BBW0L3"
+  },
+  "US02508H8088": {
+    "ticker": "AFDRX",
+    "name": "AMER CNTRY LRG CAP EQT FND-R",
+    "figi": "BBG000QYLS83"
+  },
+  "US92914C7662": {
+    "ticker": "ISIPX",
+    "name": "VOYA US STOCK INDX PORT-S2",
+    "figi": "BBG000TVYR39"
+  },
+  "US1011561073": {
+    "ticker": "WSEFX",
+    "name": "BOSTON TRUST WALDEN EQUITY",
+    "figi": "BBG000BWQW52"
+  },
+  "US8162212042": {
+    "ticker": "SLADX",
+    "name": "SELECTED AMERICAN SHARES-D",
+    "figi": "BBG000C0M1J8"
+  },
+  "US1152338430": {
+    "ticker": "BAFFX",
+    "name": "BROWN ADVISORY FLEX EQ-INST",
+    "figi": "BBG003GVGPC1"
+  },
+  "US5574923869": {
+    "ticker": "MNVRX",
+    "name": "MADISON LARGE CAP FUND-R6",
+    "figi": "BBG004WZYS18"
+  },
+  "US3499038806": {
+    "ticker": "PBFDX",
+    "name": "PAYSON TOTAL RETURN FUND",
+    "figi": "BBG000BGB4Z2"
+  },
+  "US52468E5015": {
+    "ticker": "LMPPX",
+    "name": "CLEARBRIDGE APPRECIATION-R",
+    "figi": "BBG000C492L0"
+  },
+  "US19765H2893": {
+    "ticker": "NSGCX",
+    "name": "COLUMBIA CORNERSTONE EQ-C",
+    "figi": "BBG000GN2Y22"
+  },
+  "US41664R1923": {
+    "ticker": "HGIIX",
+    "name": "HARTFORD CORE EQUITY FUND-I",
+    "figi": "BBG00874ZXD1"
+  },
+  "US94988V3087": {
+    "ticker": "EVSRX",
+    "name": "ALLSPRING DISC US COR-R6",
+    "figi": "BBG00B454SW8"
+  },
+  "US05589Q3083": {
+    "ticker": "DGIGX",
+    "name": "BNYM APPRECIATION-I",
+    "figi": "BBG00DR3L5G3"
+  },
+  "US5529815327": {
+    "ticker": "MFRHX",
+    "name": "MFS RESEARCH FUND-R3",
+    "figi": "BBG000C22Y59"
+  },
+  "US2300012083": {
+    "ticker": "CHDEX",
+    "name": "CULLEN HIGH DIVIDEND EQ-RTL",
+    "figi": "BBG000CTDFQ6"
+  },
+  "US1386243091": {
+    "ticker": "FICHX",
+    "name": "CANTOR FITZ LRG CAP FOC-INST",
+    "figi": "BBG019RL9RF8"
+  },
+  "US3161844077": {
+    "ticker": "FMAEX",
+    "name": "FIDELITY ADV MAGELLAN-A",
+    "figi": "BBG01P7CXLY9"
+  },
+  "US65878P1066": {
+    "ticker": "NCEGX",
+    "name": "NORTH COUNTRY LARGE CAP EQUI",
+    "figi": "BBG000HC4Y14"
+  },
+  "US74968B7047": {
+    "ticker": "RMBJX",
+    "name": "RMB FUND-C",
+    "figi": "BBG000C0D2H8"
+  },
+  "US87245R1288": {
+    "ticker": "TICHX",
+    "name": "NUVEEN LRG CAP RESP EQ-I",
+    "figi": "BBG00BGZ83G8"
+  },
+  "US89834G7117": {
+    "ticker": "MPGFX",
+    "name": "MAIRS & POWER FUND",
+    "figi": "BBG0179FC0L3"
+  },
+  "US0276818731": {
+    "ticker": "RMFAX",
+    "name": "AMER FNDS MUTUAL FND-R1",
+    "figi": "BBG000BVZ1L4"
+  },
+  "US52106N6242": {
+    "ticker": "LZUSX",
+    "name": "LAZARD US EQUITY FOCUS-INST",
+    "figi": "BBG000Q77RX2"
+  },
+  "US00141B6911": {
+    "ticker": "OMGNX",
+    "name": "INVESCO MAIN STREET-R",
+    "figi": "BBG00P3CY7Q3"
+  },
+  "US3608028540": {
+    "ticker": "RFNCX",
+    "name": "AMER FND FNDMNTL INVST-R3",
+    "figi": "BBG000BW1HS7"
+  },
+  "US4613087026": {
+    "ticker": "CICCX",
+    "name": "AMER FND INV CO OF AM-529C",
+    "figi": "BBG000BL6KP2"
+  },
+  "US3161278698": {
+    "ticker": "FDTZX",
+    "name": "FIDELITY ADV CAP DEVELOP-M",
+    "figi": "BBG000HH9LV3"
+  },
+  "US63868D7122": {
+    "ticker": "NWAUX",
+    "name": "NTWD GQG US QLTY EQ-A",
+    "figi": "BBG00Z0Y6144"
+  },
+  "US74441F3064": {
+    "ticker": "PSICX",
+    "name": "PGIM QUANT SOL LAR-CAP IN-C",
+    "figi": "BBG000BMLX75"
+  },
+  "US6401931083": {
+    "ticker": "NEIMX",
+    "name": "NEIMAN LARGE CAP VALUE-NL",
+    "figi": "BBG000H21W13"
+  },
+  "US92648C4969": {
+    "ticker": "PCODX",
+    "name": "VICTORY PIONEER FUND-C",
+    "figi": "BBG01T7N5KM3"
+  },
+  "US00142J5948": {
+    "ticker": "SPICX",
+    "name": "INVESCO S&P 500 INDEX-C",
+    "figi": "BBG000C18N31"
+  },
+  "US63872T4893": {
+    "ticker": "VNSYX",
+    "name": "VAUGHAN NELSON SELECT-Y",
+    "figi": "BBG0034YNN62"
+  },
+  "US05588F5017": {
+    "ticker": "DLACX",
+    "name": "BNYM LRG CAP EQTY-Y",
+    "figi": "BBG009YVN348"
+  },
+  "US4166456537": {
+    "ticker": "HGIYX",
+    "name": "HARTFORD CORE EQUITY-Y",
+    "figi": "BBG000CNM5J9"
+  },
+  "US2390808804": {
+    "ticker": "NYVRX",
+    "name": "DAVIS NEW YORK VENTURE-R",
+    "figi": "BBG000C0WTR7"
+  },
+  "US4812C15203": {
+    "ticker": "OGEAX",
+    "name": "JPMORGAN EQUITY INDEX-A",
+    "figi": "BBG000BD4HJ6"
+  },
+  "US3998748418": {
+    "ticker": "RGAEX",
+    "name": "AMER FND GRW FD OF AM-R4",
+    "figi": "BBG000BW9H63"
+  },
+  "US48127B4749": {
+    "ticker": "JUEQX",
+    "name": "JPMORGAN US EQUITY-R4",
+    "figi": "BBG00DSL6B49"
+  },
+  "US3161278441": {
+    "ticker": "FZACX",
+    "name": "FIDELITY ADV DIVER STOCK-Z",
+    "figi": "BBG004WFWLJ0"
+  },
+  "US5757368486": {
+    "ticker": "MITHX",
+    "name": "MFS MA INV TRUST-R3",
+    "figi": "BBG000C22JQ9"
+  },
+  "US0276818327": {
+    "ticker": "RMFFX",
+    "name": "AMER FNDS MUTUAL FND-R5",
+    "figi": "BBG000BW19C2"
+  },
+  "US47803P6667": {
+    "ticker": "JLCVX",
+    "name": "JH FNDMNTL LRG CAP CORE-R5",
+    "figi": "BBG000DNJ076"
+  },
+  "US1281196337": {
+    "ticker": "CVAIX",
+    "name": "CALAMOS SELECT FUND-I",
+    "figi": "BBG000BL70C9"
+  },
+  "US0233757022": {
+    "ticker": "CAFCX",
+    "name": "AMCAP FUND-529C",
+    "figi": "BBG000BP7968"
+  },
+  "US19766P7362": {
+    "ticker": "CLPYX",
+    "name": "COLUMBIA LARGE CAP INDEX-I3",
+    "figi": "BBG00G723RX3"
+  },
+  "US0155658315": {
+    "ticker": "ALBAX",
+    "name": "ALGER GROWTH & INCOME-A",
+    "figi": "BBG000JBFYR4"
+  },
+  "US92648C5123": {
+    "ticker": "PIODX",
+    "name": "VICTORY PIONEER FUND-A",
+    "figi": "BBG01T7N4CV2"
+  },
+  "US0233758681": {
+    "ticker": "RAFBX",
+    "name": "AMCAP FUND-R2",
+    "figi": "BBG000BVZ1F1"
+  },
+  "US3608027716": {
+    "ticker": "FUNFX",
+    "name": "AMER FND FNDMNTL INVST-F3",
+    "figi": "BBG00FWL2X36"
+  },
+  "US89154X2291": {
+    "ticker": "TFFYX",
+    "name": "TOUCHSTONE FOCUSED EQTY-Y",
+    "figi": "BBG002GPGKL7"
+  },
+  "US63868D8781": {
+    "ticker": "NWAEX",
+    "name": "NTNWD BNYM DYM US-EAGLE",
+    "figi": "BBG00LW95X37"
+  },
+  "US9220402096": {
+    "ticker": "VIIIX",
+    "name": "VANGUARD INST INDEX-INST+",
+    "figi": "BBG000BQJC75"
+  },
+  "US4812C15534": {
+    "ticker": "HLEIX",
+    "name": "JPMORGAN EQUITY INDEX-I",
+    "figi": "BBG000BB57Z3"
+  },
+  "US2562191062": {
+    "ticker": "DODGX",
+    "name": "DODGE & COX STOCK-I",
+    "figi": "BBG000BC2SL3"
+  },
+  "US4812C22134": {
+    "ticker": "OGFAX",
+    "name": "JPMORGAN EQUITY INDEX-R6",
+    "figi": "BBG00DR7H5C3"
+  },
+  "US0075W08667": {
+    "ticker": "HAVGX",
+    "name": "HAVERFORD QLTY GRW STK",
+    "figi": "BBG000QD4L74"
+  },
+  "US7824943481": {
+    "ticker": "RTLAX",
+    "name": "RUSSELL TAX-MGD US L/C-A",
+    "figi": "BBG000KH3452"
+  },
+  "US55273W4006": {
+    "ticker": "MUEAX",
+    "name": "MFS BLEND RSRCH COR EQ-A",
+    "figi": "BBG000JYMQ93"
+  },
+  "US47803P6337": {
+    "ticker": "JLCWX",
+    "name": "JH FNDMNTL LRG CAP CORE-R6",
+    "figi": "BBG00215FC18"
+  },
+  "US9219361006": {
+    "ticker": "VPMCX",
+    "name": "VANGUARD PRIMECAP FUND-INV",
+    "figi": "BBG000BBT2Z8"
+  },
+  "US9393308583": {
+    "ticker": "RWMCX",
+    "name": "AMER FND WASH MUT INV-R3",
+    "figi": "BBG000BSX213"
+  },
+  "US00141B5509": {
+    "ticker": "ONRDX",
+    "name": "INVESCO RISING DIVIDENDS-R",
+    "figi": "BBG00P51SN96"
+  },
+  "US61766J8493": {
+    "ticker": "MUOIX",
+    "name": "MSIF US CORE PORTFOLIO-I",
+    "figi": "BBG00D2QWRL3"
+  },
+  "US9393307916": {
+    "ticker": "RWEBX",
+    "name": "AMER FND WASH MUT INV-R2E",
+    "figi": "BBG007J2VRP8"
+  },
+  "US44053A7476": {
+    "ticker": "HESGX",
+    "name": "HORIZON DEFENSIVE CORE-INV",
+    "figi": "BBG00PNF7PJ2"
+  },
+  "US2779192051": {
+    "ticker": "CAPEX",
+    "name": "EATON VAN TAX-MGD GR 1.0-A",
+    "figi": "BBG000BC0J17"
+  },
+  "US47805T7651": null,
+  "US00141B6671": {
+    "ticker": "OMSIX",
+    "name": "INVESCO MAIN STREET-R6",
+    "figi": "BBG00P3CY7K9"
+  },
+  "US19763T6405": {
+    "ticker": "AQEAX",
+    "name": "COLUMBIA DISCIPLINE CORE-A",
+    "figi": "BBG000QPPV09"
+  },
+  "US8603241022": {
+    "ticker": "SEECX",
+    "name": "STEWARD VLU ENHANC LRG CAP-I",
+    "figi": "BBG000QDZBG2"
+  },
+  "US3927683058": {
+    "ticker": "GCEQX",
+    "name": "GREEN CENTURY EQUITY-IND INV",
+    "figi": "BBG000BZGNZ3"
+  },
+  "US31617F8335": {
+    "ticker": "FGLGX",
+    "name": "FIDELITY SER LRG CAP STK",
+    "figi": "BBG003PMQDQ2"
+  },
+  "US0250831304": {
+    "ticker": "AFDAX",
+    "name": "AMER CNTRY LRG CAP EQT FND-A",
+    "figi": "BBG000GPBRM0"
+  },
+  "US74441F5044": {
+    "ticker": "PSIFX",
+    "name": "PGIM QUANT SOL LARG-CAP IN-Z",
+    "figi": "BBG000BCWG45"
+  },
+  "US87244W3007": {
+    "ticker": "TISCX",
+    "name": "NUVEEN LRG CAP RESP EQ FD-R6",
+    "figi": "BBG000CMVKH0"
+  },
+  "US38217G1031": {
+    "ticker": "GOODX",
+    "name": "GOODHAVEN FUND",
+    "figi": "BBG001J7MH45"
+  },
+  "US3608755795": {
+    "ticker": "GINDX",
+    "name": "GOTHAM INDEX PLUS-INST",
+    "figi": "BBG008979GR3"
+  },
+  "US74251T3133": {
+    "ticker": "PLFMX",
+    "name": "PRINCIPAL L/C S&P 500-R3",
+    "figi": "BBG000NWB251"
+  },
+  "US57629R5155": {
+    "ticker": "MIEAX",
+    "name": "MM S&P 500 INDEX FUND-R4",
+    "figi": "BBG000BYW1Y7"
+  },
+  "US57629S6871": {
+    "ticker": "MIEZX",
+    "name": "MM S&P 500 INDEX FUND-R5",
+    "figi": "BBG000BCXNZ5"
+  },
+  "US5529815731": {
+    "ticker": "MSRRX",
+    "name": "MFS RESEARCH FUND-R2",
+    "figi": "BBG000BSMNY3"
+  },
+  "US4791648813": {
+    "ticker": "JENHX",
+    "name": "JOHNSON ENHANCED RETURN",
+    "figi": "BBG000QPCZH6"
+  },
+  "US72202E2524": {
+    "ticker": "PSTNX",
+    "name": "PIMCO STKS+BND ALPHA FND-I-3",
+    "figi": "BBG00KFNF5L7"
+  },
+  "US04314H4939": {
+    "ticker": "APHTX",
+    "name": "ARTISAN FOCUS-INST",
+    "figi": "BBG00KNRX995"
+  },
+  "US41664L5003": {
+    "ticker": "ITHTX",
+    "name": "HARTFORD CAPITAL APPREC-R5",
+    "figi": "BBG000QBC5L8"
+  },
+  "US3160666794": {
+    "ticker": "FSFOX",
+    "name": "FIDELITY ADV FOCUS STOCK-Z",
+    "figi": "BBG01P7B6CK6"
+  },
+  "US5529815087": {
+    "ticker": "MFRCX",
+    "name": "MFS RESEARCH FUND-C",
+    "figi": "BBG000BK79V1"
+  },
+  "US71709W5004": {
+    "ticker": "BRTNX",
+    "name": "BRETTON FUND",
+    "figi": "BBG001710ZH1"
+  },
+  "US7468026288": {
+    "ticker": "PRACX",
+    "name": "PUTNAM US RESEARCH FND-C USD",
+    "figi": "BBG000D4W7M1"
+  },
+  "US4812A18607": {
+    "ticker": "JDESX",
+    "name": "JPM US RSRCH ENHNCD EQTY-I",
+    "figi": "BBG000C6CRW4"
+  },
+  "US3159117502": {
+    "ticker": "FXAIX",
+    "name": "FIDELITY 500 INDEX FUND",
+    "figi": "BBG001P8F023"
+  },
+  "US3160667602": {
+    "ticker": "FZAPX",
+    "name": "FIDELITY STOCK SELECTOR-Z",
+    "figi": "BBG004WFYBZ2"
+  },
+  "US92648C7772": {
+    "ticker": "PCOTX",
+    "name": "VICTORY PIONEER CORE EQ-C",
+    "figi": "BBG01T7N1130"
+  },
+  "US41013P6088": {
+    "ticker": "JLVIX",
+    "name": "JH FNDMNTL LRG CAP CORE-I",
+    "figi": "BBG000BW47M2"
+  },
+  "US0276811058": {
+    "ticker": "AMRMX",
+    "name": "AMERICAN MUTUAL FUND-A",
+    "figi": "BBG000BBZJT1"
+  },
+  "US0233758194": {
+    "ticker": "RAFGX",
+    "name": "AMCAP FUND-R6",
+    "figi": "BBG000C6N024"
+  },
+  "US0454198013": {
+    "ticker": "IICAX",
+    "name": "AMF LARGE CAP EQUITY FUND",
+    "figi": "BBG000GG8187"
+  },
+  "US0394912044": {
+    "ticker": "ARSKX",
+    "name": "ARCHER STOCK FUND",
+    "figi": "BBG001MHF0R9"
+  },
+  "US32008F8611": {
+    "ticker": "FEVIX",
+    "name": "FIRST EAGLE US FUND-I",
+    "figi": "BBG000KLLNW1"
+  },
+  "US00141B3033": {
+    "ticker": "CHTYX",
+    "name": "INVESCO CHARTER FUND-Y",
+    "figi": "BBG000DF6D60"
+  },
+  "US87244W7149": {
+    "ticker": "TISPX",
+    "name": "NUVEEN S&P 500 INDEX FUND-R6",
+    "figi": "BBG000P9M472"
+  },
+  "US62827L3446": {
+    "ticker": "CPEAX",
+    "name": "CATALYST DYNAMIC ALPHA-A",
+    "figi": "BBG0029YHSK9"
+  },
+  "US3998747006": {
+    "ticker": "CGFCX",
+    "name": "AMER FND GRW FD OF AM-529C",
+    "figi": "BBG000BNS0Y8"
+  },
+  "US3160666877": {
+    "ticker": "FSFNX",
+    "name": "FIDELITY ADV FOCUS STOCK-I",
+    "figi": "BBG01P7B96R9"
+  },
+  "US19766J5653": {
+    "ticker": "CCQYX",
+    "name": "COLUMBIA DISCIPLINE CORE-I3",
+    "figi": "BBG008NM7QW8"
+  },
+  "US8603246153": {
+    "ticker": "SEEHX",
+    "name": "STEWARD VLU ENHANC LRG CP-R6",
+    "figi": "BBG00JF7GBH6"
+  },
+  "US3161271099": {
+    "ticker": "FDESX",
+    "name": "FIDELITY ADV DIVER STOCK-O",
+    "figi": "BBG000BBNGR2"
+  },
+  "US44053A5983": {
+    "ticker": "DHANX",
+    "name": "CENTRE AMERICAN SEL EQTY-INV",
+    "figi": "BBG005XWQ823"
+  },
+  "US57629R4992": {
+    "ticker": "MIEYX",
+    "name": "MM S&P 500 INDEX FUND-ADM",
+    "figi": "BBG000DC9543"
+  },
+  "US8603242012": {
+    "ticker": "SEEKX",
+    "name": "STEWARD VLU ENHANC LRG CAP-A",
+    "figi": "BBG000QDZ8T5"
+  },
+  "US48129C7368": {
+    "ticker": "JIIGX",
+    "name": "JPMORGAN US SUST LDRS-R6",
+    "figi": "BBG00XH5HKQ6"
+  },
+  "US36240H5028": {
+    "ticker": "GVCAX",
+    "name": "GABELLI VALUE 25-AAA",
+    "figi": "BBG000F19W46"
+  },
+  "US70472Q1040": {
+    "ticker": "QGIAX",
+    "name": "PEAR TREE QUALITY FUND-INST",
+    "figi": "BBG000BPP183"
+  },
+  "US63873P8418": {
+    "ticker": "VNSNX",
+    "name": "VAUGHAN NELSON SELECT-N",
+    "figi": "BBG00GFCBYS4"
+  },
+  "US62827L4923": {
+    "ticker": "INSAX",
+    "name": "CATALYST INSIDER BUYING FD-A",
+    "figi": "BBG001XX14N3"
+  },
+  "US27830N8193": {
+    "ticker": "ERLGX",
+    "name": "ETN VAN-ATL CAP FOC GRW-R6",
+    "figi": "BBG01H0FYF51"
+  },
+  "US57630A3602": {
+    "ticker": "MMIZX",
+    "name": "MM S&P 500 INDEX FUND-I",
+    "figi": "BBG0028DR4S0"
+  },
+  "US2571321007": {
+    "ticker": "DSEFX",
+    "name": "DOMINI IMPACT EQUITY-INV",
+    "figi": "BBG000BL3Q54"
+  },
+  "US3160663072": {
+    "ticker": "FDSSX",
+    "name": "FIDELITY STOCK SELECTOR",
+    "figi": "BBG000BFMQG4"
+  },
+  "US5529884380": {
+    "ticker": "UIVCX",
+    "name": "MFS INTRINSIC EQUITY FUND-C",
+    "figi": "BBG01587G3D5"
+  },
+  "US92912M1053": {
+    "ticker": "LEXCX",
+    "name": "VOYA CORP LDRS-SER B-A",
+    "figi": "BBG000BC8V76"
+  },
+  "US5757363016": {
+    "ticker": "MITCX",
+    "name": "MFS MASS INV TRUST-C",
+    "figi": "BBG000BPXHC4"
+  },
+  "US59563P1093": {
+    "ticker": "MISEX",
+    "name": "MIDAS SPECIAL OPPORTUNITIES",
+    "figi": "BBG000BRZXH8"
+  },
+  "US62827M5739": {
+    "ticker": "INSIX",
+    "name": "CATALYST INSIDER BUYING FD-I",
+    "figi": "BBG006LH4ZF7"
+  },
+  "US63867R2581": {
+    "ticker": "MUIGX",
+    "name": "NTNWD BNYM DYM US-R6",
+    "figi": "BBG000BCB8T9"
+  },
+  "US63873P7915": {
+    "ticker": "NOANX",
+    "name": "NATIXIS OAKMARK FUND-N",
+    "figi": "BBG00GPXLT43"
+  },
+  "US9695577760": {
+    "ticker": "DEOPX",
+    "name": "DAVENPORT EQUITY OPPORT",
+    "figi": "BBG001B7T1R6"
+  },
+  "US94975G6860": {
+    "ticker": "WFIOX",
+    "name": "ALLSPRING INDEX FUND-ADM",
+    "figi": "BBG000TTK4P6"
+  },
+  "US9204571080": {
+    "ticker": "VALSX",
+    "name": "VALUE LINE SELECT GROWTH-INV",
+    "figi": "BBG000BCKCW6"
+  },
+  "US2779114592": {
+    "ticker": "EITGX",
+    "name": "EATON VAN TAX-MGD GR 1.2-I",
+    "figi": "BBG000GPKBZ1"
+  },
+  "US7824937202": {
+    "ticker": "RETSX",
+    "name": "RUSSELL TAX-MGD US L/C-S",
+    "figi": "BBG000BZJ785"
+  },
+  "US00769G4938": {
+    "ticker": "AWEIX",
+    "name": "CIBC ATLAS DISC EQTY-INST",
+    "figi": "BBG000C315F0"
+  },
+  "US5529883705": {
+    "ticker": "UIVQX",
+    "name": "MFS INTRINSIC EQUITY FUND-R4",
+    "figi": "BBG01587G4Y0"
+  },
+  "US63867U3279": {
+    "ticker": "GRISX",
+    "name": "NATIONWD S&P 500 INX-INS SRV",
+    "figi": "BBG000BXGCB8"
+  },
+  "US0014134003": {
+    "ticker": "CHTVX",
+    "name": "INVESCO CHARTER FUND-R5",
+    "figi": "BBG000BZQ9R2"
+  },
+  "US4812A02502": {
+    "ticker": "JICAX",
+    "name": "JPMORGAN US SUST LDRS-A",
+    "figi": "BBG000BPN2Z3"
+  },
+  "US05589Q2093": {
+    "ticker": "DGYGX",
+    "name": "BNYM APPRECIATION-Y",
+    "figi": "BBG004P14DN3"
+  },
+  "US01879K3095": {
+    "ticker": "ADGCX",
+    "name": "AB CORE OPPORTUNITIES-C",
+    "figi": "BBG000BGF745"
+  },
+  "US87244W6984": {
+    "ticker": "TRSPX",
+    "name": "NUVEEN S&P 500 INDEX FD-RTRM",
+    "figi": "BBG000P9M4F3"
+  },
+  "US87245M1036": {
+    "ticker": "TRPGX",
+    "name": "NUVEEN CORE EQUITY FUND-PREM",
+    "figi": "BBG000T2VFP8"
+  },
+  "US00141B7174": {
+    "ticker": "MIGCX",
+    "name": "INVESCO MAIN STREET-C",
+    "figi": "BBG00P3CY7D7"
+  },
+  "US8848913005": {
+    "ticker": "THPGX",
+    "name": "THOMPSON LARGECAP FUND",
+    "figi": "BBG000BN8K76"
+  },
+  "US94984B5536": {
+    "ticker": "EGOAX",
+    "name": "ALLSPRING LRG CAP COR-A",
+    "figi": "BBG000V1MWS7"
+  },
+  "US0233757444": {
+    "ticker": "FMMMX",
+    "name": "AMCAP FUND-529F2",
+    "figi": "BBG00GPXRSX7"
+  },
+  "US3538258050": {
+    "ticker": "FRDAX",
+    "name": "FRANKLIN RISING DIVIDEND-ADV",
+    "figi": "BBG000C2PPD4"
+  },
+  "US05588K1043": {
+    "ticker": "DREVX",
+    "name": "BNYM LARGE CAP SECURITIES",
+    "figi": "BBG000BBWHR0"
+  },
+  "US72200Q6200": {
+    "ticker": "PTOAX",
+    "name": "PIMCO STOC PB ABS RET AF-AUI",
+    "figi": "BBG000PWXCB6"
+  },
+  "US9264646038": {
+    "ticker": "SRVEX",
+    "name": "VICTORY DIVERSIFIED STOCK-A",
+    "figi": "BBG000BJ58Q4"
+  },
+  "US63867U3436": {
+    "ticker": "GRMRX",
+    "name": "NATIONWD S&P 500 INX-R",
+    "figi": "BBG000HG3JP3"
+  },
+  "US6933913930": {
+    "ticker": "PSPAX",
+    "name": "PIMCO STKS+BND ALPHA FND-AUI",
+    "figi": "BBG000J1G543"
+  },
+  "US9393308666": {
+    "ticker": "RWMBX",
+    "name": "AMER FND WASH MUT INV-R2",
+    "figi": "BBG000B9YWK7"
+  },
+  "US00141B7828": {
+    "ticker": "OMSOX",
+    "name": "INVESCO MAIN ST ALL CAP-A",
+    "figi": "BBG00P3CX9F2"
+  },
+  "US44053A6148": {
+    "ticker": "DHAMX",
+    "name": "CENTRE AMERICAN SEL EQTY-ADV",
+    "figi": "BBG01TQS70W2"
+  },
+  "US47103C8376": {
+    "ticker": "JCNIX",
+    "name": "JANUS HNDRSN CONTARIAN-S",
+    "figi": "BBG000J1DFL5"
+  },
+  "US3163895507": {
+    "ticker": "FGIKX",
+    "name": "FIDELITY GRWTH & INC PORT-K",
+    "figi": "BBG000DBNMK4"
+  },
+  "US9393308096": {
+    "ticker": "CWMEX",
+    "name": "AMER FND WASH MUT INV-529E",
+    "figi": "BBG000BL3XV0"
+  },
+  "US55273W5094": {
+    "ticker": "MUSBX",
+    "name": "MFS BLEND RSRCH COR EQ-B",
+    "figi": "BBG000M98TF7"
+  },
+  "US3161848037": {
+    "ticker": "FMASX",
+    "name": "FIDELITY ADV MAGELLAN-Z",
+    "figi": "BBG01P823JP8"
+  },
+  "US92646A2603": {
+    "ticker": "MNNYX",
+    "name": "VICTORY MULTI-CAP FUND-Y USD",
+    "figi": "BBG000CD6ZD9"
+  },
+  "US0276818160": {
+    "ticker": "RMFGX",
+    "name": "AMER FNDS MUTUAL FND-R6",
+    "figi": "BBG000C6N4C5"
+  },
+  "US00769G4102": {
+    "ticker": "LSVMX",
+    "name": "LSV US MANAGED VOLATIL-INST",
+    "figi": "BBG006LYLFD7"
+  },
+  "US87245P1975": {
+    "ticker": "TGIWX",
+    "name": "NUVEEN CORE EQUITY FUND-W",
+    "figi": "BBG00L1CCZM0"
+  },
+  "US62827Q4001": {
+    "ticker": "ETLAX",
+    "name": "EVENTIDE LARGE CAP FOCUS-A",
+    "figi": "BBG0175W8M00"
+  },
+  "US5529883887": {
+    "ticker": "UIVPX",
+    "name": "MFS INTRINSIC EQUITY FUND-R3",
+    "figi": "BBG01587G4P0"
+  },
+  "US15136Y4070": {
+    "ticker": "COPLX",
+    "name": "COPLEY FUND",
+    "figi": "BBG01BV26366"
+  },
+  "US25159R1068": {
+    "ticker": "BTIIX",
+    "name": "DWS EQUITY 500 INDEX-INST",
+    "figi": "BBG000BK8WJ3"
+  },
+  "US3608754707": {
+    "ticker": "GVALX",
+    "name": "GOTHAM LARGE VALUE FUND-INST",
+    "figi": "BBG00C5C0411"
+  },
+  "US46600A4013": {
+    "ticker": "ICEQX",
+    "name": "NOMURA CORE EQUITY FUND-N",
+    "figi": "BBG006Q0ZKS4"
+  },
+  "US0682787538": {
+    "ticker": "BDAUX",
+    "name": "BARON DURABLE ADVANTAGE-R6",
+    "figi": "BBG00JM9WJV3"
+  },
+  "US0014138145": {
+    "ticker": "CHTCX",
+    "name": "INVESCO CHARTER FUND-C",
+    "figi": "BBG000BJ2921"
+  },
+  "US4166456388": {
+    "ticker": "HCACX",
+    "name": "HARTFORD CAPITAL APPREC-C",
+    "figi": "BBG000C21X98"
+  },
+  "US5434871282": {
+    "ticker": "LGRRX",
+    "name": "LOOMIS SAYLES GROWTH-A",
+    "figi": "BBG000C0F2L1"
+  },
+  "US9695573058": {
+    "ticker": "GVEQX",
+    "name": "GOVERNMENT STREET EQUITY",
+    "figi": "BBG000BKL115"
+  },
+  "US3161278516": {
+    "ticker": "FDEIX",
+    "name": "FIDELITY ADV CAP DEVELOP-I",
+    "figi": "BBG000HHBP23"
+  },
+  "US5771191005": {
+    "ticker": "MXXVX",
+    "name": "MATTHEW 25 FUND",
+    "figi": "BBG000C0NY78"
+  },
+  "US8486043024": {
+    "ticker": "SOAVX",
+    "name": "SPIRIT OF AMER L/C VAL-A",
+    "figi": "BBG000P2WMY6"
+  },
+  "US8863157389": {
+    "ticker": "TICRX",
+    "name": "NUVEEN LRG CAP RESP EQ FND-A",
+    "figi": "BBG000R3RHC3"
+  },
+  "US3608028474": {
+    "ticker": "RFNEX",
+    "name": "AMER FND FNDMNTL INVST-R4",
+    "figi": "BBG000BW1J67"
+  },
+  "US8034315197": {
+    "ticker": "SLGYX",
+    "name": "SARATOGA LARGE CAP GROW-A",
+    "figi": "BBG000J4P716"
+  },
+  "US3608027898": {
+    "ticker": "RFNHX",
+    "name": "AMER FND FNDMNTL INVST-R5E",
+    "figi": "BBG00BH5Y409"
+  },
+  "US00777X6452": {
+    "ticker": "LMOPX",
+    "name": "PATIENT OPPORTUNITY TR-C",
+    "figi": "BBG01KDX74Y4"
+  },
+  "US81580H4314": {
+    "ticker": "SAOPX",
+    "name": "BARRETT OPPORTUNITY FUND-RTL",
+    "figi": "BBG01LG9VB97"
+  },
+  "US3160711095": {
+    "ticker": "FCNTX",
+    "name": "FIDELITY CONTRAFUND",
+    "figi": "BBG000BBQQS6"
+  },
+  "US31635V7947": {
+    "ticker": "FLCPX",
+    "name": "FIDELITY SAI US L/C INDX",
+    "figi": "BBG00C67Z3V2"
+  },
+  "US74441F4054": {
+    "ticker": "PDSIX",
+    "name": "PGIM QUANT SOL LARG-CAP IN-I",
+    "figi": "BBG000BHVKP3"
+  },
+  "US4166455471": {
+    "ticker": "HGICX",
+    "name": "HARTFORD CORE EQUITY-C",
+    "figi": "BBG000BZ15X0"
+  },
+  "US4812A18458": {
+    "ticker": "JDEAX",
+    "name": "JPM US RSRCH ENHNCD EQTY-A",
+    "figi": "BBG000D27S38"
+  },
+  "US3998748582": {
+    "ticker": "RGACX",
+    "name": "AMER FND GRW FD OF AM-R3",
+    "figi": "BBG000BW9GW6"
+  },
+  "US04314H5191": {
+    "ticker": "APDTX",
+    "name": "ARTISAN FOCUS-ADV",
+    "figi": "BBG00KNRX968"
+  },
+  "US3998748251": {
+    "ticker": "GFFFX",
+    "name": "AMER FND GRW FD OF AM-F2",
+    "figi": "BBG000DD8QH2"
+  },
+  "US0669235667": {
+    "ticker": "BSPAX",
+    "name": "ISHARES S&P 500 INDEX-A",
+    "figi": "BBG0039FYS10"
+  },
+  "US0233753062": {
+    "ticker": "AMPCX",
+    "name": "AMCAP FUND-C",
+    "figi": "BBG000BWTYL7"
+  },
+  "US2571328523": {
+    "ticker": "DIEQX",
+    "name": "DOMINI IMPACT EQUITY-INST",
+    "figi": "BBG000BQJRN4"
+  },
+  "US3608021024": {
+    "ticker": "ANCFX",
+    "name": "AMER FND FNDMNTL INVST-A",
+    "figi": "BBG000BBZLK5"
+  },
+  "US41664T7191": {
+    "ticker": "HCAFX",
+    "name": "HARTFORD CAPITAL APPREC-F",
+    "figi": "BBG00G6S5144"
+  },
+  "US3159124029": {
+    "ticker": "FLCSX",
+    "name": "FIDELITY LARGE CAP STOCK-RTL",
+    "figi": "BBG015HXT1R3"
+  },
+  "US6409178604": {
+    "ticker": "NBSTX",
+    "name": "NEUBE QUALITY EQUITY FUND-TR",
+    "figi": "BBG000BSZYC9"
+  },
+  "US4613083066": {
+    "ticker": "AICCX",
+    "name": "AMER FND INV CO OF AM-C",
+    "figi": "BBG000BV9JG0"
+  },
+  "US92648C4704": {
+    "ticker": "PIOKX",
+    "name": "VICTORY PIONEER FUND-K",
+    "figi": "BBG01T7N6SL6"
+  },
+  "US3608028052": {
+    "ticker": "CFNEX",
+    "name": "AMER FND FNDMNTL INVST-529E",
+    "figi": "BBG000BP93Y8"
+  },
+  "US3608027971": {
+    "ticker": "RFEBX",
+    "name": "AMER FND FNDMNTL INVST-R2E",
+    "figi": "BBG006XPJ6J0"
+  },
+  "US2332036373": {
+    "ticker": "DFELX",
+    "name": "DFA ENHANCED US LRG CO PORTF",
+    "figi": "BBG000BLMT02"
+  },
+  "US3608028136": {
+    "ticker": "RFNGX",
+    "name": "AMER FND FNDMNTL INVST-R6",
+    "figi": "BBG000C6N7Q3"
+  },
+  "US40171W6113": {
+    "ticker": "GEQZX",
+    "name": "GUIDESTONE EQUITY INDEX-INV",
+    "figi": "BBG000CH6HD0"
+  },
+  "US57629S4140": {
+    "ticker": "MMINX",
+    "name": "MM S&P 500 INDEX FUND-R3",
+    "figi": "BBG000GZ3DV8"
+  },
+  "US57629R4810": {
+    "ticker": "MMIEX",
+    "name": "MM S&P 500 INDEX FUND-SERV",
+    "figi": "BBG000BHVGL6"
+  },
+  "US9219132084": {
+    "ticker": "VGIAX",
+    "name": "VANGUARD GROWTH & INCOME-ADM",
+    "figi": "BBG000BWZVN4"
+  },
+  "US19765H3131": {
+    "ticker": "NSGAX",
+    "name": "COLUMBIA CORNERSTONE EQ-A",
+    "figi": "BBG000FC1D97"
+  },
+  "US1152338687": {
+    "ticker": "BIAFX",
+    "name": "BROWN ADVISORY FLEX EQ-INV",
+    "figi": "BBG000QHZ4L3"
+  },
+  "US85749F7078": {
+    "ticker": "SUSIX",
+    "name": "STATE ST INST US EQTY-I",
+    "figi": "BBG000BQDHT6"
+  },
+  "US00777X6114": {
+    "ticker": "LMNOX",
+    "name": "PATIENT OPPORTUNITY TR-I",
+    "figi": "BBG01KDX79C7"
+  },
+  "US4812A11834": {
+    "ticker": "JUEAX",
+    "name": "JPMORGAN US EQUITY-A",
+    "figi": "BBG000BWDH13"
+  },
+  "US3538257060": {
+    "ticker": "FRDRX",
+    "name": "FRANKLIN RISING DIVIDEND-R",
+    "figi": "BBG000BZM406"
+  },
+  "US02508H7098": {
+    "ticker": "AFEIX",
+    "name": "AMER CNTRY LRG CAP EQT FND-I",
+    "figi": "BBG000QYLSJ1"
+  },
+  "US78462F1030": {
+    "ticker": "SPY",
+    "name": "SS SPDR S&P 500 ETF TRUST-US",
+    "figi": "BBG000BDTBL9"
+  },
+  "US4642872000": {
+    "ticker": "IVV",
+    "name": "ISHARES CORE S&P 500 ETF",
+    "figi": "BBG000BVZ4F5"
+  },
+  "US9229083632": {
+    "ticker": "VOO",
+    "name": "VANGUARD S&P 500 ETF",
+    "figi": "BBG0015VYNT4"
+  },
+  "US78464A8541": {
+    "ticker": "SPYM",
+    "name": "STE STR SPDR PT S&P 500 ETF",
+    "figi": "BBG000KMT5K3"
+  },
+  "US30151E4677": {
+    "ticker": "RMRC",
+    "name": "ARMOR CORE RISK-MANAGED ETF",
+    "figi": "BBG020DJYFC7"
+  },
+  "US00768Y7682": {
+    "ticker": "VEGA",
+    "name": "ADVSHRS STAR GBL BUY-WRITE",
+    "figi": "BBG003D085R9"
+  },
+  "US00888H8777": {
+    "ticker": "SIXO",
+    "name": "ALLIAN US EQU 6 MON BU10-USD",
+    "figi": "BBG012S1WW78"
+  },
+  "US00888H8694": {
+    "ticker": "SIXJ",
+    "name": "ALLIAN US EQU 6 MON BU10-USD",
+    "figi": "BBG014086N32"
+  },
+  "US00888H1095": {
+    "ticker": "APRT",
+    "name": "ALLIANZIM US EQ BFFR10 AP-US",
+    "figi": "BBG00V5MP3T2"
+  },
+  "US00888H7035": {
+    "ticker": "JANT",
+    "name": "ALLIANZIM US EQ BFFR10 JN-US",
+    "figi": "BBG00YPGMFG7"
+  },
+  "US00888H3075": {
+    "ticker": "JULT",
+    "name": "ALL US EQU BUF10 JUL ETF-USD",
+    "figi": "BBG00VSHDLY5"
+  },
+  "US00888H6045": {
+    "ticker": "OCTT",
+    "name": "ALL US EQU BUF10 OCT ETF-USD",
+    "figi": "BBG00XPR0TX0"
+  },
+  "US00888H2085": {
+    "ticker": "APRW",
+    "name": "ALLINZIM US EQ BFR20 APR-USD",
+    "figi": "BBG00V5MGGY7"
+  },
+  "US00888H8025": {
+    "ticker": "JANW",
+    "name": "ALIANZIM US EQ BFR20 JAN-USD",
+    "figi": "BBG00YPGMCV7"
+  },
+  "US00888H4065": {
+    "ticker": "JULW",
+    "name": "ALIANZIM US EQ BFR20 JUL-USD",
+    "figi": "BBG00VSHDJL4"
+  },
+  "US00888H5054": {
+    "ticker": "OCTW",
+    "name": "ALIANZIM US EQ BFR20 OCT-USD",
+    "figi": "BBG00XPR1847"
+  },
+  "US26922B4445": {
+    "ticker": "UPSD",
+    "name": "APTUS LARGE CAP UPSIDE ETF",
+    "figi": "BBG01QYCB6F5"
+  },
+  "US12009B1017": {
+    "ticker": "BFIX",
+    "name": "BUILD BOND INNOVATION ETF",
+    "figi": "BBG01462WN94"
+  },
+  "US12811T5222": {
+    "ticker": "CAGE",
+    "name": "CALAMOS AUTOCALLA GRO ETF",
+    "figi": "BBG021LWXL53"
+  },
+  "US86280R8034": {
+    "ticker": "SSUS",
+    "name": "DAY HAGAN SMART SECTOR ETF",
+    "figi": "BBG00RB01TQ4"
+  },
+  "US88636J1473": {
+    "ticker": "WDTE",
+    "name": "DEFIANCE S&P 500 WEEKLY DIST",
+    "figi": "BBG01J9T2WK9"
+  },
+  "US88636J5680": {
+    "ticker": "SPYT",
+    "name": "DEFIANCE S&P 500 TAR INC ETF",
+    "figi": "BBG01LT235D7"
+  },
+  "US25861R2040": {
+    "ticker": "CAPE",
+    "name": "DOUBLELINE SHILLER CAPE US",
+    "figi": "BBG016GD7CG8"
+  },
+  "US33738D8121": {
+    "ticker": "TDVI",
+    "name": "FT VEST TECHNOLOGY DIVIDEND",
+    "figi": "BBG01HPRC3M0"
+  },
+  "US33740U3648": {
+    "ticker": "UXAP",
+    "name": "FT VEST US UNCAP ACC ETF APR",
+    "figi": "BBG01TG2S7Z9"
+  },
+  "US33740U3234": {
+    "ticker": "UXJL",
+    "name": "FT US EQ UCPD ACCL ETF - JUL",
+    "figi": "BBG01W3FRR75"
+  },
+  "US33740F1443": {
+    "ticker": "UXOC",
+    "name": "FT USEQTY UNCAPACC ETF - OCT",
+    "figi": "BBG01Q9W7ZH8"
+  },
+  "US33740U4307": {
+    "ticker": "UXJA",
+    "name": "FT USEQ UNCPPDACCL ETF - JAN",
+    "figi": "BBG01RP520Q9"
+  },
+  "US31609A6029": {
+    "ticker": "FFLV",
+    "name": "FIDELITY FNDMNTL L/C VAL ETF",
+    "figi": "BBG01LH0M9N4"
+  },
+  "US33739H2004": {
+    "ticker": "ESBG",
+    "name": "FT ENH STOCKS,BONDS&GOLD ETF",
+    "figi": "BBG01YLH7NS5"
+  },
+  "US33740F4900": {
+    "ticker": "LALT",
+    "name": "FT MLT-STRAT ALTERNATIVE ETF",
+    "figi": "BBG01C9XD0W0"
+  },
+  "US66538F1571": {
+    "ticker": "GGM",
+    "name": "GGM MACRO ALIGNMENT ETF",
+    "figi": "BBG01JFKB9Z6"
+  },
+  "US8863648353": {
+    "ticker": "GSPY",
+    "name": "GOTHAM ENHANCED 500 ETF",
+    "figi": "BBG00YPGN186"
+  },
+  "US40169J4408": {
+    "ticker": "GEEQ",
+    "name": "GUGGENHEIM ENHANCED EQ ETF",
+    "figi": "BBG024CRMQ31"
+  },
+  "US66538R4415": {
+    "ticker": "HAWG",
+    "name": "HCM HEDGED EQUITY ETF",
+    "figi": "BBG0243BLKX7"
+  },
+  "US42588P6925": {
+    "ticker": "STNC",
+    "name": "HENNESSY SUSTAINABLE ETF",
+    "figi": "BBG01C4TFZ46"
+  },
+  "US45783Y5252": {
+    "ticker": "OCTH",
+    "name": "INNVTR PR INC20 BAR ETF-OCT",
+    "figi": "BBG01JLFBYV9"
+  },
+  "US45783Y4917": {
+    "ticker": "OCTJ",
+    "name": "INN PREM INCOME 30 BARR OCT",
+    "figi": "BBG01JLFCX59"
+  },
+  "US45782C5085": {
+    "ticker": "PJAN",
+    "name": "INNOVATOR U.S. EQUITY POWER",
+    "figi": "BBG00MYXKHF5"
+  },
+  "US45783Y6995": {
+    "ticker": "XUSP",
+    "name": "INNOVATOR UNCAPPED ACC US EQ",
+    "figi": "BBG018WBYLF1"
+  },
+  "US46090A7054": {
+    "ticker": "PHDG",
+    "name": "INVESCO S&P 500 DOWNSIDE HED",
+    "figi": "BBG003PDG3N8"
+  },
+  "US46090A6973": {
+    "ticker": "RSPA",
+    "name": "INVESCO S&P 500 EW INCOME AD",
+    "figi": "BBG01NQ4G9H6"
+  },
+  "US46641Q3323": {
+    "ticker": "JEPI",
+    "name": "JPMORGAN EQUITY PREMIUM INCO",
+    "figi": "BBG00TSG0RS0"
+  },
+  "US66537J7708": {
+    "ticker": "SECA",
+    "name": "MAIN ACTIVE ROTATION ETF",
+    "figi": "BBG024X1Q555"
+  },
+  "US66538H5919": {
+    "ticker": "SECT",
+    "name": "MAIN SECTOR ROTATION ETF",
+    "figi": "BBG00HMJ98D5"
+  },
+  "US84858T8559": {
+    "ticker": "KOOL",
+    "name": "NORTH SHORE EQUITY ROTATION",
+    "figi": "BBG01M5WS6S0"
+  },
+  "US72201R5515": {
+    "ticker": "SPLS",
+    "name": "PIMCO US STCK ACTV BOND ETF",
+    "figi": "BBG01ZHG3J20"
+  },
+  "US74255Y3009": {
+    "ticker": "PY",
+    "name": "PRINCIPAL VALUE ETF",
+    "figi": "BBG00CGY1JK6"
+  },
+  "US90386K5487": {
+    "ticker": "QTAC",
+    "name": "Q3 ALL-SEASON TACTIC ADV ETF",
+    "figi": "BBG01YZJ11B8"
+  },
+  "US77926X8332": {
+    "ticker": "XDIV",
+    "name": "ROUNDHILL S&P 500 ACCUMULATI",
+    "figi": "BBG01VW7TM45"
+  },
+  "US77926Y8232": {
+    "ticker": "XX",
+    "name": "RH SP 500 TGT 10000 2030 ETF",
+    "figi": "BBG025HVNHL3"
+  },
+  "US78470P4081": {
+    "ticker": "XLSR",
+    "name": "SS US SECTOR ROTATION",
+    "figi": "BBG00NS9VT92"
+  },
+  "US53656F5998": {
+    "ticker": "HEGD",
+    "name": "SWAN HEDGED EQUITY US LG CAP",
+    "figi": "BBG00YN70X92"
+  },
+  "US26923N5538": {
+    "ticker": "TSPY",
+    "name": "TAPPALPHA S&P 500 GR & DI-US",
+    "figi": "BBG01MVT3DC7"
+  },
+  "US87975E8268": {
+    "ticker": "DSPY",
+    "name": "TEMA S&P 500 HIST WEIGHT ETF",
+    "figi": "BBG01SX3CM48"
+  },
+  "US14064D4850": {
+    "ticker": "NITE",
+    "name": "THE NIGHTVIEW FUND",
+    "figi": "BBG01NC4T4J6"
+  },
+  "US00777X3970": {
+    "ticker": "BUIL",
+    "name": "REBUILD AMERICA ETF",
+    "figi": "BBG024PVRLF1"
+  },
+  "US00777X5462": {
+    "ticker": "RVER",
+    "name": "TRENCHLESS FUND ETF",
+    "figi": "BBG01M7VCV20"
+  },
+  "US2103225742": {
+    "ticker": "PAYM",
+    "name": "TS S&P AUTOCAL DFNS INC ETF",
+    "figi": "BBG01Z2YJ6D6"
+  },
+  "US2103228555": {
+    "ticker": "APRZ",
+    "name": "TRUESHARES STR OUTCOME APRIL",
+    "figi": "BBG01WJZK5V2"
+  },
+  "US2103228142": {
+    "ticker": "AUGZ",
+    "name": "TS STR OUTCOME AUG ETF",
+    "figi": "BBG01X3LJ8G1"
+  },
+  "US2103228712": {
+    "ticker": "FEBZ",
+    "name": "TRUESHARES STRUCT OUTCOM FEB",
+    "figi": "BBG01WJZKSF0"
+  },
+  "US2103228225": {
+    "ticker": "JULZ",
+    "name": "TS STR OUTCOME JUL ETF",
+    "figi": "BBG01X3LK717"
+  },
+  "US2103228308": {
+    "ticker": "JUNZ",
+    "name": "TRUESHARES STRUCTURED OC JUN",
+    "figi": "BBG01WJZQ9C9"
+  },
+  "US2103228639": {
+    "ticker": "MARZ",
+    "name": "TRUESHARES STRUC OUTCOME MAR",
+    "figi": "BBG01WJZQKW2"
+  },
+  "US2103228480": {
+    "ticker": "MAYZ",
+    "name": "TS STR OUTCOME MAY ETF",
+    "figi": "BBG01WJZQVL0"
+  },
+  "US2103227987": {
+    "ticker": "SEPZ",
+    "name": "TRUESHARES STRUC OUT SEP ETF",
+    "figi": "BBG01WJZT6P8"
+  },
+  "US2103227649": {
+    "ticker": "DECZ",
+    "name": "TRUESHARES STRUC OUT DEC ETF",
+    "figi": "BBG01WJZKHH2"
+  },
+  "US2103226815": {
+    "ticker": "JANZ",
+    "name": "TRUESHARES STRUCT OUTC JAN",
+    "figi": "BBG01WJZL4B6"
+  },
+  "US2103227722": {
+    "ticker": "NOVZ",
+    "name": "TRUESHARES STRUC OUTCOME NOV",
+    "figi": "BBG01WJZRSP2"
+  },
+  "US2103227805": {
+    "ticker": "OCTZ",
+    "name": "TRUESHARES STRUC OUTCOME OCT",
+    "figi": "BBG01WJZT0X2"
+  },
+  "US45259A1593": {
+    "ticker": "VOOB",
+    "name": "VISTASHRS SHLD S&P 500 ETF",
+    "figi": "BBG024Y1D2P3"
+  },
+  "_nulls_are_final": true
+}

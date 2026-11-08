@@ -1,0 +1,30 @@
+[project]
+name = "code"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "altair>=6.3.0",
+    "edgartools>=5.62.0",
+    "financedatabase>=2.5.1",
+    "financetoolkit>=2.2.3",
+    "matplotlib>=3.10.0",
+    "numpy>=2.5.4",
+    "openpyxl>=3.1.5",
+    "python-pptx>=1.0.2",
+    "pandas>=3.0.6",
+    "pymupdf>=2.0",
+    "scikit-learn>=1.9.1",
+    "trackinsight-data-python>=0.1.10",
+    "typesafe-sdk>=0.7.5",
+    "yfinance>=1.7.0",
+    "statsmodels>=0.15.0",
+    "marimo>=0.25.2",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.0",
+    "pip>=24.0",
+]

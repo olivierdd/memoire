@@ -1,0 +1,2004 @@
+{
+  "S000004570": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000315774",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000009228": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000044201",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000007016": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000898745",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000055364": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000819118",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.94"
+  },
+  "S000001014": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000861929",
+    "style": "Passive",
+    "source": "Jev",
+    "detail": "Jev Passive confidence 1.00"
+  },
+  "S000006699": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000872649",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000002853": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000862084",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000009597": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000051931",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000009227": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000039473",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000005361": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001084380",
+    "style": "Other",
+    "source": "Jev",
+    "detail": "Jev Other confidence 0.72"
+  },
+  "S000003448": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000088808",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000050286": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000804239",
+    "style": "Unknown",
+    "source": "Jev",
+    "detail": "Jev chose Other with confidence 0.37"
+  },
+  "S000004519": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000764157",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000009161": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000003521",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000027821": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001112996",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000081084": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001469192",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000060168": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000810902",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000010475": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000277751",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000007710": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001047112",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000007847": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000044402",
+    "style": "Unknown",
+    "source": "Jev",
+    "detail": "Jev chose Other with confidence 0.28"
+  },
+  "S000008999": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000005506",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000002438": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000200489",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000046772": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001345125",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000006858": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000805650",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000005454": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000275309",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000010795": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001097519",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000003609": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001006415",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000009922": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000882748",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000031478": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001506980",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000009388": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000104865",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000043215": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000081443",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000001447": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001217286",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.73"
+  },
+  "S000001157": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001131013",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000003853": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000932101",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000006658": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000770540",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "N-CEN fund type is N/A; no prospectus text"
+  },
+  "S000040131": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001040612",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000004644": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001070287",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.96"
+  },
+  "S000004163": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000880366",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000007198": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000754510",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "N-CEN fund type is N/A; no prospectus text"
+  },
+  "S000028525": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001469192",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000016651": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000880366",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000005959": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000862157",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000001076": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000853438",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000046029": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001107414",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000006769": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000939934",
+    "style": "Unknown",
+    "source": "Jev",
+    "detail": "Jev chose Other with confidence 0.44"
+  },
+  "S000011868": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000893730",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000005452": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000275309",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000003439": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000071701",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000009704": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000810893",
+    "style": "Other",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Fund of Funds"
+  },
+  "S000043383": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000939934",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000071157": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001516523",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000007112": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000061397",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000005540": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001293967",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000005073": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001027596",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000035242": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001355064",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000009999": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001090504",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.97"
+  },
+  "S000001543": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001160363",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000005011": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001048702",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.94"
+  },
+  "S000037523": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000052136",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000004999": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001048702",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000012125": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000005138",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000009327": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000822977",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000032010": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000862157",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000006036": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000024238",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000046713": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001517695",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.96"
+  },
+  "S000074687": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000318874",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000007021": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000035348",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.96"
+  },
+  "S000004907": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001071873",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000006903": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000787441",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000000630": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000022370",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000080062": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001959372",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.97"
+  },
+  "S000049577": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001594854",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000053789": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000836487",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "N-CEN fund type is N/A; no prospectus text"
+  },
+  "S000042768": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001480207",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000040644": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000894240",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000010527": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000865733",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000004931": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000811030",
+    "style": "Unknown",
+    "source": "Jev",
+    "detail": "Jev chose Active with confidence 0.25"
+  },
+  "S000005539": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001293967",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000002839": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000036405",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000001570": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000351601",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.74"
+  },
+  "S000006055": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000035331",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.91"
+  },
+  "S000008817": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000004405",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000046396": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000802716",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000004480": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000916490",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000068969": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000886244",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.94"
+  },
+  "S000069480": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001815558",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000079190": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000811030",
+    "style": "Unknown",
+    "source": "Jev",
+    "detail": "Jev chose Other with confidence 0.31"
+  },
+  "S000010825": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001097519",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000002568": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000752177",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.97"
+  },
+  "S000063192": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001593547",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000006288": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000883622",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000076523": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001355064",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000004084": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000772129",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000011768": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000071958",
+    "style": "Unknown",
+    "source": "Jev",
+    "detail": "Jev chose Active with confidence 0.46"
+  },
+  "S000027147": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000939934",
+    "style": "Unknown",
+    "source": "Jev",
+    "detail": "Jev chose Other with confidence 0.50"
+  },
+  "S000034947": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000081443",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000005977": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000827060",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000005514": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000904333",
+    "style": "Other",
+    "source": "Jev",
+    "detail": "Jev Other confidence 0.98"
+  },
+  "S000005197": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000102816",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000000277": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000105377",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000018490": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000804239",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000004568": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000315774",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000006056": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000035331",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.97"
+  },
+  "S000023743": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000356476",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000002500": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000911637",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.97"
+  },
+  "S000031537": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000102816",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000005551": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000820892",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000003059": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001039803",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000008033": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000052136",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000068163": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000836487",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.91"
+  },
+  "S000052208": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001545440",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "N-CEN fund type is N/A; no prospectus text"
+  },
+  "S000000865": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000832574",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000045798": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000878719",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000000834": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000796227",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000005304": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000745463",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000076294": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001567101",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.91"
+  },
+  "S000073786": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001872555",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000017367": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001391839",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000003604": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001006415",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000005370": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001084380",
+    "style": "Unknown",
+    "source": "Jev",
+    "detail": "Jev chose Active with confidence 0.35"
+  },
+  "S000054681": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000787623",
+    "style": "Passive",
+    "source": "Jev",
+    "detail": "Jev Passive confidence 0.79"
+  },
+  "S000082973": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001970751",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000006295": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000865177",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.76"
+  },
+  "S000005183": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000826686",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000043754": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001511699",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000001243": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000916620",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000004808": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001162127",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000011213": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000906352",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000011589": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001142728",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000066955": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001785360",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000048690": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001388485",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000000696": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000063091",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000001878": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000844779",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000004905": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000887215",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000033417": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001355064",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000056665": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000935015",
+    "style": "Other",
+    "source": "Jev",
+    "detail": "Jev Other confidence 0.62"
+  },
+  "S000001612": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001045701",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000003423": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000851680",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000052123": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001319067",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000031356": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001352280",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000065695": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000061397",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000012155": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000089043",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000006538": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001050918",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000011372": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001316506",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000005012": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001048702",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000002765": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001217286",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.83"
+  },
+  "S000012221": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000899148",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000001087": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000783898",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000054831": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001545440",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000005541": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001293967",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000004272": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000893818",
+    "style": "Unknown",
+    "source": "Jev",
+    "detail": "Jev chose Other with confidence 0.19"
+  },
+  "S000000131": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000857114",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000002791": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001217286",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.88"
+  },
+  "S000006203": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000100334",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000005451": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000275309",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000075628": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001903606",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000087836": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000890540",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.86"
+  },
+  "S000001081": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000796229",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000000833": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001023391",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000005371": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001084380",
+    "style": "Other",
+    "source": "Jev",
+    "detail": "Jev Other confidence 0.83"
+  },
+  "S000009705": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000810893",
+    "style": "Other",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Fund of Funds"
+  },
+  "S000002913": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000799127",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000070550": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001048702",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.97"
+  },
+  "S000080418": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001081400",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.85"
+  },
+  "S000005278": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000745463",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000004771": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000811860",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000009492": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000722885",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000013718": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000044402",
+    "style": "Other",
+    "source": "Jev",
+    "detail": "Jev Other confidence 0.60"
+  },
+  "S000029060": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001081400",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.97"
+  },
+  "S000000095": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000030167",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.96"
+  },
+  "S000057289": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000024238",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000001449": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001039667",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000005911": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000904333",
+    "style": "Other",
+    "source": "Jev",
+    "detail": "Jev Other confidence 0.77"
+  },
+  "S000011821": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000032339",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.97"
+  },
+  "S000001564": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000842512",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000005450": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000275309",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000019789": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000881773",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.94"
+  },
+  "S000026940": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000315774",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000000008": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000318478",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.80"
+  },
+  "S000005758": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000837276",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000009926": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000882748",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000038482": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001548609",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.60"
+  },
+  "S000004544": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000315774",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000029104": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001081400",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000006835": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001109957",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000011072": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001123460",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000002997": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000030126",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000076014": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001141819",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000010266": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000874964",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000004627": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000887991",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000005312": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001215880",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000003991": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000078713",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000003847": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000763852",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000004058": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000826732",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000035683": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000711080",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000011202": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000029440",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000011835": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000878719",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000065863": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001643174",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000005210": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000102818",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Master-Feeder Fund and has no indexFundInfo"
+  },
+  "S000003648": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000092500",
+    "style": "Unknown",
+    "source": "Jev",
+    "detail": "Jev chose Active with confidence 0.48"
+  },
+  "S000007715": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000877232",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000039214": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000035348",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "N-CEN fund type is N/A; no prospectus text"
+  },
+  "S000053207": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001661813",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000003661": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000916053",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000005715": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000892657",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000030100": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001103243",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000006027": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000819118",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000010136": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000078758",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000015059": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000705318",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000030456": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001477491",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000089995": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001643174",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000038959": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000770200",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000030555": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000842512",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000007249": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001081400",
+    "style": "Unknown",
+    "source": "Jev",
+    "detail": "Jev chose Active with confidence 0.48"
+  },
+  "S000007574": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000102767",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000005293": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000745463",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000041987": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000878719",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000002451": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000795264",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000000068": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000030146",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.91"
+  },
+  "S000000787": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000802716",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000046395": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000802716",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000051786": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001388485",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000001557": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000842512",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.83"
+  },
+  "S000005937": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001003839",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000010890": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000924628",
+    "style": "Other",
+    "source": "Jev",
+    "detail": "Jev Other confidence 0.74"
+  },
+  "S000081721": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000357204",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000006037": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000024238",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000051994": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000035315",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000000956": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000355437",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "N-CEN fund type is N/A; no prospectus text"
+  },
+  "S000001633": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001040061",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.98"
+  },
+  "S000004310": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001100663",
+    "style": "Passive",
+    "source": "Jev",
+    "detail": "Jev Passive confidence 0.88"
+  },
+  "S000006983": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001064642",
+    "style": "Passive",
+    "source": "N-CEN",
+    "detail": "N-CEN indexFundInfo fund type is Index Fund"
+  },
+  "S000101312": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001547950",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000034456": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001408970",
+    "style": "Other",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Fund of Funds"
+  },
+  "S000073507": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001797318",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000073506": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001797318",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000068203": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001797318",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000070331": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001797318",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000069181": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001797318",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000069521": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001797318",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000068204": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001797318",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000070332": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001797318",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000069182": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001797318",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000069522": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001797318",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000088187": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001540305",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.97"
+  },
+  "S000074231": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001875710",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000066772": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001506213",
+    "style": "Other",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Fund of Funds"
+  },
+  "S000081661": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001924868",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000084178": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001924868",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.73"
+  },
+  "S000074771": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001886172",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.74"
+  },
+  "S000081278": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001517936",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.83"
+  },
+  "S000086737": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001667919",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000093605": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001667919",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000086738": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001667919",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000086736": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001667919",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000084016": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000945908",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000096608": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001561785",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.68"
+  },
+  "S000079512": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001667919",
+    "style": "Unknown",
+    "source": "Jev",
+    "detail": "Jev chose Active with confidence 0.58"
+  },
+  "S000081846": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001518042",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000069980": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001742912",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000070925": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000831114",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000036643": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001418144",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000068402": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001485894",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000058154": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001644419",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000084308": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001484018",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000052930": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001572661",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000086582": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001976517",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000054091": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001516212",
+    "style": "Other",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Fund of Funds"
+  },
+  "S000070373": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001683471",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.72"
+  },
+  "S000083891": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001771146",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.96"
+  },
+  "S000090856": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001944285",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000083302": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001587551",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000084161": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001970751",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000068439": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001683471",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.60"
+  },
+  "S000068443": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001683471",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.64"
+  },
+  "S000068437": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001683471",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000068442": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001683471",
+    "style": "Unknown",
+    "source": "Jev",
+    "detail": "Jev chose Active with confidence 0.58"
+  },
+  "S000068441": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001683471",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.60"
+  },
+  "S000068438": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001683471",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.60"
+  },
+  "S000068440": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001683471",
+    "style": "Unknown",
+    "source": "Jev",
+    "detail": "Jev chose Active with confidence 0.58"
+  },
+  "S000068444": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001683471",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000068436": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001683471",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.60"
+  },
+  "S000068433": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001683471",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000068435": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001683471",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.62"
+  },
+  "S000068434": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001683471",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.66"
+  },
+  "NaN": {
+    "rule": "ncen-jev-v1",
+    "cik": NaN,
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  }
+}
