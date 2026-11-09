@@ -113,12 +113,13 @@ def _(mo):
         )
 
     steps = [
-        "1. Load all funds",
-        "2. Keep only selected funds",
-        "3. Verify there are no double counts or missing data",
-        "4. Match with OpenFIGI and enrich with name and market identifier",
-        "5. Match with EDGAR and enrich with CIK and series",
-        "6. Keep one primary share class per series",
+        "1. Load all funds and keep the selected funds",
+        "2. Verify there are no double counts or missing data",
+        "3. Match with OpenFIGI and enrich with name and market identifier",
+        "4. Match with EDGAR and enrich with CIK and series",
+        "5. Keep one primary share class per series",
+        "6. Check Fund Type",
+        "7. Check if TR timeseries available",
     ]
     nodes = "\n".join(
         f'    step{index}["{same_size_label(label)}"]'
@@ -143,6 +144,7 @@ def _(mo):
     ## 1. Load the data
 
     Load the **Funds** sheet of `CLEAN_RECOLTE DONNEES-EXCEL-V2.xlsx` (from `input-data/`).
+    The column names are normalized (lowercase, snake_case, prefixed with `ds.`) and saved to the `Funds` sheet of `output-data/v2-funds-normalized.xlsx`.
     Then place the selected funds in a new dataframe called `selected_funds`.
     """)
     return
@@ -187,37 +189,70 @@ def _():
 
     _ensure_helpers_importable()
 
-    from helpers.funds_functions.load_workbook import find_workbook, load_workbook
-    from helpers.funds_functions.write_excel import write_excel
+    from helpers.funds_functions.load_workbook import (
+        add_prefixed_columns,
+        find_workbook,
+        load_workbook,
+        normalize_columns,
+    )
+    from helpers.funds_functions.write_excel import write_excel, write_excel_sheets
 
-    def write_frame(frame, filename: str, *, header: bool = True) -> Path:
+    def write_sheets(sheets: dict, filename: str, *, no_header: tuple = ()) -> Path:
+        start = Path.cwd().resolve()
+        for directory in [start, *start.parents]:
+            if (directory / "helpers").is_dir():
+                return write_excel_sheets(
+                    sheets,
+                    directory / "output-data" / filename,
+                    no_header=no_header,
+                )
+        raise FileNotFoundError(f"Could not find helpers/, starting from {start}")
+
+    def write_frame(
+        frame, filename: str, *, header: bool = True, sheet_name: str = "Sheet1"
+    ) -> Path:
         start = Path.cwd().resolve()
         for directory in [start, *start.parents]:
             if (directory / "helpers").is_dir():
                 destination = directory / "output-data"
                 destination.mkdir(parents=True, exist_ok=True)
-                return write_excel(frame, destination / filename, header=header)
+                return write_excel(
+                    frame,
+                    destination / filename,
+                    header=header,
+                    sheet_name=sheet_name,
+                )
         raise FileNotFoundError(f"Could not find helpers/, starting from {start}")
 
     FILENAME = "CLEAN_RECOLTE DONNEES-EXCEL-V2.xlsx"
     workbook = find_workbook(Path("input-data") / FILENAME)
     funds = load_workbook(workbook)
+    # Normalized copy for export. `funds` keeps the original names that the
+    # later steps read.
+    funds_normalized = normalize_columns(funds, prefix="ds.")
+    normalized_export = write_frame(
+        funds_normalized, "v2-funds-normalized.xlsx", sheet_name="Funds"
+    )
     selected_funds = funds.loc[
         funds["fund_type"].notna()
         & funds["fund_type"].astype("string").str.strip().ne("")
     ].copy()
     return (
+        add_prefixed_columns,
         capture_prints,
         funds,
+        funds_normalized,
+        normalized_export,
         pd,
         selected_funds,
         workbook,
         write_frame,
+        write_sheets,
     )
 
 
 @app.cell
-def _(funds, mo, review_table, selected_funds, workbook):
+def _(funds, mo, normalized_export, review_table, selected_funds, workbook):
     fund_type_counts = (
         selected_funds["fund_type"]
         .value_counts()
@@ -229,7 +264,8 @@ def _(funds, mo, review_table, selected_funds, workbook):
             mo.md(
                 f"- Loaded `{workbook}` \n"
                 f"- **Total number of funds:** {len(funds):,} rows, {len(funds.columns)} columns \n"
-                f"- **Number of Selected funds:** {len(selected_funds):,} rows"
+                f"- **Number of Selected funds:** {len(selected_funds):,} rows \n"
+                f"- Wrote the normalized columns (prefix `ds.`) to sheet `Funds` of `{normalized_export}`"
             ),
             review_table(
                 fund_type_counts,
@@ -364,7 +400,14 @@ def _(mo):
 
 
 @app.cell
-def _(capture_prints, fill_cusips_button, selected_funds, set_cusip_fill):
+def _(
+    capture_prints,
+    fill_cusips_button,
+    funds_normalized,
+    selected_funds,
+    set_cusip_fill,
+    write_frame,
+):
     if fill_cusips_button.value:
         from helpers.funds_functions.check_openfigi_isin import (
             record_from_job,
@@ -426,11 +469,25 @@ def _(capture_prints, fill_cusips_button, selected_funds, set_cusip_fill):
                     "string"
                 )
                 message = f"Filled {len(accepted)} of {len(targets)} missing CUSIPs"
+            # Same index as `funds`, so the enriched CUSIPs land on the right rows.
+            _normalized = funds_normalized.copy()
+            _normalized["ds.cusip"] = _normalized["ds.cusip"].astype("string")
+            _filled = _funds["CUSIP"].astype("string")
+            _current = _normalized["ds.cusip"].reindex(_filled.index)
+            _changed = (_filled.notna() & (_current.isna() | _filled.ne(_current))).fillna(
+                False
+            ).astype(bool)
+            _normalized.loc[_changed.index[_changed], "ds.cusip"] = _filled.loc[_changed]
+            normalized_update = write_frame(
+                _normalized, "v2-funds-normalized.xlsx", sheet_name="Funds"
+            )
         set_cusip_fill(
             {
                 "funds": _funds,
                 "targets": targets,
                 "message": message,
+                "normalized": _normalized,
+                "normalized_export": normalized_update,
                 "log": _log_buffer.getvalue(),
             }
         )
@@ -443,7 +500,12 @@ def _(get_cusip_fill, mo, review_table):
     mo.stop(cusip_fill is None)
     selected_funds_modified = cusip_fill["funds"]
     cusip_targets = cusip_fill["targets"]
-    cusip_blocks = [mo.md(f"**{cusip_fill['message']}**")]
+    cusip_blocks = [
+        mo.md(
+            f"**{cusip_fill['message']}** \n\n"
+            f"Updated `ds.cusip` in sheet `Funds` of `{cusip_fill['normalized_export']}`"
+        )
+    ]
     if cusip_fill["log"].strip():
         cusip_blocks.append(mo.plain_text(cusip_fill["log"].strip()))
     if not cusip_targets.empty:
@@ -461,7 +523,7 @@ def _(get_cusip_fill, mo, review_table):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ## 4. Verify selected funds and enrich dataset with OpenFIGI
+    ## 3. Verify selected funds and enrich dataset with OpenFIGI
 
     Each ISIN is sent to the OpenFIGI mapping API (`ID_ISIN`).
 
@@ -472,7 +534,7 @@ def _(mo):
 
     ISIN records are cached in `cache/cache-isin-openfigi-record.json`. CUSIP listings are cached in `cache/cache-cusip-openfigi.json`.
 
-    Funds that are not in OpenFIGI are saved as `output-data/v2-no-matching-OPENFIGI.xlsx`.
+    The new columns are normalized, prefixed with `openfigi.` (`openfigi.market_id`, `openfigi.name`, `openfigi.isin_found`, ...) and added at the end of the `Funds` sheet of `output-data/v2-funds-normalized.xlsx`. Funds that are not in OpenFIGI are listed in the sheet `No matching OPENFIGI` of the same file.
     """)
     return
 
@@ -489,7 +551,7 @@ def _(get_cusip_fill, mo):
         [
             mo.md("""
             Some records have **no OpenFIGI match** and will have no market ticker and therefore no possibility to match with EDGAR.<br>
-            Funds with no match are saved in `output-data/v2-no-matching-OPENFIGI.xlsx`.
+            Funds with no match are listed in the sheet `No matching OPENFIGI` of `output-data/v2-funds-normalized.xlsx`.
             """),
             verify_openfigi_button,
         ]
@@ -499,11 +561,12 @@ def _(get_cusip_fill, mo):
 
 @app.cell
 def _(
+    add_prefixed_columns,
     capture_prints,
     get_cusip_fill,
     set_openfigi,
     verify_openfigi_button,
-    write_frame,
+    write_sheets,
 ):
     if verify_openfigi_button.value:
         openfigi_input = get_cusip_fill()
@@ -514,13 +577,27 @@ def _(
             with _redirect:
                 _funds = check_openfigi_isins(openfigi_input["funds"])
             unmatched_openfigi = _funds.loc[~_funds["isin_found"]].copy()
-            openfigi_export = write_frame(
-                unmatched_openfigi, "v2-no-matching-OPENFIGI.xlsx"
+            # Rows share the index of `funds_normalized`, so the new columns line up.
+            normalized_openfigi = add_prefixed_columns(
+                openfigi_input["normalized"],
+                _funds,
+                "openfigi.",
+                source_columns=openfigi_input["funds"].columns,
+                source_prefix="openfigi_",
             )
+            openfigi_sheets = {
+                "Funds": normalized_openfigi,
+                "No matching OPENFIGI": normalized_openfigi.loc[
+                    unmatched_openfigi.index
+                ],
+            }
+            openfigi_export = write_sheets(openfigi_sheets, "v2-funds-normalized.xlsx")
             set_openfigi(
                 {
                     "funds": _funds,
                     "unmatched": unmatched_openfigi,
+                    "normalized": normalized_openfigi,
+                    "sheets": openfigi_sheets,
                     "export": openfigi_export,
                     "log": _log_buffer.getvalue(),
                 }
@@ -557,7 +634,7 @@ def _(get_cusip_fill, get_openfigi, mo, review_table):
             f"- **{openfigi_found}** of {len(funds_openfigi)} ISINs found in OpenFIGI \n"
             f"- **{openfigi_name_matches}** of {len(funds_openfigi)} names match the OpenFIGI record \n"
             f"- **{openfigi_cusip_matches}** of {len(funds_openfigi)} CUSIPs return the same OpenFIGI record as the ISIN \n"
-            f"- For non matching rows : wrote {len(openfigi_result['unmatched'])} rows to `{openfigi_result['export']}`\n"
+            f"- For non matching rows : wrote {len(openfigi_result['unmatched'])} rows to sheet `No matching OPENFIGI` of `{openfigi_result['export']}`; the `openfigi.*` columns are at the end of sheet `Funds`\n"
             f"- The selected funds dataset has been enriched with OpenFIGI data in the output dataset `funds_openfigi`.\n"
         )
     ]
@@ -578,7 +655,7 @@ def _(get_cusip_fill, get_openfigi, mo, review_table):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ## 5. Verify and enrich ISINs with EDGAR
+    ## 4. Verify and enrich ISINs with EDGAR
 
     The SEC fund reference is keyed by ticker. Each ISIN is resolved with its OpenFIGI ticker, then looked up in that reference. The CUSIP resolves to the same ticker, so it is not looked up separately.
 
@@ -609,7 +686,7 @@ def _(get_openfigi, mo):
         [
             mo.md("""
             Some records have **no EDGAR match** and will not be enriched.<br>
-            Funds with no match are saved in `output-data/v2-no-matching-EDGAR.xlsx`.
+            Funds with no match are listed in the sheet `No matching EDGAR` of `output-data/v2-funds-normalized.xlsx`. The EDGAR columns are added at the end of the sheet `Funds`, normalized and prefixed with `edgar.`.
             """),
             match_edgar_button,
         ]
@@ -618,12 +695,35 @@ def _(get_openfigi, mo):
 
 
 @app.cell
+def _(add_prefixed_columns, write_sheets):
+    def build_edgar_workbook(openfigi_state, funds_edgar):
+        """Add the edgar.* columns to Funds and rewrite the workbook."""
+        normalized = add_prefixed_columns(
+            openfigi_state["normalized"],
+            funds_edgar,
+            "edgar.",
+            source_columns=openfigi_state["funds"].columns,
+            source_prefix=("edgartools_", "edgar_"),
+        )
+        not_found = ~funds_edgar["edgar_isin_found"].fillna(False).astype(bool)
+        sheets = {
+            **openfigi_state["sheets"],
+            "Funds": normalized,
+            "No matching EDGAR": normalized.loc[funds_edgar.index[not_found]],
+        }
+        path = write_sheets(sheets, "v2-funds-normalized.xlsx")
+        return normalized, sheets, path
+
+    return (build_edgar_workbook,)
+
+
+@app.cell
 def _(
+    build_edgar_workbook,
     capture_prints,
     get_openfigi,
     match_edgar_button,
     set_edgar,
-    write_frame,
 ):
     if match_edgar_button.value:
         edgar_input = get_openfigi()
@@ -636,11 +736,16 @@ def _(
             with _redirect:
                 _funds = match_edgar_identifiers(edgar_input["funds"])
             unmatched_edgar = _funds.loc[~_funds["edgar_isin_found"]].copy()
-            edgar_export = write_frame(unmatched_edgar, "v2-no-matching-EDGAR.xlsx")
+            edgar_normalized, edgar_sheets, edgar_export = build_edgar_workbook(
+                edgar_input, _funds
+            )
             set_edgar(
                 {
                     "funds": _funds,
                     "unmatched": unmatched_edgar,
+                    "base": edgar_input,
+                    "normalized": edgar_normalized,
+                    "sheets": edgar_sheets,
                     "export": edgar_export,
                     "log": _log_buffer.getvalue(),
                 }
@@ -679,7 +784,7 @@ def _(get_edgar, get_openfigi, mo, review_table):
         mo.md(
             f"- **{edgar_matches}** of {len(funds_edgar)} ISINs match an EDGAR record \n"
             f"- **{edgar_name_matches}** of {edgar_matches} EDGAR names match the sheet \n"
-            f"- For non matching rows : wrote {len(edgar_result['unmatched'])} rows to `{edgar_result['export']}` \n"
+            f"- For non matching rows : wrote {len(edgar_result['unmatched'])} rows to sheet `No matching EDGAR` of `{edgar_result['export']}` \n"
             f"- The selected funds dataset has been enriched with EDGAR data in the output dataset `funds_edgar`. \n"
         )
     ]
@@ -742,7 +847,7 @@ def _(funds_edgar, mo, review_table):
                 **Case 1: Match by name, and keep ({len(name_review)})**
 
                 - These funds are already in the SEC file. The row has the series and the share class, and its ticker cell is blank.
-                - Section 5 looks up the OpenFIGI ticker in that cell. A blank cell is reported as no match.
+                - Section 4 looks up the OpenFIGI ticker in that cell. A blank cell is reported as no match.
                 - The correction matches the fund name on the sheet to the SEC series and share class. It does not use the ticker. The class id from that name match is what gets stored.
                 - Two funds are not taken from the OpenFIGI name. Invesco Main Street All Cap Fund;Y is class Y on the sheet and in the SEC file; OpenFIGI calls it class A. HAWG is the HCM Hedged Equity ETF; the SEC ticker list currently gives HAWG to Tradr 2X Long HAWK, so the HCM series is the one stored.
 
@@ -789,10 +894,10 @@ def _(funds_edgar, mo, review_table):
 @app.cell
 def _(
     apply_edgar_corrections_button,
+    build_edgar_workbook,
     capture_prints,
     get_edgar,
     set_edgar,
-    write_frame,
 ):
     if apply_edgar_corrections_button.value:
         current_edgar = get_edgar()
@@ -812,12 +917,19 @@ def _(
                 )
             still_unmatched = ~enriched_edgar["edgar_isin_found"].astype(bool)
             remaining_unmatched = enriched_edgar.loc[still_unmatched].copy()
-            correction_export = write_frame(remaining_unmatched, "v2-no-matching-EDGAR.xlsx")
+            # Rebuild Funds from the corrected frame: match by name, closed and
+            # cannot-match rows all keep their enrichments.
+            correction_normalized, correction_sheets, correction_export = (
+                build_edgar_workbook(current_edgar["base"], enriched_edgar)
+            )
             previous_log = current_edgar.get("log") or ""
             set_edgar(
                 {
                     "funds": enriched_edgar,
                     "unmatched": remaining_unmatched,
+                    "base": current_edgar["base"],
+                    "normalized": correction_normalized,
+                    "sheets": correction_sheets,
                     "export": correction_export,
                     "log": previous_log + correction_log.getvalue(),
                     "corrections_applied": True,
@@ -829,7 +941,7 @@ def _(
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ## 6. Verify if some funds belong to the same series
+    ## 5. Verify if some funds belong to the same series
 
     Funds are filed in EDGAR as a registrant (CIK), then a series, then a share class. One CIK is the investment company. It can offer several series, and each series can offer several share classes of the same portfolio.
 
@@ -892,7 +1004,7 @@ def _(get_edgar, mo):
         [
             mo.md("""
             **Some records share classes belonging to the same fund series.**<br>
-            The table writes them to `output-data/v2-common-fund-series.xlsx`. **Confirm classes on N-PORT** fills `nport_same_series` and writes the file again.
+            The table writes them to the sheet `Common fund series` of `output-data/v2-funds-normalized.xlsx`. **Confirm classes on N-PORT** fills `nport_same_series` (column `edgar.nport_same_series` in sheet `Funds`) and writes the file again.
             """),
             confirm_nport_button,
         ]
@@ -924,7 +1036,15 @@ def _(
 
 
 @app.cell
-def _(get_edgar, get_nport_check, mo, review_table, series_groups, write_frame):
+def _(
+    add_prefixed_columns,
+    get_edgar,
+    get_nport_check,
+    mo,
+    review_table,
+    series_groups,
+    write_sheets,
+):
     series_input = get_edgar()
     mo.stop(
         series_input is None,
@@ -967,16 +1087,27 @@ def _(get_edgar, get_nport_check, mo, review_table, series_groups, write_frame):
         "AUM",
         "nport_same_series",
     ]
-    share_class_export = write_frame(
-        missing_class_id, "v2-no-matching-EDGAR_SHARE_CLASS.xlsx"
-    )
-    common_series_export = write_frame(
-        same_cik_series.loc[:, series_columns], "v2-common-fund-series.xlsx"
-    )
+    # Funds gets the N-PORT result once the check has run. The other rows stay blank.
+    series_normalized = series_input["normalized"]
+    if nport_check is not None:
+        series_normalized = add_prefixed_columns(
+            series_normalized,
+            nport_check["funds"][["nport_same_series"]],
+            "edgar.",
+            source_columns=[],
+        )
+    series_sheets = {
+        **series_input["sheets"],
+        "Funds": series_normalized,
+        "No EDGAR share class": series_normalized.loc[missing_class_id.index],
+        "Common fund series": series_normalized.loc[same_cik_series.index],
+    }
+    share_class_export = write_sheets(series_sheets, "v2-funds-normalized.xlsx")
+    common_series_export = share_class_export
     series_blocks = [
         mo.md(
             f"- **{class_count} {class_verb} no EDGAR share class id** \n"
-            f"- Wrote {class_count} rows to `{share_class_export}` \n"
+            f"- Wrote {class_count} rows to sheet `No EDGAR share class` of `{share_class_export}` \n"
         ),
         review_table(
             missing_class_id,
@@ -991,19 +1122,19 @@ def _(get_edgar, get_nport_check, mo, review_table, series_groups, write_frame):
         ),
         mo.md(
             f"- **{series_count} {series_verb} a CIK and series with another selected fund** \n"
-            f"- Wrote {series_count} rows to `{common_series_export}` \n"
+            f"- Wrote {series_count} rows to sheet `Common fund series` of `{common_series_export}`, and the N-PORT result to `edgar.nport_same_series` in sheet `Funds` \n"
             f"- {nport_note} \n"
         ),
         review_table(same_cik_series, series_columns, "Same CIK and series"),
     ]
     mo.vstack(series_blocks)
-    return missing_class_id, same_cik_series
+    return missing_class_id, same_cik_series, series_sheets
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ## 6b. Keep the primary share class
+    ## 5b. Keep the primary share class
 
     One series is one portfolio. Where the selected funds include more than one class of that series, one class stays and the others are removed. A fund that is the only selected class of its series stays. A fund with no series id stays, because it is not a second class of a known series.
 
@@ -1019,7 +1150,7 @@ def _(mo):
 
 
 @app.cell
-def _(get_edgar, mo, review_table, write_frame):
+def _(get_edgar, mo, pd, review_table, series_sheets, write_sheets):
     primary_input = get_edgar()
     mo.stop(
         primary_input is None,
@@ -1047,30 +1178,43 @@ def _(get_edgar, mo, review_table, write_frame):
         "AUM",
         "primary_rule",
     ]
-    primary_export = write_frame(
-        primary_from_series.loc[:, primary_columns],
-        "v2-primary-share-class.xlsx",
+    # New columns on the funds dataframe, saved in the Funds sheet. True is the kept
+    # class, False a removed class. Rows outside the selection stay blank.
+    primary_normalized = series_sheets["Funds"].copy()
+    primary_flag = pd.Series(pd.NA, index=primary_normalized.index, dtype="boolean")
+    primary_flag.loc[funds_primary.index] = True
+    primary_flag.loc[dropped_classes.index] = False
+    primary_normalized["edgar.primary_share_class"] = primary_flag
+    primary_normalized["edgar.primary_rule"] = funds_primary["primary_rule"].reindex(
+        primary_normalized.index
     )
-    dropped_export = write_frame(dropped_classes, "v2-dropped-share-classes.xlsx")
+    dropped_sheet = primary_normalized.loc[dropped_classes.index].copy()
+    dropped_sheet["edgar.kept_isin"] = dropped_classes["kept_isin"]
+    primary_sheets = {
+        **series_sheets,
+        "Funds": primary_normalized,
+        "Dropped share classes": dropped_sheet,
+    }
+    dropped_export = write_sheets(primary_sheets, "v2-funds-normalized.xlsx")
     mo.vstack(
         [
             mo.md(
                 f"- **{len(primary_input['funds'])}** funds went in \n"
                 f"- **{len(dropped_classes)}** share classes were removed from **{collapsed}** series \n"
                 f"- **{len(funds_primary)}** funds remain, one class per series \n"
-                f"- Wrote {len(primary_from_series)} primary classes to `{primary_export}` \n"
-                f"- Wrote {len(dropped_classes)} removed classes to `{dropped_export}` \n"
+                f"- Added `edgar.primary_share_class` and `edgar.primary_rule` to sheet `Funds` of `{dropped_export}` \n"
+                f"- Wrote {len(dropped_classes)} removed classes to sheet `Dropped share classes` of the same file \n"
             ),
             review_table(primary_from_series, primary_columns, "Primary share class"),
         ]
     )
-    return (funds_primary,)
+    return funds_primary, primary_sheets
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ## 7. Verify fund type (active vs passive)
+    ## 6. Verify fund type (active vs passive)
 
     Each fund is classified at the EDGAR series: one registrant (CIK) and one series id. Share classes of that series receive the same label. The label is Passive, Active, Other, or Unknown. The first source that decides wins.
 
@@ -1105,7 +1249,7 @@ def _(get_edgar, mo):
         [
             mo.md("""
             **Some funds have an invalidated fund type.**<br>
-            Funds whose sheet fund type does not match the classified fund type are saved in `output-data/v2-fund-type-mismatch.xlsx`.
+            Funds whose sheet fund type does not match the classified fund type are listed in the sheet `Fund type mismatch` of `output-data/v2-funds-normalized.xlsx`.
             """),
             classify_style_button,
         ]
@@ -1115,11 +1259,13 @@ def _(get_edgar, mo):
 
 @app.cell
 def _(
+    add_prefixed_columns,
     capture_prints,
     classify_style_button,
     funds_primary,
+    primary_sheets,
     set_style,
-    write_frame,
+    write_sheets,
 ):
     if classify_style_button.value:
         if funds_primary is not None:
@@ -1143,14 +1289,29 @@ def _(
                     edgar_type.fillna("").str.casefold()
                 )
             ].copy()
-            fund_type_export = write_frame(
-                fund_type_mismatch, "v2-fund-type-mismatch.xlsx"
+            # New columns go at the end of Funds. Rows removed in 5b stay blank.
+            style_normalized = add_prefixed_columns(
+                primary_sheets["Funds"],
+                _funds,
+                "fund_type_dq.",
+                source_columns=funds_primary.columns,
+                source_prefix="fund_management_",
+            )
+            style_sheets = {
+                **primary_sheets,
+                "Funds": style_normalized,
+                "Fund type mismatch": style_normalized.loc[fund_type_mismatch.index],
+            }
+            normalized_style_export = write_sheets(
+                style_sheets, "v2-funds-normalized.xlsx"
             )
             set_style(
                 {
                     "funds": _funds,
+                    "normalized": style_normalized,
+                    "sheets": style_sheets,
+                    "export": normalized_style_export,
                     "mismatch": fund_type_mismatch,
-                    "export": fund_type_export,
                     "log": _log_buffer.getvalue(),
                 }
             )
@@ -1203,7 +1364,8 @@ def _(get_edgar, get_style, mo, review_table):
             f"- **{no_prospectus}** stayed Unknown because N-CEN did not decide and the prospectus had no usable text \n"
             f"- **{low_confidence}** stayed Unknown because Jev's choice was below 0.60 confidence \n"
             f"- **{len(style_result['mismatch'])}** funds have a sheet fund type that does not match the classified type \n"
-            f"- Wrote {len(style_result['mismatch'])} rows to `{style_result['export']}` \n"
+            f"- Wrote {len(style_result['mismatch'])} rows to sheet `Fund type mismatch` of `{style_result['export']}` \n"
+            f"- Added the `fund_type_dq.*` columns at the end of sheet `Funds` of the same file \n"
         ),
     ]
     style_blocks.append(
@@ -1219,7 +1381,7 @@ def _(get_edgar, get_style, mo, review_table):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ## 8. Verify if there is a time series
+    ## 7. Verify if there is a time series
 
     Load the **D-Timeseries** sheet of the same workbook. The first rows are labels, not a column header. A daily total return series is a column whose note is `Total return index, daily` and that has at least one value.
 
@@ -1242,7 +1404,7 @@ def _(get_style, mo):
         [
             mo.md("""
             Some funds have **no daily total return**, or the series name does not match.<br>
-            Funds with no series are saved in `output-data/v2-no-daily-total-return.xlsx`. Funds whose series name does not match are saved in `output-data/v2-no-matching-D-TIMESERIES-NAME.xlsx`.
+            Funds with no series are listed in the sheet `No daily total return`. Funds whose series name does not match are listed in the sheet `No matching D-TIMESERIES NAME`. Both sheets are in `output-data/v2-funds-normalized.xlsx`, and the new columns (prefix `timeseries.`) are added at the end of the sheet `Funds`.
             """),
             match_timeseries_button,
         ]
@@ -1252,13 +1414,14 @@ def _(get_style, mo):
 
 @app.cell
 def _(
+    add_prefixed_columns,
     capture_prints,
     get_style,
     match_timeseries_button,
     pd,
     set_timeseries,
     workbook,
-    write_frame,
+    write_sheets,
 ):
     if match_timeseries_button.value:
         timeseries_input = get_style()
@@ -1300,17 +1463,34 @@ def _(
                 name_gap_columns,
             ]
             funds_without_timeseries = _funds.loc[~_funds["has_daily_total_return"]].copy()
-            name_gap_export = write_frame(
-                name_gap, "v2-no-matching-D-TIMESERIES-NAME.xlsx"
+            # New columns go at the end of Funds. Rows outside this step stay blank.
+            timeseries_normalized = add_prefixed_columns(
+                timeseries_input["normalized"],
+                _funds,
+                "timeseries.",
+                source_columns=timeseries_input["funds"].columns,
             )
-            missing_timeseries_export = write_frame(
-                funds_without_timeseries, "v2-no-daily-total-return.xlsx"
+            timeseries_sheets = {
+                **timeseries_input["sheets"],
+                "Funds": timeseries_normalized,
+                "No matching D-TIMESERIES NAME": timeseries_normalized.loc[
+                    name_gap.index
+                ],
+                "No daily total return": timeseries_normalized.loc[
+                    funds_without_timeseries.index
+                ],
+            }
+            name_gap_export = write_sheets(
+                timeseries_sheets, "v2-funds-normalized.xlsx"
             )
+            missing_timeseries_export = name_gap_export
             set_timeseries(
                 {
                     "funds": _funds,
                     "name_gap": name_gap,
                     "missing": funds_without_timeseries,
+                    "normalized": timeseries_normalized,
+                    "sheets": timeseries_sheets,
                     "name_gap_export": name_gap_export,
                     "missing_export": missing_timeseries_export,
                     "rows": len(daily_timeseries),
@@ -1362,8 +1542,8 @@ def _(get_style, get_timeseries, mo, review_table):
             f"- **D-Timeseries:** {timeseries_result['rows']:,} rows, {timeseries_result['columns']} columns \n"
             f"- **{timeseries_found}** of {len(funds_with_timeseries)} funds have a daily total return series \n"
             f"- **{matched_names}** of {timeseries_found} series names match Name, OpenFIGI, or EDGAR \n"
-            f"- Wrote {len(timeseries_result['name_gap'])} rows to `{timeseries_result['name_gap_export']}` \n"
-            f"- Wrote {len(timeseries_result['missing'])} rows to `{timeseries_result['missing_export']}` \n"
+            f"- Wrote {len(timeseries_result['name_gap'])} rows to sheet `No matching D-TIMESERIES NAME` of `{timeseries_result['name_gap_export']}` \n"
+            f"- Wrote {len(timeseries_result['missing'])} rows to sheet `No daily total return` of the same file, and the `timeseries.*` columns at the end of sheet `Funds` \n"
         )
     ]
     if timeseries_result["log"].strip():
@@ -1389,7 +1569,7 @@ def _(get_style, get_timeseries, mo, review_table):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ## 9. Keep funds with a daily total return
+    ## 8. Keep funds with a daily total return
 
     Funds with no daily total return series are removed. A fund whose series name does not match stays, because the series itself is present. The kept funds are `funds_with_daily_total_return`.
     """)
@@ -1409,7 +1589,7 @@ def _(get_timeseries, mo):
             mo.md("""
             Funds with **no daily total return** are removed from the set.
 
-            The kept funds are saved in `output-data/v2-funds-with-daily-total-return.xlsx`.
+            The column `timeseries.keep_or_drop` (Keep or Drop) is added at the end of the sheet `Funds`. The kept funds are copied to the sheet `Funds with daily TR`. Both are in `output-data/v2-funds-normalized.xlsx`.
             """),
             drop_missing_timeseries_button,
         ]
@@ -1421,8 +1601,9 @@ def _(get_timeseries, mo):
 def _(
     drop_missing_timeseries_button,
     get_timeseries,
+    pd,
     set_daily_return,
-    write_frame,
+    write_sheets,
 ):
     if drop_missing_timeseries_button.value:
         daily_return_input = get_timeseries()
@@ -1430,10 +1611,22 @@ def _(
             _funds = daily_return_input["funds"]
             has_series = _funds["has_daily_total_return"].fillna(False).astype(bool)
             kept = _funds.loc[has_series].copy()
-            kept_export = write_frame(kept, "v2-funds-with-daily-total-return.xlsx")
+            # One value per fund of this step. Rows that left the set earlier stay blank.
+            daily_return_normalized = daily_return_input["normalized"].copy()
+            decision = pd.Series(pd.NA, index=daily_return_normalized.index, dtype="object")
+            decision.loc[_funds.index] = has_series.map({True: "Keep", False: "Drop"})
+            daily_return_normalized["timeseries.keep_or_drop"] = decision
+            daily_return_sheets = {
+                **daily_return_input["sheets"],
+                "Funds": daily_return_normalized,
+                "Funds with daily TR": kept,
+            }
+            kept_export = write_sheets(daily_return_sheets, "v2-funds-normalized.xlsx")
             set_daily_return(
                 {
                     "funds": kept,
+                    "normalized": daily_return_normalized,
+                    "sheets": daily_return_sheets,
                     "started": len(_funds),
                     "dropped": int((~has_series).sum()),
                     "export": kept_export,
@@ -1469,7 +1662,7 @@ def _(get_daily_return, get_timeseries, mo, review_table):
                 f"- **{daily_return['started']}** funds went in \n"
                 f"- **{daily_return['dropped']}** funds with no daily total return were removed \n"
                 f"- **{len(funds_with_daily_total_return)}** funds remain \n"
-                f"- Wrote {len(funds_with_daily_total_return)} rows to `{daily_return['export']}` \n"
+                f"- Wrote {len(funds_with_daily_total_return)} rows to sheet `Funds with daily TR` of `{daily_return['export']}`, and `timeseries.keep_or_drop` at the end of sheet `Funds` \n"
             ),
             review_table(
                 funds_with_daily_total_return,
@@ -1484,7 +1677,7 @@ def _(get_daily_return, get_timeseries, mo, review_table):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ## 10. Save the final fund set
+    ## 9. Save the final fund set
 
     `funds_final` is the remaining funds, with the columns put in reading order.
 
@@ -1508,7 +1701,7 @@ def _(get_daily_return, mo):
     mo.vstack(
         [
             mo.md("""
-            This writes the cleaned fund set to `output-data/v2-funds-final.xlsx`.
+            This writes the cleaned fund set to the sheet `Funds final` of `output-data/v2-funds-normalized.xlsx`.
             """),
             write_final_button,
         ]
@@ -1522,7 +1715,7 @@ def _(
     selected_funds,
     set_final,
     write_final_button,
-    write_frame,
+    write_sheets,
 ):
     def _arrange_final_funds(frame, original_columns):
         placed: set[str] = set()
@@ -1623,11 +1816,13 @@ def _(
                 final_input["funds"],
                 list(selected_funds.columns),
             )
-            final_export = write_frame(_funds_final, "v2-funds-final.xlsx")
+            final_sheets = {**final_input["sheets"], "Funds final": _funds_final}
+            final_export = write_sheets(final_sheets, "v2-funds-normalized.xlsx")
             set_final(
                 {
                     "funds": _funds_final,
                     "groups": column_groups,
+                    "sheets": final_sheets,
                     "export": final_export,
                 }
             )
@@ -1654,7 +1849,7 @@ def _(get_daily_return, get_final, mo, pd, review_table):
             mo.md(
                 f"- **{len(funds_final)}** funds remain \n"
                 f"- **{len(funds_final.columns)}** columns, sheet columns first and the added columns beside the field they describe \n"
-                f"- Wrote {len(funds_final)} rows to `{final_result['export']}` \n"
+                f"- Wrote {len(funds_final)} rows to sheet `Funds final` of `{final_result['export']}` \n"
             ),
             review_table(column_layout, ["group", "column"], "Column order"),
             review_table(funds_final, list(funds_final.columns), "Final fund set"),
@@ -1666,7 +1861,7 @@ def _(get_daily_return, get_final, mo, pd, review_table):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ## 11. Keep the time series of the remaining funds
+    ## 10. Keep the time series of the remaining funds
 
     The **D-Timeseries** sheet has one column for each series. A fund has its total return, price, and net assets. The S&P 500 columns are the index. The 3-month US T-bill is the risk-free rate.
 
@@ -1688,7 +1883,7 @@ def _(get_final, mo):
             mo.md("""
             Fund columns that are not in the final set are removed. The index and the risk-free rate stay.
 
-            The sheet is saved in `output-data/v2-d-timeseries-final.xlsx`.
+            The sheet is saved as `D-Timeseries final` in `output-data/v2-funds-normalized.xlsx`.
             """),
             filter_timeseries_button,
         ]
@@ -1703,7 +1898,7 @@ def _(
     pd,
     set_daily_series,
     workbook,
-    write_frame,
+    write_sheets,
 ):
     if filter_timeseries_button.value:
         _final_funds = get_final()
@@ -1724,10 +1919,10 @@ def _(
                 _kept["ISIN"],
                 _kept["daily_tr_name"] if "daily_tr_name" in _kept.columns else None,
             )
-            series_export = write_frame(
-                _daily_timeseries_final,
-                "v2-d-timeseries-final.xlsx",
-                header=False,
+            series_export = write_sheets(
+                {**_final_funds["sheets"], "D-Timeseries final": _daily_timeseries_final},
+                "v2-funds-normalized.xlsx",
+                no_header=("D-Timeseries final",),
             )
             set_daily_series(
                 {
@@ -1780,7 +1975,7 @@ def _(get_daily_series, get_final, mo, pd, review_table):
                 f"- **{kept_fund_ids.nunique()}** funds remain, with **{fund_columns}** series columns \n"
                 f"- **{int(roles.eq('index').sum())}** index columns and **{int(roles.eq('risk-free rate').sum())}** risk-free rate column kept \n"
                 f"- **{removed_columns:,}** columns removed \n"
-                f"- Wrote {series_result['started_rows']:,} rows to `{series_result['export']}` \n"
+                f"- Wrote {series_result['started_rows']:,} rows to sheet `D-Timeseries final` of `{series_result['export']}` \n"
             ),
             review_table(
                 market_catalog,
