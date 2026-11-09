@@ -1,4 +1,4 @@
-# Secrets
+# Secrets. Share a template as .env.example; keep real keys local.
 .env
 .env.*
 !.env.example
@@ -6,17 +6,39 @@
 # macOS
 .DS_Store
 
-# Python-generated files
+# Python
 __pycache__/
-*.py[oc]
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
 build/
 dist/
 wheels/
-*.egg-info
 
-# Virtual environments
-.venv
+# Virtual environments (recreate with: uv sync)
+.venv/
+venv/
+env/
 
-# Other
+# Jupyter checkpoints. Marimo notebooks are the .py files and stay in git.
+.ipynb_checkpoints/
+
+# Marimo editor state. Recreated on open. The notebook source stays tracked.
+__marimo__/
+
+# Editor settings
+.vscode/
+.idea/
+
+# Local workbooks. cache/ stays in the repo.
+input-data/
+output-data/
+
+# Local scratch
 *.cache
 *.sqlite

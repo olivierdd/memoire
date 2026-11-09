@@ -1994,6 +1994,146 @@
     "source": "Jev",
     "detail": "Jev Active confidence 0.66"
   },
+  "S000064631": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000105377",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000064632": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000105377",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.96"
+  },
+  "S000064633": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000105377",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000078028": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001943291",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.88"
+  },
+  "S000055171": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001331971",
+    "style": "Other",
+    "source": "Jev",
+    "detail": "Jev Other confidence 0.88"
+  },
+  "S000075609": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001295908",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000102567": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001579881",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000102311": {
+    "rule": "ncen-jev-v1",
+    "cik": "0000088525",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 1.00"
+  },
+  "S000106434": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001537140",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000082311": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001415726",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000082312": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001415726",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000063995": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001415726",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000077042": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001415726",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000085602": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001418144",
+    "style": "Active",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Exchange-Traded Fund and has no indexFundInfo"
+  },
+  "S000107377": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001644419",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000097224": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001450011",
+    "style": "Other",
+    "source": "N-CEN",
+    "detail": "N-CEN fund type is Fund of Funds"
+  },
+  "S000097937": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001545440",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000102870": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001976517",
+    "style": "Other",
+    "source": "Jev",
+    "detail": "Jev Other confidence 0.92"
+  },
+  "S000097593": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001936157",
+    "style": "Unknown",
+    "source": "none",
+    "detail": "series absent from the latest N-CEN; no prospectus text"
+  },
+  "S000106824": {
+    "rule": "ncen-jev-v1",
+    "cik": "0001722388",
+    "style": "Active",
+    "source": "Jev",
+    "detail": "Jev Active confidence 0.88"
+  },
   "NaN": {
     "rule": "ncen-jev-v1",
     "cik": NaN,

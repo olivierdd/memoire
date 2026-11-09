@@ -25,7 +25,7 @@ POINT_SHAPES = {
 RULE_ISSUES = (ISSUE_GAP, ISSUE_SCALE)
 
 
-def issue_markers(check: SeriesCheck) -> pd.DataFrame:
+def issue_markers(check: SeriesCheck, period_name: str = "month") -> pd.DataFrame:
     """One mark per flagged month. Rules have no return; points sit on the fund return.
 
     A month that is both a spike (or a level jump) and far from the index keeps the
@@ -49,7 +49,7 @@ def issue_markers(check: SeriesCheck) -> pd.DataFrame:
         notes = []
         if row["spike"]:
             note = (
-                "reverses the next month, the index does not"
+                f"reverses the next {period_name}, the index does not"
                 if row["reversal"]
                 else "the index does not follow"
             )
@@ -58,7 +58,7 @@ def issue_markers(check: SeriesCheck) -> pd.DataFrame:
             )
         if row["level_jump"]:
             notes.append(
-                f"{row['return']:+.2%}  level does not come back over the next months"
+                f"{row['return']:+.2%}  level does not come back over the next {period_name}s"
             )
         if row["wide"]:
             gap_bp = (row["return"] - row["index_return"]) * 1e4
@@ -101,9 +101,15 @@ def issue_markers(check: SeriesCheck) -> pd.DataFrame:
 def plot_timeseries_issues(
     checks: list[SeriesCheck],
     index_column: str,
+    *,
+    period_name: str = "month",
+    return_title: str = "Monthly total return",
 ) -> alt.VConcatChart | alt.LayerChart:
-    """Two panels (master, then comparison), with the flagged months marked."""
-    panels = [_panel(check, index_column) for check in checks]
+    """Two panels (master, then comparison), with the flagged observations marked."""
+    panels = [
+        _panel(check, index_column, period_name=period_name, return_title=return_title)
+        for check in checks
+    ]
     if len(panels) == 1:
         return panels[0]
     chart = panels[0]
@@ -122,8 +128,9 @@ def _mark(row: pd.Series, issue: str, detail: str, y: float | None) -> dict:
     }
 
 
-def _subtitle(check: SeriesCheck) -> str:
+def _subtitle(check: SeriesCheck, period_name: str = "month") -> str:
     months = check.months
+    plural = f"{period_name}s"
     counts = (
         (int(months["gap"].sum()), "gap", "gaps"),
         (int(months["spike"].sum()), "abnormal spike", "abnormal spikes"),
@@ -131,8 +138,8 @@ def _subtitle(check: SeriesCheck) -> str:
         (0 if check.scale_at is None else 1, "scale shift", "scale shifts"),
         (
             int(months["wide"].sum()),
-            f"month more than {check.index_gap:.0%} from the S&P 500 TR",
-            f"months more than {check.index_gap:.0%} from the S&P 500 TR",
+            f"{period_name} more than {check.index_gap:.0%} from the S&P 500 TR",
+            f"{plural} more than {check.index_gap:.0%} from the S&P 500 TR",
         ),
     )
     parts = [
@@ -141,11 +148,17 @@ def _subtitle(check: SeriesCheck) -> str:
         if count
     ]
     if not parts:
-        return "No gaps, spikes, scale shifts, or months far from the S&P 500 TR"
+        return f"No gaps, spikes, scale shifts, or {period_name}s far from the S&P 500 TR"
     return " · ".join(parts)
 
 
-def _panel(check: SeriesCheck, index_column: str) -> alt.LayerChart:
+def _panel(
+    check: SeriesCheck,
+    index_column: str,
+    *,
+    period_name: str = "month",
+    return_title: str = "Monthly total return",
+) -> alt.LayerChart:
     months = check.months
     index_line = months.loc[
         months["index_return"].notna(), ["Date", "Period", "index_return"]
@@ -157,7 +170,7 @@ def _panel(check: SeriesCheck, index_column: str) -> alt.LayerChart:
     fund_line["Series"] = check.label
     history = pd.concat([index_line, fund_line], ignore_index=True)
 
-    marks = issue_markers(check)
+    marks = issue_markers(check, period_name=period_name)
     rules = marks[marks["Issue"].isin(RULE_ISSUES)] if not marks.empty else marks
     points = marks[marks["Issue"].isin(POINT_SHAPES)] if not marks.empty else marks
     present = [name for name in ISSUE_ORDER if name in set(marks["Issue"])]
@@ -175,7 +188,7 @@ def _panel(check: SeriesCheck, index_column: str) -> alt.LayerChart:
             x=alt.X("Date:T", title=None),
             y=alt.Y(
                 "Return:Q",
-                title="Monthly total return",
+                title=return_title,
                 axis=alt.Axis(format="%"),
             ),
             color=alt.Color(
@@ -249,7 +262,7 @@ def _panel(check: SeriesCheck, index_column: str) -> alt.LayerChart:
     return chart.properties(
         width=720,
         height=280,
-        title=alt.Title(check.label, subtitle=_subtitle(check)),
+        title=alt.Title(check.label, subtitle=_subtitle(check, period_name)),
     )
 
 

@@ -32,20 +32,29 @@ def _(mo):
     get_cusip_fill, set_cusip_fill = mo.state(None)
     get_openfigi, set_openfigi = mo.state(None)
     get_edgar, set_edgar = mo.state(None)
-    get_series_export, set_series_export = mo.state(None)
+    get_nport_check, set_nport_check = mo.state(None)
     get_style, set_style = mo.state(None)
     get_timeseries, set_timeseries = mo.state(None)
+    get_daily_return, set_daily_return = mo.state(None)
+    get_final, set_final = mo.state(None)
+    get_daily_series, set_daily_series = mo.state(None)
     return (
         get_cusip_fill,
+        get_daily_return,
+        get_daily_series,
         get_edgar,
+        get_final,
         get_openfigi,
-        get_series_export,
+        get_nport_check,
         get_style,
         get_timeseries,
         set_cusip_fill,
+        set_daily_return,
+        set_daily_series,
         set_edgar,
+        set_final,
         set_openfigi,
-        set_series_export,
+        set_nport_check,
         set_style,
         set_timeseries,
     )
@@ -56,6 +65,7 @@ def _(mo):
     def review_table(frame, columns, label):
         present = [column for column in columns if column in frame.columns]
         view = frame.loc[:, present].copy() if present else frame.copy()
+        view = view.reset_index(drop=True)
         return mo.ui.table(
             view,
             label=label,
@@ -73,17 +83,66 @@ def _(mo):
     mo.md("""
     # Load and analyze funds (V2)
 
-    The workbook loads immediately. Each later step that calls OpenFIGI, EDGAR, or Jev, or that writes an Excel file, waits for its button. `selected_funds` stays the sheet selection. Later tables are copies: `funds_with_cusip`, `funds_openfigi`, `funds_edgar`, `funds_classified`, and `funds_with_timeseries`.
+    The workbook loads immediately. Each later step that calls OpenFIGI, EDGAR, or Jev, or that writes an Excel file, waits for its button. `selected_funds` stays the sheet selection. Enrichment starts from a copy, `selected_funds_modified`. Further steps use additional copies: `funds_openfigi`, `funds_edgar`, `funds_classified`, `funds_with_timeseries`, `funds_with_daily_total_return`, `funds_final`, and `daily_timeseries_final`.
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md("""
-    ### 1. Load the data
+    def same_size_label(text: str) -> str:
+        width = 24
+        words = text.split()
+        lines: list[str] = []
+        current = ""
+        for word in words:
+            candidate = word if not current else f"{current} {word}"
+            if len(candidate) <= width:
+                current = candidate
+            else:
+                lines.append(current)
+                current = word
+        if current:
+            lines.append(current)
+        return (
+            "<div style='height:4.7em; display:flex; align-items:center; "
+            "justify-content:center; text-align:center; line-height:1.35; "
+            "white-space:normal'>"
+            + "<br/>".join(lines)
+            + "</div>"
+        )
 
-    Load the **Funds** sheet of `CLEAN_RECOLTE DONNEES-EXCEL-V2.xlsx` from `input-data-alix/clean/`.
+    steps = [
+        "1. Load all funds",
+        "2. Keep only selected funds",
+        "3. Verify there are no double counts or missing data",
+        "4. Match with OpenFIGI and enrich with name and market identifier",
+        "5. Match with EDGAR and enrich with CIK and series",
+        "6. Keep one primary share class per series",
+    ]
+    nodes = "\n".join(
+        f'    step{index}["{same_size_label(label)}"]'
+        for index, label in enumerate(steps, start=1)
+    )
+    links = " --> ".join(f"step{index}" for index in range(1, len(steps) + 1))
+    mo.mermaid(
+        "%%{init: "
+        '{"flowchart": {"padding": 6, "nodeSpacing": 8, "rankSpacing": 16}}'
+        "}%%\n"
+        "flowchart LR\n"
+        f"{nodes}\n"
+        f"    {links}\n",
+        theme_variables={"fontSize": "12px"},
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## 1. Load the data
+
+    Load the **Funds** sheet of `CLEAN_RECOLTE DONNEES-EXCEL-V2.xlsx` (from `input-data/`).
     Then place the selected funds in a new dataframe called `selected_funds`.
     """)
     return
@@ -129,30 +188,26 @@ def _():
     _ensure_helpers_importable()
 
     from helpers.funds_functions.load_workbook import find_workbook, load_workbook
+    from helpers.funds_functions.write_excel import write_excel
 
-    def write_frame(frame, filename: str) -> Path:
+    def write_frame(frame, filename: str, *, header: bool = True) -> Path:
         start = Path.cwd().resolve()
         for directory in [start, *start.parents]:
             if (directory / "helpers").is_dir():
                 destination = directory / "output-data"
                 destination.mkdir(parents=True, exist_ok=True)
-                path = destination / filename
-                frame.to_excel(path, index=False)
-                return path
+                return write_excel(frame, destination / filename, header=header)
         raise FileNotFoundError(f"Could not find helpers/, starting from {start}")
 
     FILENAME = "CLEAN_RECOLTE DONNEES-EXCEL-V2.xlsx"
-    workbook = find_workbook(Path("input-data-alix") / "clean" / FILENAME)
+    workbook = find_workbook(Path("input-data") / FILENAME)
     funds = load_workbook(workbook)
     selected_funds = funds.loc[
         funds["fund_type"].notna()
         & funds["fund_type"].astype("string").str.strip().ne("")
     ].copy()
     return (
-        FILENAME,
-        Path,
         capture_prints,
-        find_workbook,
         funds,
         pd,
         selected_funds,
@@ -172,9 +227,9 @@ def _(funds, mo, review_table, selected_funds, workbook):
     mo.vstack(
         [
             mo.md(
-                f"Loaded `{workbook}`\n\n"
-                f"**Funds:** {len(funds):,} rows, {len(funds.columns)} columns\n\n"
-                f"**selected_funds:** {len(selected_funds):,} rows"
+                f"- Loaded `{workbook}` \n"
+                f"- **Total number of funds:** {len(funds):,} rows, {len(funds.columns)} columns \n"
+                f"- **Number of Selected funds:** {len(selected_funds):,} rows"
             ),
             review_table(
                 fund_type_counts,
@@ -189,7 +244,7 @@ def _(funds, mo, review_table, selected_funds, workbook):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ### 2. Verify if ISIN and CUSIP are unique
+    ## 2. Verify if ISIN and CUSIP are unique
     """)
     return
 
@@ -217,8 +272,8 @@ def _(mo, review_table, selected_funds):
         repeated = filled[filled.duplicated(keep=False)]
         status = "unique" if repeated.empty else f"{repeated.nunique()} repeated values"
         lines.append(
-            f"**{column}:** {filled.nunique()} unique values among {len(filled)} "
-            f"non-empty ({values.isna().sum()} missing) — {status}"
+            f"- **{column}:** {filled.nunique()} unique values among {len(filled)} "
+            f"non-empty ({values.isna().sum()} missing) — {status} \n"
         )
 
     isin_shared = isin.notna() & isin.duplicated(keep=False)
@@ -228,7 +283,7 @@ def _(mo, review_table, selected_funds):
     ].copy()
     blocks = [mo.md("\n\n".join(lines))]
     if shared_funds.empty:
-        blocks.append(mo.md("No funds share an ISIN or a CUSIP."))
+        blocks.append(mo.md("- No funds share an ISIN or a CUSIP. \n"))
     else:
         shared_funds.insert(
             0,
@@ -248,7 +303,7 @@ def _(mo, review_table, selected_funds):
         )
         shared_count = len(shared_funds)
         shared_verb = "fund shares" if shared_count == 1 else "funds share"
-        blocks.append(mo.md(f"**{shared_count} {shared_verb} an ISIN or a CUSIP**"))
+        blocks.append(mo.md(f"- **{shared_count} {shared_verb} an ISIN or a CUSIP** \n"))
         blocks.append(
             review_table(
                 shared_funds,
@@ -263,7 +318,7 @@ def _(mo, review_table, selected_funds):
         missing_isin | missing_cusip, ["Name", "ISIN", "CUSIP", "fund_type"]
     ].copy()
     if missing_funds.empty:
-        blocks.append(mo.md("No funds are missing an ISIN or a CUSIP."))
+        blocks.append(mo.md("- No funds are missing an ISIN or a CUSIP. \n"))
     else:
         missing_funds.insert(
             0,
@@ -280,7 +335,7 @@ def _(mo, review_table, selected_funds):
         missing_count = len(missing_funds)
         missing_verb = "fund is" if missing_count == 1 else "funds are"
         blocks.append(
-            mo.md(f"**{missing_count} {missing_verb} missing an ISIN or a CUSIP**")
+            mo.md(f"- **{missing_count} {missing_verb} missing an ISIN or a CUSIP** \n")
         )
         blocks.append(
             review_table(
@@ -295,20 +350,16 @@ def _(mo, review_table, selected_funds):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md("""
-    **Dataset enrichment**
-
-    A US ISIN is `US`, then the 9-character CUSIP, then one check digit. For each selected fund with an empty CUSIP and a US ISIN, that middle value is sent to OpenFIGI (`ID_CUSIP`).
-
-    The CUSIP is written into `funds_with_cusip` only when OpenFIGI returns the same listing as the ISIN. The same FIGI means the same listing. Any other result is left blank. `selected_funds` is left unchanged.
-    """).callout(kind="warn", title="Dataset enrichment")
-    return
-
-
-@app.cell
-def _(mo):
     fill_cusips_button = mo.ui.run_button(label="Fill missing CUSIPs from OpenFIGI")
-    fill_cusips_button
+    mo.vstack(
+        [
+            mo.md("""
+            A US ISIN is `US`, then the 9-character CUSIP, then one check digit. For each selected fund with an empty CUSIP and a US ISIN, that middle value is sent to OpenFIGI (`ID_CUSIP`) to verify if a record is found and if the ISIN is the same.<br>
+            We copy `selected_funds` into `selected_funds_modified` and enrich that copy's `CUSIP` column only when OpenFIGI confirms the match. Any other result stays blank. `selected_funds` is left unchanged. Later enrichment steps read from copies in this pipeline, not from the original selection.
+            """),
+            fill_cusips_button,
+        ]
+    ).callout(kind="warn", title="Dataset enrichment")
     return (fill_cusips_button,)
 
 
@@ -389,11 +440,8 @@ def _(capture_prints, fill_cusips_button, selected_funds, set_cusip_fill):
 @app.cell
 def _(get_cusip_fill, mo, review_table):
     cusip_fill = get_cusip_fill()
-    mo.stop(
-        cusip_fill is None,
-        mo.md("Click **Fill missing CUSIPs from OpenFIGI** to query OpenFIGI."),
-    )
-    funds_with_cusip = cusip_fill["funds"]
+    mo.stop(cusip_fill is None)
+    selected_funds_modified = cusip_fill["funds"]
     cusip_targets = cusip_fill["targets"]
     cusip_blocks = [mo.md(f"**{cusip_fill['message']}**")]
     if cusip_fill["log"].strip():
@@ -407,13 +455,13 @@ def _(get_cusip_fill, mo, review_table):
             )
         )
     mo.vstack(cusip_blocks)
-    return (funds_with_cusip,)
+    return (selected_funds_modified,)
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ### 4. Verify ISINs and enrich dataset with OpenFIGI
+    ## 4. Verify selected funds and enrich dataset with OpenFIGI
 
     Each ISIN is sent to the OpenFIGI mapping API (`ID_ISIN`).
 
@@ -430,16 +478,6 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    **Some records have no OpenFIGI match and will have no market ticker and no possibility to match with EDGAR.**
-
-    Funds with no match are saved in `output-data/v2-no-matching-OPENFIGI.xlsx`.
-    """).callout(kind="warn")
-    return
-
-
-@app.cell
 def _(get_cusip_fill, mo):
     cusips_ready = get_cusip_fill() is not None
     verify_openfigi_button = mo.ui.run_button(
@@ -447,7 +485,15 @@ def _(get_cusip_fill, mo):
         disabled=not cusips_ready,
         tooltip=None if cusips_ready else "Fill missing CUSIPs first",
     )
-    verify_openfigi_button
+    mo.vstack(
+        [
+            mo.md("""
+            Some records have **no OpenFIGI match** and will have no market ticker and therefore no possibility to match with EDGAR.<br>
+            Funds with no match are saved in `output-data/v2-no-matching-OPENFIGI.xlsx`.
+            """),
+            verify_openfigi_button,
+        ]
+    ).callout(kind="warn", title="Warning")
     return (verify_openfigi_button,)
 
 
@@ -487,10 +533,10 @@ def _(get_cusip_fill, get_openfigi, mo, review_table):
     openfigi_result = get_openfigi()
     mo.stop(
         openfigi_result is None,
-        mo.md(
-            "Click **Verify ISINs with OpenFIGI**."
-            if get_cusip_fill() is not None
-            else "Fill missing CUSIPs first. This step reads `funds_with_cusip`."
+        None
+        if get_cusip_fill() is not None
+        else mo.md(
+            "Fill missing CUSIPs first. This step reads `selected_funds_modified`."
         ),
     )
     funds_openfigi = openfigi_result["funds"]
@@ -508,14 +554,13 @@ def _(get_cusip_fill, get_openfigi, mo, review_table):
     openfigi_cusip_matches = int(funds_openfigi["cusip_matches"].sum())
     openfigi_blocks = [
         mo.md(
-            f"**{openfigi_found}** of {len(funds_openfigi)} ISINs found in OpenFIGI\n\n"
-            f"**{openfigi_name_matches}** of {len(funds_openfigi)} names match the OpenFIGI record\n\n"
-            f"**{openfigi_cusip_matches}** of {len(funds_openfigi)} CUSIPs return the same OpenFIGI record as the ISIN\n\n"
-            f"Wrote {len(openfigi_result['unmatched'])} rows to `{openfigi_result['export']}`"
+            f"- **{openfigi_found}** of {len(funds_openfigi)} ISINs found in OpenFIGI \n"
+            f"- **{openfigi_name_matches}** of {len(funds_openfigi)} names match the OpenFIGI record \n"
+            f"- **{openfigi_cusip_matches}** of {len(funds_openfigi)} CUSIPs return the same OpenFIGI record as the ISIN \n"
+            f"- For non matching rows : wrote {len(openfigi_result['unmatched'])} rows to `{openfigi_result['export']}`\n"
+            f"- The selected funds dataset has been enriched with OpenFIGI data in the output dataset `funds_openfigi`.\n"
         )
     ]
-    if openfigi_result["log"].strip():
-        openfigi_blocks.append(mo.plain_text(openfigi_result["log"].strip()))
     openfigi_blocks.append(
         review_table(funds_openfigi, openfigi_columns, "OpenFIGI check")
     )
@@ -533,7 +578,7 @@ def _(get_cusip_fill, get_openfigi, mo, review_table):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ### 5. Verify and enrich ISINs with EDGAR
+    ## 5. Verify and enrich ISINs with EDGAR
 
     The SEC fund reference is keyed by ticker. Each ISIN is resolved with its OpenFIGI ticker, then looked up in that reference. The CUSIP resolves to the same ticker, so it is not looked up separately.
 
@@ -553,16 +598,6 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    **Some records have no EDGAR match and will not be enriched.**
-
-    Funds with no match are saved in `output-data/v2-no-matching-EDGAR.xlsx`.
-    """).callout(kind="warn")
-    return
-
-
-@app.cell
 def _(get_openfigi, mo):
     openfigi_ready = get_openfigi() is not None
     match_edgar_button = mo.ui.run_button(
@@ -570,7 +605,15 @@ def _(get_openfigi, mo):
         disabled=not openfigi_ready,
         tooltip=None if openfigi_ready else "Verify ISINs with OpenFIGI first",
     )
-    match_edgar_button
+    mo.vstack(
+        [
+            mo.md("""
+            Some records have **no EDGAR match** and will not be enriched.<br>
+            Funds with no match are saved in `output-data/v2-no-matching-EDGAR.xlsx`.
+            """),
+            match_edgar_button,
+        ]
+    ).callout(kind="warn", title="Warning")
     return (match_edgar_button,)
 
 
@@ -610,10 +653,10 @@ def _(get_edgar, get_openfigi, mo, review_table):
     edgar_result = get_edgar()
     mo.stop(
         edgar_result is None,
-        mo.md(
-            "Click **Match EDGAR identifiers**."
-            if get_openfigi() is not None
-            else "Verify ISINs with OpenFIGI first. This step reads `funds_openfigi`."
+        None
+        if get_openfigi() is not None
+        else mo.md(
+            "Verify ISINs with OpenFIGI first. This step reads `funds_openfigi`."
         ),
     )
     funds_edgar = edgar_result["funds"]
@@ -624,6 +667,8 @@ def _(get_edgar, get_openfigi, mo, review_table):
         "edgar_name_match",
         "ISIN",
         "edgar_isin_found",
+        "edgar_match_status",
+        "edgar_match_note",
         "CUSIP",
     ]
     edgar_matches = int(funds_edgar["edgar_isin_found"].sum())
@@ -632,14 +677,12 @@ def _(get_edgar, get_openfigi, mo, review_table):
     )
     edgar_blocks = [
         mo.md(
-            f"**{edgar_matches}** of {len(funds_edgar)} ISINs match an EDGAR record\n\n"
-            f"**{edgar_name_matches}** of {edgar_matches} EDGAR names match the sheet\n\n"
-            f"{len(edgar_result['unmatched'])} funds have no EDGAR record\n\n"
-            f"Wrote {len(edgar_result['unmatched'])} rows to `{edgar_result['export']}`"
+            f"- **{edgar_matches}** of {len(funds_edgar)} ISINs match an EDGAR record \n"
+            f"- **{edgar_name_matches}** of {edgar_matches} EDGAR names match the sheet \n"
+            f"- For non matching rows : wrote {len(edgar_result['unmatched'])} rows to `{edgar_result['export']}` \n"
+            f"- The selected funds dataset has been enriched with EDGAR data in the output dataset `funds_edgar`. \n"
         )
     ]
-    if edgar_result["log"].strip():
-        edgar_blocks.append(mo.plain_text(edgar_result["log"].strip()))
     edgar_blocks.append(review_table(funds_edgar, edgar_columns, "EDGAR check"))
     edgar_blocks.append(
         review_table(edgar_result["unmatched"], edgar_columns, "No EDGAR match")
@@ -648,14 +691,153 @@ def _(get_edgar, get_openfigi, mo, review_table):
     return (funds_edgar,)
 
 
+@app.cell
+def _(funds_edgar, mo, review_table):
+    from helpers.funds_functions.edgar_unmatched_corrections import (
+        STATUS_CLOSED,
+        STATUS_NAME,
+        STATUS_UNMATCHABLE,
+        correction_review,
+    )
+
+    edgar_correction_review = correction_review(funds_edgar)
+    name_review = edgar_correction_review.loc[
+        edgar_correction_review["category"].eq(STATUS_NAME)
+    ]
+    closed_review = edgar_correction_review.loc[
+        edgar_correction_review["category"].eq(STATUS_CLOSED)
+    ]
+    unmatchable_review = edgar_correction_review.loc[
+        edgar_correction_review["category"].eq(STATUS_UNMATCHABLE)
+    ]
+    correction_columns = ["applied", "Name", "ISIN", "openfigi_market_id", "detail"]
+    match_status = (
+        funds_edgar["edgar_match_status"] if "edgar_match_status" in funds_edgar.columns else None
+    )
+    if match_status is not None and match_status.eq(STATUS_NAME).any():
+        applied_note = (
+            f"Corrections are in `funds_edgar`: **{int(match_status.eq(STATUS_NAME).sum())}** matched by name, "
+            f"**{int(match_status.eq(STATUS_CLOSED).sum())}** closed, "
+            f"**{int(match_status.eq(STATUS_UNMATCHABLE).sum())}** without a series row."
+        )
+    else:
+        applied_note = "The corrections are not in `funds_edgar` yet."
+    corrections_applied = match_status is not None and bool(match_status.eq(STATUS_NAME).any())
+    apply_edgar_corrections_button = mo.ui.run_button(
+        label="Enrich the dataset with these corrections",
+        disabled=corrections_applied,
+        tooltip="Already applied" if corrections_applied else None,
+    )
+    mo.vstack(
+        [
+            mo.md(
+                f"""
+                The 43 funds are US funds. The ticker join missed them for three different reasons. All 43 stay in the selected set.
+
+                {applied_note}
+                """
+            ),
+            mo.md(
+                f"""
+                **Case 1: Match by name, and keep ({len(name_review)})**
+
+                - These funds are already in the SEC file. The row has the series and the share class, and its ticker cell is blank.
+                - Section 5 looks up the OpenFIGI ticker in that cell. A blank cell is reported as no match.
+                - The correction matches the fund name on the sheet to the SEC series and share class. It does not use the ticker. The class id from that name match is what gets stored.
+                - Two funds are not taken from the OpenFIGI name. Invesco Main Street All Cap Fund;Y is class Y on the sheet and in the SEC file; OpenFIGI calls it class A. HAWG is the HCM Hedged Equity ETF; the SEC ticker list currently gives HAWG to Tradr 2X Long HAWK, so the HCM series is the one stored.
+
+                Some of the 43 share classes belong to the same fund series.
+
+                - iShares S&P 500 Index Fund, S000004272: Service, G, Investor A
+                - Invesco Main Street All Cap Fund, S000064631: Y, R, A
+                - Invesco Main Street Fund, S000064632: Y, A, R, R6, C
+                - Invesco Rising Dividends Fund, S000064633: A, C, R
+                """
+            ),
+            review_table(name_review, correction_columns, "Match by name"),
+            mo.md(
+                f"""
+                **Case 2: Closed, and keep ({len(closed_review)})**
+
+                These series left the current SEC file after a merger or liquidation. They stay in the performance sample so the funds that disappeared remain in the history. Their EDGAR identifiers stay empty. The survivor's series is not copied onto the dead fund.
+                """
+            ),
+            review_table(closed_review, correction_columns, "Closed"),
+            mo.md(
+                f"""
+                **Case 3: Cannot match ({len(unmatchable_review)})**
+
+                These stay in the selected set. The series-and-class file has no row to attach, so the identifiers stay empty and the N-CEN classification does not run.
+
+                SPY and the Voya Corporate Leaders Trust are unit investment trusts. A unit investment trust holds a fixed portfolio, with no manager buying and selling over time. It files on EDGAR as its own trust, without the series and share class row used for open-end funds.
+                """
+            ),
+            review_table(unmatchable_review, correction_columns, "Cannot match"),
+            mo.vstack(
+                [
+                    mo.md("""
+                    These corrections are written into `funds_edgar`. Closed funds and funds with no series row stay in the selected set.
+                    """),
+                    apply_edgar_corrections_button,
+                ]
+            ).callout(kind="warn", title="Dataset enrichment"),
+        ]
+    )
+    return (apply_edgar_corrections_button,)
+
+
+@app.cell
+def _(
+    apply_edgar_corrections_button,
+    capture_prints,
+    get_edgar,
+    set_edgar,
+    write_frame,
+):
+    if apply_edgar_corrections_button.value:
+        current_edgar = get_edgar()
+        if current_edgar is not None and not current_edgar.get("corrections_applied"):
+            from helpers.funds_functions.edgar_unmatched_corrections import (
+                apply_edgar_unmatched_corrections,
+            )
+            from helpers.funds_functions.map_edgar_tickers import (
+                load_all_fund_reference_data,
+            )
+
+            correction_log, correction_redirect = capture_prints()
+            with correction_redirect:
+                enriched_edgar = apply_edgar_unmatched_corrections(
+                    current_edgar["funds"],
+                    load_all_fund_reference_data(),
+                )
+            still_unmatched = ~enriched_edgar["edgar_isin_found"].astype(bool)
+            remaining_unmatched = enriched_edgar.loc[still_unmatched].copy()
+            correction_export = write_frame(remaining_unmatched, "v2-no-matching-EDGAR.xlsx")
+            previous_log = current_edgar.get("log") or ""
+            set_edgar(
+                {
+                    "funds": enriched_edgar,
+                    "unmatched": remaining_unmatched,
+                    "export": correction_export,
+                    "log": previous_log + correction_log.getvalue(),
+                    "corrections_applied": True,
+                }
+            )
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ### 6. Verify if some funds belong to the same series
+    ## 6. Verify if some funds belong to the same series
 
     Funds are filed in EDGAR as a registrant (CIK), then a series, then a share class. One CIK is the investment company. It can offer several series, and each series can offer several share classes of the same portfolio.
 
     The selected funds are all supposed to be primary share classes: the main share class among many. Therefore we don't expect to see rows in our table that belong to the same CIK and series.
+
+    The series and class identifiers come from the SEC fund-reference table. The latest N-PORT for that series is a separate filing and the check that the grouping is the one the registrant reported. `genInfo/seriesId` must equal `edgartools_series_id`. `edgartools_class_id` must appear on a `monthlyTotReturn` of that filing. The filing has one `invstOrSec` holdings list for the series. `nport_same_series` is `confirmed` with the report date when both hold. A class missing from that month is checked on the previous N-PORT.
+
+    `AUM` is the sheet column Fund Total Assets under Management. It is the Lipper figure for that row, so two classes of one series can differ. A blank cell means Lipper did not report a figure for that share class.
     """)
     return
 
@@ -698,18 +880,81 @@ def _():
     return (series_groups,)
 
 
+@app.cell(hide_code=True)
+def _(get_edgar, mo):
+    nport_ready = get_edgar() is not None
+    confirm_nport_button = mo.ui.run_button(
+        label="Confirm classes on N-PORT",
+        disabled=not nport_ready,
+        tooltip=None if nport_ready else "Match EDGAR identifiers first",
+    )
+    mo.vstack(
+        [
+            mo.md("""
+            **Some records share classes belonging to the same fund series.**<br>
+            The table writes them to `output-data/v2-common-fund-series.xlsx`. **Confirm classes on N-PORT** fills `nport_same_series` and writes the file again.
+            """),
+            confirm_nport_button,
+        ]
+    ).callout(kind="warn", title="Warning")
+    return (confirm_nport_button,)
+
+
 @app.cell
-def _(get_edgar, mo, review_table, series_groups):
+def _(
+    capture_prints,
+    confirm_nport_button,
+    get_edgar,
+    series_groups,
+    set_nport_check,
+):
+    if confirm_nport_button.value:
+        nport_input = get_edgar()
+        if nport_input is not None:
+            from helpers.funds_functions.confirm_nport_series_classes import (
+                add_nport_same_series,
+            )
+
+            _missing_class_id, _same_cik_series = series_groups(nport_input["funds"])
+            _log_buffer, _redirect = capture_prints()
+            with _redirect:
+                _checked = add_nport_same_series(_same_cik_series)
+            set_nport_check({"funds": _checked, "log": _log_buffer.getvalue()})
+    return
+
+
+@app.cell
+def _(get_edgar, get_nport_check, mo, review_table, series_groups, write_frame):
     series_input = get_edgar()
     mo.stop(
         series_input is None,
         mo.md("Match EDGAR identifiers first. This step reads `funds_edgar`."),
     )
     missing_class_id, same_cik_series = series_groups(series_input["funds"])
+    nport_check = get_nport_check()
+    same_cik_series = same_cik_series.copy()
+    if nport_check is None:
+        same_cik_series["nport_same_series"] = "not checked"
+    else:
+        same_cik_series["nport_same_series"] = (
+            nport_check["funds"]["nport_same_series"]
+            .reindex(same_cik_series.index)
+            .fillna("not checked")
+        )
+    same_cik_series["AUM"] = same_cik_series["Fund Total Assets under Management"]
     class_count = len(missing_class_id)
     class_verb = "fund has" if class_count == 1 else "funds have"
     series_count = len(same_cik_series)
     series_verb = "fund shares" if series_count == 1 else "funds share"
+    confirmed_count = int(
+        same_cik_series["nport_same_series"].astype("string").str.startswith("confirmed").sum()
+    )
+    nport_note = (
+        "Click **Confirm classes on N-PORT** to fill `nport_same_series`."
+        if confirmed_count == 0
+        and same_cik_series["nport_same_series"].eq("not checked").all()
+        else f"**{confirmed_count}** of {series_count} classes are confirmed on the series N-PORT."
+    )
     series_columns = [
         "edgartools_cik",
         "edgar_company_name",
@@ -719,124 +964,113 @@ def _(get_edgar, mo, review_table, series_groups):
         "edgar_class_name",
         "Name",
         "ISIN",
+        "AUM",
+        "nport_same_series",
     ]
-    mo.vstack(
-        [
-            mo.md(f"**{class_count} {class_verb} no EDGAR share class id**"),
-            review_table(
-                missing_class_id,
-                [
-                    "Name",
-                    "ISIN",
-                    "openfigi_market_id",
-                    "edgartools_cik",
-                    "edgartools_series_id",
-                ],
-                "Missing EDGAR share class id",
-            ),
-            mo.md(
-                f"**{series_count} {series_verb} a CIK and series with another selected fund**"
-            ),
-            review_table(same_cik_series, series_columns, "Same CIK and series"),
-        ]
+    share_class_export = write_frame(
+        missing_class_id, "v2-no-matching-EDGAR_SHARE_CLASS.xlsx"
     )
+    common_series_export = write_frame(
+        same_cik_series.loc[:, series_columns], "v2-common-fund-series.xlsx"
+    )
+    series_blocks = [
+        mo.md(
+            f"- **{class_count} {class_verb} no EDGAR share class id** \n"
+            f"- Wrote {class_count} rows to `{share_class_export}` \n"
+        ),
+        review_table(
+            missing_class_id,
+            [
+                "Name",
+                "ISIN",
+                "openfigi_market_id",
+                "edgartools_cik",
+                "edgartools_series_id",
+            ],
+            "Missing EDGAR share class id",
+        ),
+        mo.md(
+            f"- **{series_count} {series_verb} a CIK and series with another selected fund** \n"
+            f"- Wrote {series_count} rows to `{common_series_export}` \n"
+            f"- {nport_note} \n"
+        ),
+        review_table(same_cik_series, series_columns, "Same CIK and series"),
+    ]
+    mo.vstack(series_blocks)
     return missing_class_id, same_cik_series
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    **Some records have no EDGAR share class id.**
+    ## 6b. Keep the primary share class
 
-    Those funds are saved in `output-data/v2-no-matching-EDGAR_SHARE_CLASS.xlsx`.
-    """).callout(kind="warn")
-    return
+    One series is one portfolio. Where the selected funds include more than one class of that series, one class stays and the others are removed. A fund that is the only selected class of its series stays. A fund with no series id stays, because it is not a second class of a known series.
 
+    The class that stays is the primary class:
 
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    **Some records share classes belonging to the same fund series.**
+    1. The class with the largest `AUM`, when at least one class in the series has a figure. A blank AUM is ignored, not treated as zero.
+    2. When no class has an AUM, or the largest AUM is shared, the EDGAR class name decides. The first match wins: the class name is the series name and does not say Advisor; then Investor or Ordinary; then Gabelli Class AAA; then Class A, other than a 529 class; then Admiral; then Institutional or Class I; then Class Y; then any other class.
+    3. If the name still ties, the smallest `edgartools_class_id` stays.
 
-    Those funds are saved in `output-data/v2-common-fund-series.xlsx`.
-    """).callout(kind="warn")
+    `primary_rule` records which of those three steps decided. Later steps read this filtered set.
+    """)
     return
 
 
 @app.cell
-def _(get_edgar, mo):
-    series_ready = get_edgar() is not None
-    save_series_button = mo.ui.run_button(
-        label="Save series workbooks",
-        disabled=not series_ready,
-        tooltip=None if series_ready else "Match EDGAR identifiers first",
+def _(get_edgar, mo, review_table, write_frame):
+    primary_input = get_edgar()
+    mo.stop(
+        primary_input is None,
+        mo.md("Match EDGAR identifiers first. This step reads `funds_edgar`."),
     )
-    save_series_button
-    return (save_series_button,)
+    from helpers.funds_functions.select_primary_share_class import (
+        select_primary_share_class,
+    )
 
-
-@app.cell
-def _(
-    get_edgar,
-    save_series_button,
-    series_groups,
-    set_series_export,
-    write_frame,
-):
-    if save_series_button.value:
-        series_export_input = get_edgar()
-        if series_export_input is not None:
-            _missing_class_id, _same_cik_series = series_groups(
-                series_export_input["funds"]
-            )
-            share_class_export = write_frame(
-                _missing_class_id, "v2-no-matching-EDGAR_SHARE_CLASS.xlsx"
-            )
-            common_series = _same_cik_series.loc[
-                :,
-                [
-                    "edgartools_cik",
-                    "edgar_company_name",
-                    "edgartools_series_id",
-                    "edgar_series_name",
-                    "edgartools_class_id",
-                    "edgar_class_name",
-                    "Name",
-                    "ISIN",
-                ],
-            ]
-            common_series_export = write_frame(
-                common_series, "v2-common-fund-series.xlsx"
-            )
-            set_series_export(
-                "\n".join(
-                    [
-                        f"Wrote {len(_missing_class_id)} rows to {share_class_export}",
-                        f"Wrote {len(common_series)} rows to {common_series_export}",
-                    ]
-                )
-            )
-    return
-
-
-@app.cell
-def _(get_edgar, get_series_export, mo, save_series_button):
-    series_export_note = get_series_export()
-    if get_edgar() is None:
-        series_hint = "Match EDGAR identifiers first."
-    elif save_series_button.value:
-        series_hint = "Saving the series workbooks."
-    else:
-        series_hint = "Click **Save series workbooks** to write the two Excel files."
-    mo.stop(series_export_note is None, mo.md(series_hint))
-    mo.plain_text(series_export_note)
-    return
+    funds_primary, dropped_classes = select_primary_share_class(primary_input["funds"])
+    collapsed = dropped_classes["edgartools_series_id"].nunique() if len(dropped_classes) else 0
+    primary_from_series = funds_primary.loc[
+        funds_primary["edgartools_series_id"].isin(dropped_classes["edgartools_series_id"])
+    ].copy()
+    primary_from_series["AUM"] = primary_from_series["Fund Total Assets under Management"]
+    primary_columns = [
+        "edgartools_cik",
+        "edgar_company_name",
+        "edgartools_series_id",
+        "edgar_series_name",
+        "edgartools_class_id",
+        "edgar_class_name",
+        "Name",
+        "ISIN",
+        "AUM",
+        "primary_rule",
+    ]
+    primary_export = write_frame(
+        primary_from_series.loc[:, primary_columns],
+        "v2-primary-share-class.xlsx",
+    )
+    dropped_export = write_frame(dropped_classes, "v2-dropped-share-classes.xlsx")
+    mo.vstack(
+        [
+            mo.md(
+                f"- **{len(primary_input['funds'])}** funds went in \n"
+                f"- **{len(dropped_classes)}** share classes were removed from **{collapsed}** series \n"
+                f"- **{len(funds_primary)}** funds remain, one class per series \n"
+                f"- Wrote {len(primary_from_series)} primary classes to `{primary_export}` \n"
+                f"- Wrote {len(dropped_classes)} removed classes to `{dropped_export}` \n"
+            ),
+            review_table(primary_from_series, primary_columns, "Primary share class"),
+        ]
+    )
+    return (funds_primary,)
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ### 7. Verify fund type (active vs passive)
+    ## 7. Verify fund type (active vs passive)
 
     Each fund is classified at the EDGAR series: one registrant (CIK) and one series id. Share classes of that series receive the same label. The label is Passive, Active, Other, or Unknown. The first source that decides wins.
 
@@ -860,24 +1094,22 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    **Some funds have an invalidated fund type.**
-
-    Funds whose sheet fund type does not match the classified fund type are saved in `output-data/v2-fund-type-mismatch.xlsx`.
-    """).callout(kind="warn")
-    return
-
-
-@app.cell
 def _(get_edgar, mo):
-    edgar_ready = get_edgar() is not None
+    style_ready = get_edgar() is not None
     classify_style_button = mo.ui.run_button(
         label="Classify fund type",
-        disabled=not edgar_ready,
-        tooltip=None if edgar_ready else "Match EDGAR identifiers first",
+        disabled=not style_ready,
+        tooltip=None if style_ready else "Match EDGAR identifiers first",
     )
-    classify_style_button
+    mo.vstack(
+        [
+            mo.md("""
+            **Some funds have an invalidated fund type.**<br>
+            Funds whose sheet fund type does not match the classified fund type are saved in `output-data/v2-fund-type-mismatch.xlsx`.
+            """),
+            classify_style_button,
+        ]
+    ).callout(kind="warn", title="Warning")
     return (classify_style_button,)
 
 
@@ -885,20 +1117,19 @@ def _(get_edgar, mo):
 def _(
     capture_prints,
     classify_style_button,
-    get_edgar,
+    funds_primary,
     set_style,
     write_frame,
 ):
     if classify_style_button.value:
-        style_input = get_edgar()
-        if style_input is not None:
+        if funds_primary is not None:
             from helpers.funds_functions.classify_fund_management_style import (
                 classify_fund_management_style,
             )
 
             _log_buffer, _redirect = capture_prints()
             with _redirect:
-                _funds = classify_fund_management_style(style_input["funds"])
+                _funds = classify_fund_management_style(funds_primary)
 
             def _type_label(series):
                 values = series.astype("string").str.strip()
@@ -931,19 +1162,30 @@ def _(get_edgar, get_style, mo, review_table):
     style_result = get_style()
     mo.stop(
         style_result is None,
-        mo.md(
-            "Click **Classify fund type**. This step reads N-CEN filings and, where those do not decide, sends prospectus text to Jev."
-            if get_edgar() is not None
-            else "Match EDGAR identifiers first. This step reads `funds_edgar`."
+        None
+        if get_edgar() is not None
+        else mo.md(
+            "Match EDGAR identifiers first. This step reads the primary share class."
         ),
     )
     funds_classified = style_result["funds"]
+    style = funds_classified["fund_management_style"].astype("string")
+    source = funds_classified["fund_management_style_source"].astype("string")
+    detail = funds_classified["fund_management_style_detail"].astype("string").fillna("")
     style_counts = (
-        funds_classified["fund_management_style"]
-        .value_counts()
+        style.value_counts()
         .rename_axis("fund_management_style")
         .reset_index(name="funds")
     )
+    active = int(style.eq("Active").sum())
+    passive = int(style.eq("Passive").sum())
+    other = int(style.eq("Other").sum())
+    unknown = int(style.eq("Unknown").sum())
+    from_ncen = int(source.eq("N-CEN").sum())
+    from_jev = int(source.eq("Jev").sum())
+    no_series = int(detail.eq("no EDGAR series").sum())
+    no_prospectus = int(detail.str.contains("no prospectus text", na=False).sum())
+    low_confidence = int(detail.str.startswith("Jev chose", na=False).sum())
     mismatch_columns = [
         "Name",
         "ISIN",
@@ -954,13 +1196,19 @@ def _(get_edgar, get_style, mo, review_table):
     ]
     style_blocks = [
         mo.md(
-            f"**{len(style_result['mismatch'])}** funds have a sheet fund type that does not match the classified type\n\n"
-            f"Wrote {len(style_result['mismatch'])} rows to `{style_result['export']}`"
+            f"- **{active}** Active, **{passive}** Passive, **{other}** Other, **{unknown}** Unknown \n"
+            f"- **{from_ncen}** took the label from the latest N-CEN filing \n"
+            f"- **{from_jev}** took the label from Jev, because N-CEN did not decide \n"
+            f"- **{no_series}** have no CIK or series id. They stay Unknown and are not sent to EDGAR \n"
+            f"- **{no_prospectus}** stayed Unknown because N-CEN did not decide and the prospectus had no usable text \n"
+            f"- **{low_confidence}** stayed Unknown because Jev's choice was below 0.60 confidence \n"
+            f"- **{len(style_result['mismatch'])}** funds have a sheet fund type that does not match the classified type \n"
+            f"- Wrote {len(style_result['mismatch'])} rows to `{style_result['export']}` \n"
         ),
-        review_table(style_counts, ["fund_management_style", "funds"], "Classified fund type"),
     ]
-    if style_result["log"].strip():
-        style_blocks.append(mo.plain_text(style_result["log"].strip()))
+    style_blocks.append(
+        review_table(style_counts, ["fund_management_style", "funds"], "Classified fund type")
+    )
     style_blocks.append(
         review_table(style_result["mismatch"], mismatch_columns, "Fund type mismatch")
     )
@@ -971,41 +1219,45 @@ def _(get_edgar, get_style, mo, review_table):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ### 8. Verify if there is a time series
+    ## 8. Verify if there is a time series
 
     Load the **D-Timeseries** sheet of the same workbook. The first rows are labels, not a column header. A daily total return series is a column whose note is `Total return index, daily` and that has at least one value.
 
     Each selected fund is matched on ISIN. The Datastream name on that column is then checked against the fund. The sheet name is used first. When that name does not confirm the series, the OpenFIGI name is used, then the EDGAR name. A shortened Datastream name still counts as the same fund. A different word, such as Value versus Equity, does not.
 
     `has_daily_total_return` is true when the series exists. `daily_tr_observations` is the number of daily points. `daily_tr_name` is the Datastream name. `daily_tr_name_match` is true when one of the three names confirms it, and `daily_tr_name_source` is the name that did.
-
-    Funds with no series are written to `output-data/v2-no-daily-total-return.xlsx`. Funds whose series name does not match are written to `output-data/v2-no-matching-D-TIMESERIES-NAME.xlsx`.
     """)
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(get_style, mo):
-    style_ready = get_style() is not None
+    timeseries_ready = get_style() is not None
     match_timeseries_button = mo.ui.run_button(
         label="Match daily total return",
-        disabled=not style_ready,
-        tooltip=None if style_ready else "Classify fund type first",
+        disabled=not timeseries_ready,
+        tooltip=None if timeseries_ready else "Classify fund type first",
     )
-    match_timeseries_button
+    mo.vstack(
+        [
+            mo.md("""
+            Some funds have **no daily total return**, or the series name does not match.<br>
+            Funds with no series are saved in `output-data/v2-no-daily-total-return.xlsx`. Funds whose series name does not match are saved in `output-data/v2-no-matching-D-TIMESERIES-NAME.xlsx`.
+            """),
+            match_timeseries_button,
+        ]
+    ).callout(kind="warn", title="Warning")
     return (match_timeseries_button,)
 
 
 @app.cell
 def _(
-    FILENAME,
-    Path,
     capture_prints,
-    find_workbook,
     get_style,
     match_timeseries_button,
     pd,
     set_timeseries,
+    workbook,
     write_frame,
 ):
     if match_timeseries_button.value:
@@ -1018,7 +1270,7 @@ def _(
             _log_buffer, _redirect = capture_prints()
             with _redirect:
                 daily_timeseries = pd.read_excel(
-                    find_workbook(Path("input-data-alix") / "clean" / FILENAME),
+                    workbook,
                     sheet_name="D-Timeseries",
                     header=None,
                     engine="openpyxl",
@@ -1074,10 +1326,10 @@ def _(get_style, get_timeseries, mo, review_table):
     timeseries_result = get_timeseries()
     mo.stop(
         timeseries_result is None,
-        mo.md(
-            "Click **Match daily total return**. This reads the D-Timeseries sheet and writes the two workbooks."
-            if get_style() is not None
-            else "Classify fund type first. This step reads `funds_classified`."
+        None
+        if get_style() is not None
+        else mo.md(
+            "Classify fund type first. This step reads `funds_classified`."
         ),
     )
     funds_with_timeseries = timeseries_result["funds"]
@@ -1107,12 +1359,11 @@ def _(get_style, get_timeseries, mo, review_table):
     ]
     timeseries_blocks = [
         mo.md(
-            f"**D-Timeseries:** {timeseries_result['rows']:,} rows, "
-            f"{timeseries_result['columns']} columns\n\n"
-            f"**{timeseries_found}** of {len(funds_with_timeseries)} funds have a daily total return series\n\n"
-            f"**{matched_names}** of {found} series names match Name, OpenFIGI, or EDGAR\n\n"
-            f"Wrote {len(timeseries_result['name_gap'])} rows to `{timeseries_result['name_gap_export']}`\n\n"
-            f"Wrote {len(timeseries_result['missing'])} rows to `{timeseries_result['missing_export']}`"
+            f"- **D-Timeseries:** {timeseries_result['rows']:,} rows, {timeseries_result['columns']} columns \n"
+            f"- **{timeseries_found}** of {len(funds_with_timeseries)} funds have a daily total return series \n"
+            f"- **{matched_names}** of {timeseries_found} series names match Name, OpenFIGI, or EDGAR \n"
+            f"- Wrote {len(timeseries_result['name_gap'])} rows to `{timeseries_result['name_gap_export']}` \n"
+            f"- Wrote {len(timeseries_result['missing'])} rows to `{timeseries_result['missing_export']}` \n"
         )
     ]
     if timeseries_result["log"].strip():
@@ -1133,6 +1384,412 @@ def _(get_style, get_timeseries, mo, review_table):
     )
     mo.vstack(timeseries_blocks)
     return (funds_with_timeseries,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## 9. Keep funds with a daily total return
+
+    Funds with no daily total return series are removed. A fund whose series name does not match stays, because the series itself is present. The kept funds are `funds_with_daily_total_return`.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(get_timeseries, mo):
+    daily_return_ready = get_timeseries() is not None
+    drop_missing_timeseries_button = mo.ui.run_button(
+        label="Drop funds with no daily total return",
+        disabled=not daily_return_ready,
+        tooltip=None if daily_return_ready else "Match daily total return first",
+    )
+    mo.vstack(
+        [
+            mo.md("""
+            Funds with **no daily total return** are removed from the set.
+
+            The kept funds are saved in `output-data/v2-funds-with-daily-total-return.xlsx`.
+            """),
+            drop_missing_timeseries_button,
+        ]
+    ).callout(kind="warn", title="Warning")
+    return (drop_missing_timeseries_button,)
+
+
+@app.cell
+def _(
+    drop_missing_timeseries_button,
+    get_timeseries,
+    set_daily_return,
+    write_frame,
+):
+    if drop_missing_timeseries_button.value:
+        daily_return_input = get_timeseries()
+        if daily_return_input is not None:
+            _funds = daily_return_input["funds"]
+            has_series = _funds["has_daily_total_return"].fillna(False).astype(bool)
+            kept = _funds.loc[has_series].copy()
+            kept_export = write_frame(kept, "v2-funds-with-daily-total-return.xlsx")
+            set_daily_return(
+                {
+                    "funds": kept,
+                    "started": len(_funds),
+                    "dropped": int((~has_series).sum()),
+                    "export": kept_export,
+                }
+            )
+    return
+
+
+@app.cell
+def _(get_daily_return, get_timeseries, mo, review_table):
+    daily_return = get_daily_return()
+    mo.stop(
+        daily_return is None,
+        None
+        if get_timeseries() is not None
+        else mo.md(
+            "Match daily total return first. This step reads `funds_with_timeseries`."
+        ),
+    )
+    funds_with_daily_total_return = daily_return["funds"]
+    kept_columns = [
+        "Name",
+        "ISIN",
+        "fund_type",
+        "fund_management_style",
+        "daily_tr_name",
+        "daily_tr_observations",
+        "daily_tr_name_source",
+    ]
+    mo.vstack(
+        [
+            mo.md(
+                f"- **{daily_return['started']}** funds went in \n"
+                f"- **{daily_return['dropped']}** funds with no daily total return were removed \n"
+                f"- **{len(funds_with_daily_total_return)}** funds remain \n"
+                f"- Wrote {len(funds_with_daily_total_return)} rows to `{daily_return['export']}` \n"
+            ),
+            review_table(
+                funds_with_daily_total_return,
+                kept_columns,
+                "Funds with a daily total return",
+            ),
+        ]
+    )
+    return (funds_with_daily_total_return,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## 10. Save the final fund set
+
+    `funds_final` is the remaining funds, with the columns put in reading order.
+
+    - The name and the identifiers come first, with the OpenFIGI ticker and name beside them.
+    - The sheet's description and performance columns follow, in their original order. Empty columns that Excel imported without a name are left out.
+    - The sheet's time-series flags are followed by the daily total return columns.
+    - `fund_type` is followed by the classified fund type.
+    - The EDGAR registrant, series, and share class come last, with `primary_rule`.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(get_daily_return, mo):
+    final_ready = get_daily_return() is not None
+    write_final_button = mo.ui.run_button(
+        label="Write the final fund file",
+        disabled=not final_ready,
+        tooltip=None if final_ready else "Drop funds with no daily total return first",
+    )
+    mo.vstack(
+        [
+            mo.md("""
+            This writes the cleaned fund set to `output-data/v2-funds-final.xlsx`.
+            """),
+            write_final_button,
+        ]
+    ).callout(kind="warn", title="Warning")
+    return (write_final_button,)
+
+
+@app.cell
+def _(
+    get_daily_return,
+    selected_funds,
+    set_final,
+    write_final_button,
+    write_frame,
+):
+    def _arrange_final_funds(frame, original_columns):
+        placed: set[str] = set()
+        ordered: list[str] = []
+        groups: list[str] = []
+
+        def take(names: list[str], group: str) -> None:
+            for name in names:
+                if name in placed or name not in frame.columns:
+                    continue
+                if str(name).startswith("Unnamed"):
+                    text = frame[name].astype("string").str.strip()
+                    blank = text.isna() | text.eq("") | text.str.lower().eq("<na>")
+                    if bool(blank.all()):
+                        continue
+                placed.add(name)
+                ordered.append(name)
+                groups.append(group)
+
+        original = [column for column in original_columns if column in frame.columns]
+        held = {
+            "is_index_or_idx",
+            "is_low_tracking_error",
+            "is_S&P500",
+            "has_timeseries",
+            "has_timeseries_issue",
+            "alix_fund_type",
+            "fund_type",
+            "fund_wrapper",
+            "is_selected",
+            "comment",
+        }
+        take(["Name", "ISIN", "CUSIP", "RIC"], "Identifiers")
+        take(
+            [
+                "openfigi_market_id",
+                "openfigi_name",
+                "isin_found",
+                "name_matches",
+                "cusip_matches",
+            ],
+            "OpenFIGI",
+        )
+        take([column for column in original if column not in held], "Sheet")
+        take(
+            ["is_index_or_idx", "is_low_tracking_error", "is_S&P500"],
+            "Sheet",
+        )
+        take(["has_timeseries", "has_timeseries_issue"], "Time series")
+        take(
+            [
+                "has_daily_total_return",
+                "daily_tr_name",
+                "daily_tr_observations",
+                "daily_tr_name_match",
+                "daily_tr_name_source",
+            ],
+            "Time series",
+        )
+        take(
+            [
+                "alix_fund_type",
+                "fund_type",
+                "fund_management_style",
+                "fund_management_style_source",
+                "fund_management_style_detail",
+                "fund_wrapper",
+                "is_selected",
+            ],
+            "Fund type",
+        )
+        take(
+            [
+                "edgar_name",
+                "edgar_name_match",
+                "edgar_isin_found",
+                "edgartools_cik",
+                "edgar_company_name",
+                "edgartools_series_id",
+                "edgar_series_name",
+                "edgartools_class_id",
+                "edgar_class_name",
+                "edgar_match_status",
+                "edgar_match_note",
+                "primary_rule",
+            ],
+            "EDGAR",
+        )
+        take(["comment"], "Sheet")
+        take(list(frame.columns), "Other")
+        arranged = frame.loc[:, ordered].reset_index(drop=True)
+        return arranged, groups
+
+    if write_final_button.value:
+        final_input = get_daily_return()
+        if final_input is not None:
+            _funds_final, column_groups = _arrange_final_funds(
+                final_input["funds"],
+                list(selected_funds.columns),
+            )
+            final_export = write_frame(_funds_final, "v2-funds-final.xlsx")
+            set_final(
+                {
+                    "funds": _funds_final,
+                    "groups": column_groups,
+                    "export": final_export,
+                }
+            )
+    return
+
+
+@app.cell
+def _(get_daily_return, get_final, mo, pd, review_table):
+    final_result = get_final()
+    mo.stop(
+        final_result is None,
+        None
+        if get_daily_return() is not None
+        else mo.md(
+            "Drop funds with no daily total return first. This step reads `funds_with_daily_total_return`."
+        ),
+    )
+    funds_final = final_result["funds"]
+    column_layout = pd.DataFrame(
+        {"column": list(funds_final.columns), "group": final_result["groups"]}
+    )
+    mo.vstack(
+        [
+            mo.md(
+                f"- **{len(funds_final)}** funds remain \n"
+                f"- **{len(funds_final.columns)}** columns, sheet columns first and the added columns beside the field they describe \n"
+                f"- Wrote {len(funds_final)} rows to `{final_result['export']}` \n"
+            ),
+            review_table(column_layout, ["group", "column"], "Column order"),
+            review_table(funds_final, list(funds_final.columns), "Final fund set"),
+        ]
+    )
+    return (funds_final,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## 11. Keep the time series of the remaining funds
+
+    The **D-Timeseries** sheet has one column for each series. A fund has its total return, price, and net assets. The S&P 500 columns are the index. The 3-month US T-bill is the risk-free rate.
+
+    Columns for a fund that is not in `funds_final` are removed. The index, the risk-free rate, and the series of the remaining funds stay. Empty columns are left out. The sheet keeps its label rows, so another notebook can read it the same way.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(get_final, mo):
+    series_ready = get_final() is not None
+    filter_timeseries_button = mo.ui.run_button(
+        label="Keep the remaining funds' time series",
+        disabled=not series_ready,
+        tooltip=None if series_ready else "Write the final fund file first",
+    )
+    mo.vstack(
+        [
+            mo.md("""
+            Fund columns that are not in the final set are removed. The index and the risk-free rate stay.
+
+            The sheet is saved in `output-data/v2-d-timeseries-final.xlsx`.
+            """),
+            filter_timeseries_button,
+        ]
+    ).callout(kind="warn", title="Warning")
+    return (filter_timeseries_button,)
+
+
+@app.cell
+def _(
+    filter_timeseries_button,
+    get_final,
+    pd,
+    set_daily_series,
+    workbook,
+    write_frame,
+):
+    if filter_timeseries_button.value:
+        _final_funds = get_final()
+        if _final_funds is not None:
+            from helpers.funds_functions.filter_daily_timeseries import (
+                filter_daily_timeseries,
+            )
+
+            _daily = pd.read_excel(
+                workbook,
+                sheet_name="D-Timeseries",
+                header=None,
+                engine="openpyxl",
+            )
+            _kept = _final_funds["funds"]
+            _daily_timeseries_final, _roles = filter_daily_timeseries(
+                _daily,
+                _kept["ISIN"],
+                _kept["daily_tr_name"] if "daily_tr_name" in _kept.columns else None,
+            )
+            series_export = write_frame(
+                _daily_timeseries_final,
+                "v2-d-timeseries-final.xlsx",
+                header=False,
+            )
+            set_daily_series(
+                {
+                    "frame": _daily_timeseries_final,
+                    "roles": _roles,
+                    "export": series_export,
+                    "started_columns": _daily.shape[1],
+                    "started_rows": len(_daily),
+                }
+            )
+    return
+
+
+@app.cell
+def _(get_daily_series, get_final, mo, pd, review_table):
+    series_result = get_daily_series()
+    mo.stop(
+        series_result is None,
+        None
+        if get_final() is not None
+        else mo.md(
+            "Write the final fund file first. This step reads `funds_final`."
+        ),
+    )
+    daily_timeseries_final = series_result["frame"]
+    roles = pd.Series(series_result["roles"])
+    market_rows = []
+    for position in roles.index[roles.isin(["index", "risk-free rate"])]:
+        market_rows.append(
+            {
+                "role": "Index" if roles.iloc[position] == "index" else "Risk-free rate",
+                "id": daily_timeseries_final.iat[0, position],
+                "name": daily_timeseries_final.iat[1, position],
+                "note": daily_timeseries_final.iat[4, position],
+            }
+        )
+    market_catalog = pd.DataFrame(market_rows)
+    fund_columns = int(roles.eq("fund").sum())
+    kept_fund_ids = daily_timeseries_final.iloc[
+        0, roles.eq("fund").tolist()
+    ].astype("string").str.strip().str.upper()
+    kept_fund_ids = kept_fund_ids.loc[
+        kept_fund_ids.notna() & kept_fund_ids.ne("") & kept_fund_ids.ne("<NA>")
+    ]
+    removed_columns = series_result["started_columns"] - daily_timeseries_final.shape[1]
+    mo.vstack(
+        [
+            mo.md(
+                f"- **D-Timeseries:** {series_result['started_rows']:,} rows, {series_result['started_columns']:,} columns \n"
+                f"- **{kept_fund_ids.nunique()}** funds remain, with **{fund_columns}** series columns \n"
+                f"- **{int(roles.eq('index').sum())}** index columns and **{int(roles.eq('risk-free rate').sum())}** risk-free rate column kept \n"
+                f"- **{removed_columns:,}** columns removed \n"
+                f"- Wrote {series_result['started_rows']:,} rows to `{series_result['export']}` \n"
+            ),
+            review_table(
+                market_catalog,
+                ["role", "id", "name", "note"],
+                "Index and risk-free rate",
+            ),
+        ]
+    )
+    return (daily_timeseries_final,)
 
 
 if __name__ == "__main__":
