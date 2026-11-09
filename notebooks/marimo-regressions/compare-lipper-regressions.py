@@ -27,10 +27,15 @@ def _(mo):
     mo.md("""
     # Daily regressions vs Lipper
 
-    Load `output-data/v2-d-timeseries-corrected.xlsx` and `output-data/v2-d-timeseries-final.xlsx`.
-    For each fund in `output-data/v2-funds-final.xlsx`, compound daily total returns to calendar
-    months, regress the fund on its Lipper reference benchmark over 3, 5, and 10 years, and
-    compare alpha, beta, R², and annualized tracking error with Lipper’s precomputed Funds columns.
+    Load `output-data/v2-funds-normalized.xlsx`. For each fund on the sheet `Funds final`,
+    compound daily total returns to calendar months, regress the fund on its Lipper reference
+    benchmark over 3, 5, and 10 years, and compare alpha, beta, R², and annualized tracking error
+    with Lipper’s precomputed Funds columns.
+
+    The daily series are read from two sheets. `D-Timeseries final` holds the cleaned series
+    (`corrected`) once `load-series-v2.py` has saved them, and `D-Timeseries raw` keeps the series as
+    downloaded (`original`). Before that save there is no `D-Timeseries raw`, and `D-Timeseries final`
+    is regressed alone as `original`.
     """)
     return
 
@@ -71,43 +76,43 @@ def _():
         raise FileNotFoundError(f"Could not find helpers/, starting from {start}")
 
     from helpers.timeseries_functions.regress_daily_to_benchmark import (
-        DEFAULT_CORRECTED_FILENAME,
-        DEFAULT_FINAL_FILENAME,
-        DEFAULT_FUNDS_FILENAME,
-        compare_daily_workbooks_to_lipper,
+        DEFAULT_WORKBOOK_FILENAME,
+        FUNDS_SHEET,
+        compare_daily_sheets_to_lipper,
         find_output_data_file,
+        load_funds_reference,
         fit_monthly_regression,
         fund_lipper_match_summary,
         match_rate_by_horizon,
         monthly_scatter_frame,
     )
 
-    funds_path = find_output_data_file(DEFAULT_FUNDS_FILENAME)
-    corrected_path = find_output_data_file(DEFAULT_CORRECTED_FILENAME)
-    final_path = find_output_data_file(DEFAULT_FINAL_FILENAME)
-    comparison, monthly_panels = compare_daily_workbooks_to_lipper(
-        corrected_path=corrected_path,
-        final_path=final_path,
+    workbook = find_output_data_file(DEFAULT_WORKBOOK_FILENAME)
+    funds = load_funds_reference(workbook)
+    comparison, monthly_panels, series_sheets = compare_daily_sheets_to_lipper(
+        workbook, funds=funds
     )
-    funds = pd.read_excel(funds_path, engine="openpyxl")
+    # The scatter below uses the cleaned series when there is one.
+    primary_source = next(iter(series_sheets))
     return (
+        FUNDS_SHEET,
         alt,
         comparison,
-        corrected_path,
-        final_path,
         fit_monthly_regression,
         fund_lipper_match_summary,
         funds,
-        funds_path,
         match_rate_by_horizon,
         monthly_panels,
         monthly_scatter_frame,
         pd,
+        primary_source,
+        series_sheets,
+        workbook,
     )
 
 
 @app.cell
-def _(comparison, corrected_path, final_path, funds, funds_path, mo, pd):
+def _(FUNDS_SHEET, comparison, funds, mo, pd, series_sheets, workbook):
     ticker_counts = (
         funds.groupby("Benchmark Ticker", dropna=False)
         .size()
@@ -118,12 +123,22 @@ def _(comparison, corrected_path, final_path, funds, funds_path, mo, pd):
         comparison["status"].eq("ok"), "window_end"
     ].dropna().max()
     comparable = comparison.loc[comparison["status"].eq("ok"), "isin"].nunique()
+    sheet_lines = "".join(
+        f"- **{source.capitalize()} daily series:** sheet `{sheet}` \n"
+        for source, sheet in series_sheets.items()
+    )
+    not_cleaned = (
+        ""
+        if "corrected" in series_sheets
+        else "- The cleaned series are not saved yet. Run `load-series-v2.py` and save them to compare both versions. \n"
+    )
     summary = mo.md(
-        f"- **Funds:** `{funds_path}` ({len(funds):,} rows) \n"
-        f"- **Corrected daily series:** `{corrected_path}` \n"
-        f"- **Original daily series:** `{final_path}` \n"
-        f"- **Comparable regressions:** {comparable:,} funds with a mapped benchmark on the sheet \n"
-        f"- **Regression window ends:** {last_month} \n"
+        f"- **Workbook:** `{workbook}` \n"
+        f"- **Funds:** sheet `{FUNDS_SHEET}` ({len(funds):,} rows) \n"
+        + sheet_lines
+        + not_cleaned
+        + f"- **Comparable regressions:** {comparable:,} funds with a mapped benchmark on the sheet \n"
+        + f"- **Regression window ends:** {last_month} \n"
     )
     tickers = mo.ui.table(
         ticker_counts,
@@ -196,7 +211,7 @@ def _(mo):
     mo.md("""
     ## Comparison table
 
-    One row per fund, horizon, and daily-series version (`corrected` or `final`).
+    One row per fund, horizon, and daily-series version (`corrected` or `original`).
     """)
     return
 
@@ -248,18 +263,18 @@ def _(comparison, mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ## One fund: monthly scatter (corrected series)
+    ## One fund: monthly scatter
 
-    Pick a fund and horizon. Points are monthly total returns; the line is the OLS fit.
+    Uses the corrected series once they are saved, otherwise the original ones. Pick a fund and horizon. Points are monthly total returns; the line is the OLS fit.
     """)
     return
 
 
 @app.cell
-def _(comparison, mo, pd):
+def _(comparison, mo, pd, primary_source):
     pickable = (
         comparison.loc[
-            comparison["status"].eq("ok") & comparison["series_source"].eq("corrected")
+            comparison["status"].eq("ok") & comparison["series_source"].eq(primary_source)
         ][["isin", "name"]]
         .drop_duplicates()
         .sort_values("name")
@@ -294,6 +309,7 @@ def _(
     monthly_panels,
     monthly_scatter_frame,
     pd,
+    primary_source,
 ):
     horizon_months = {"3y": 36, "5y": 60, "10y": 120}
     horizon_labels = {"3 years": "3y", "5 years": "5y", "10 years": "10y"}
@@ -307,13 +323,13 @@ def _(
     n_months = horizon_months[horizon]
     row = comparison.loc[
         comparison["isin"].eq(isin)
-        & comparison["series_source"].eq("corrected")
+        & comparison["series_source"].eq(primary_source)
         & comparison["horizon"].eq(horizon)
     ]
     mo.stop(not isin or row.empty, mo.md("Choose a fund with a completed regression."))
     row = row.iloc[0]
     bench_header = row["benchmark_header"]
-    monthly = monthly_panels["corrected"]
+    monthly = monthly_panels[primary_source]
     scatter = monthly_scatter_frame(
         monthly, isin, bench_header, last_n_months=n_months
     )

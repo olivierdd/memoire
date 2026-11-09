@@ -1,4 +1,4 @@
-"""Monthly fund-on-benchmark OLS from daily D-Timeseries workbooks vs Lipper Funds stats."""
+"""Monthly fund-on-benchmark OLS from the daily D-Timeseries sheets vs Lipper Funds stats."""
 
 from __future__ import annotations
 
@@ -14,9 +14,12 @@ from helpers.timeseries_functions.compare_regression_to_lipper_funds import (
 )
 
 LABEL_ROWS = 6
-DEFAULT_FUNDS_FILENAME = "v2-funds-final.xlsx"
-DEFAULT_CORRECTED_FILENAME = "v2-d-timeseries-corrected.xlsx"
-DEFAULT_FINAL_FILENAME = "v2-d-timeseries-final.xlsx"
+DEFAULT_WORKBOOK_FILENAME = "v2-funds-normalized.xlsx"
+FUNDS_SHEET = "Funds final"
+# The series notebook replaces CORRECTED_SHEET with the cleaned data and keeps
+# the sheet as it was before cleaning in ORIGINAL_SHEET.
+CORRECTED_SHEET = "D-Timeseries final"
+ORIGINAL_SHEET = "D-Timeseries raw"
 SPX_BENCH_HEADER = "S&P 500 TR %"
 US_TBILL_HEADER = "US T-Bill 3M"
 MIN_BENCH_DAYS_PER_MONTH = 15
@@ -47,10 +50,15 @@ def find_output_data_file(filename: str) -> Path:
     raise FileNotFoundError(f"Could not find {relative}, starting from {start}")
 
 
-def load_daily_timeseries_raw(workbook: Path, *, label_rows: int = LABEL_ROWS) -> pd.DataFrame:
-    raw = pd.read_excel(workbook, header=None, engine="openpyxl")
+def load_daily_timeseries_raw(
+    workbook: Path | pd.ExcelFile,
+    *,
+    sheet_name: str | int = 0,
+    label_rows: int = LABEL_ROWS,
+) -> pd.DataFrame:
+    raw = pd.read_excel(workbook, sheet_name=sheet_name, header=None, engine="openpyxl")
     if len(raw) <= label_rows or raw.shape[1] < 2:
-        raise ValueError(f"{workbook} has no observation rows")
+        raise ValueError(f"Sheet {sheet_name!r} has no observation rows")
     return raw
 
 
@@ -483,55 +491,69 @@ def match_rate_by_horizon(comparison: pd.DataFrame) -> pd.DataFrame:
 
 
 def load_funds_reference(
-    filename: str = DEFAULT_FUNDS_FILENAME,
+    workbook: Path | pd.ExcelFile | None = None,
+    *,
+    sheet_name: str = FUNDS_SHEET,
 ) -> pd.DataFrame:
-    path = find_output_data_file(filename)
-    return pd.read_excel(path, engine="openpyxl")
+    source = workbook if workbook is not None else find_output_data_file(DEFAULT_WORKBOOK_FILENAME)
+    return pd.read_excel(source, sheet_name=sheet_name, engine="openpyxl")
 
 
 def monthly_returns_from_workbook(
-    workbook: Path,
+    workbook: Path | pd.ExcelFile,
+    *,
+    sheet_name: str | int = 0,
 ) -> tuple[pd.DataFrame, pd.Series | None]:
-    raw = load_daily_timeseries_raw(workbook)
+    raw = load_daily_timeseries_raw(workbook, sheet_name=sheet_name)
     daily, bench_counts = load_daily_return_panel(raw)
     monthly = compound_daily_to_monthly(daily, bench_counts)
     risk_free = monthly_risk_free_rate(daily)
     return monthly, risk_free
 
 
-def compare_daily_workbooks_to_lipper(
+def daily_series_sheets(sheet_names: list[str]) -> dict[str, str]:
+    """Series versions to regress, keyed by label, the cleaned one first.
+
+    Before the series notebook saves its corrections there is no
+    ``ORIGINAL_SHEET``, and ``CORRECTED_SHEET`` still holds the data as it was
+    downloaded, so it is labelled ``original``.
+    """
+    if CORRECTED_SHEET not in sheet_names:
+        raise ValueError(f"The workbook has no {CORRECTED_SHEET!r} sheet")
+    if ORIGINAL_SHEET in sheet_names:
+        return {"corrected": CORRECTED_SHEET, "original": ORIGINAL_SHEET}
+    return {"original": CORRECTED_SHEET}
+
+
+def compare_daily_sheets_to_lipper(
+    workbook: Path | None = None,
     *,
     funds: pd.DataFrame | None = None,
-    corrected_path: Path | None = None,
-    final_path: Path | None = None,
-) -> tuple[pd.DataFrame, dict[str, pd.DataFrame]]:
-    """Regress corrected and final daily workbooks; return long comparison and monthly panels."""
-    funds = funds if funds is not None else load_funds_reference()
-    corrected_path = corrected_path or find_output_data_file(DEFAULT_CORRECTED_FILENAME)
-    final_path = final_path or find_output_data_file(DEFAULT_FINAL_FILENAME)
-    corrected_monthly, corrected_rf = monthly_returns_from_workbook(corrected_path)
-    final_monthly, final_rf = monthly_returns_from_workbook(final_path)
-    monthly_by_source: dict[str, pd.DataFrame] = {
-        "corrected": corrected_monthly,
-        "final": final_monthly,
-    }
-    risk_free_by_source = {"corrected": corrected_rf, "final": final_rf}
-    parts = [
-        regression_rows_for_funds(
-            funds,
-            monthly_by_source["corrected"],
-            series_source="corrected",
-            risk_free_monthly=risk_free_by_source["corrected"],
-        ),
-        regression_rows_for_funds(
-            funds,
-            monthly_by_source["final"],
-            series_source="final",
-            risk_free_monthly=risk_free_by_source["final"],
-        ),
-    ]
+) -> tuple[pd.DataFrame, dict[str, pd.DataFrame], dict[str, str]]:
+    """Regress each daily-series sheet of the normalized workbook on its benchmark.
+
+    Returns the long comparison, the monthly panel per series version, and the
+    sheet each version was read from.
+    """
+    path = workbook if workbook is not None else find_output_data_file(DEFAULT_WORKBOOK_FILENAME)
+    with pd.ExcelFile(path, engine="openpyxl") as book:
+        sheets = daily_series_sheets(book.sheet_names)
+        funds = funds if funds is not None else load_funds_reference(book)
+        monthly_by_source: dict[str, pd.DataFrame] = {}
+        parts = []
+        for source, sheet in sheets.items():
+            monthly, risk_free = monthly_returns_from_workbook(book, sheet_name=sheet)
+            monthly_by_source[source] = monthly
+            parts.append(
+                regression_rows_for_funds(
+                    funds,
+                    monthly,
+                    series_source=source,
+                    risk_free_monthly=risk_free,
+                )
+            )
     comparison = pd.concat(parts, ignore_index=True)
-    return comparison, monthly_by_source
+    return comparison, monthly_by_source, sheets
 
 
 def monthly_scatter_frame(
