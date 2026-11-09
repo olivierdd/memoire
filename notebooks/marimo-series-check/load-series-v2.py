@@ -27,7 +27,7 @@ def _(mo):
     mo.md("""
     # Load the daily series (V2)
 
-    Load `output-data/v2-d-timeseries-final.xlsx`. The sheet keeps six label rows, then one row per date.
+    Load the `D-Timeseries final` sheet of `output-data/v2-funds-normalized.xlsx`. The sheet keeps six label rows, then one row per date.
 
     The first column is the date. Each other column is one series: an index, the risk-free rate, or a fund total return, price, or net assets.
     """)
@@ -51,7 +51,9 @@ def _():
     import pandas as pd
 
     label_rows = 6
-    filename = "v2-d-timeseries-final.xlsx"
+    filename = "v2-funds-normalized.xlsx"
+    sheet_name = "D-Timeseries final"
+    raw_sheet_name = "D-Timeseries raw"
 
     def find_series_workbook() -> Path:
         relative = Path("output-data") / filename
@@ -63,10 +65,15 @@ def _():
         raise FileNotFoundError(f"Could not find {relative}, starting from {start}")
 
     workbook = find_series_workbook()
-    raw = pd.read_excel(workbook, header=None, engine="openpyxl")
+    with pd.ExcelFile(workbook, engine="openpyxl") as book:
+        # Once the cleaned data has replaced `sheet_name`, the original is kept
+        # in `raw_sheet_name`. Always correct from the original, so running the
+        # notebook again does not apply the corrections a second time.
+        source_sheet = raw_sheet_name if raw_sheet_name in book.sheet_names else sheet_name
+        raw = pd.read_excel(book, sheet_name=source_sheet, header=None)
     if len(raw) <= label_rows or raw.shape[1] < 2:
         raise ValueError("The daily series sheet has no observations")
-    return label_rows, pd, raw, workbook
+    return label_rows, pd, raw, raw_sheet_name, sheet_name, source_sheet, workbook
 
 
 @app.cell
@@ -107,7 +114,7 @@ def _(label_rows, pd, raw):
 
 
 @app.cell
-def _(catalog, mo, observations, pd, workbook):
+def _(catalog, mo, observations, pd, source_sheet, workbook):
     parsed_dates = observations.index.dropna()
     missing_dates = int(observations.index.isna().sum())
     category_counts = (
@@ -117,7 +124,7 @@ def _(catalog, mo, observations, pd, workbook):
         .sort_values(["columns", "category"], ascending=[False, True])
     )
     summary = mo.md(
-        f"- **File:** `{workbook}` \n"
+        f"- **File:** `{workbook}`, sheet `{source_sheet}` \n"
         f"- **{len(observations):,}** dates, from **{parsed_dates.min():%Y-%m-%d}** to **{parsed_dates.max():%Y-%m-%d}** \n"
         f"- **{missing_dates:,}** rows have no date \n"
         f"- **{len(catalog):,}** series columns, **{catalog['id'].nunique():,}** ids \n"
@@ -1126,7 +1133,132 @@ def _(adjusted_observations, catalog, mo, pd):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ## 8. Conclusion
+    ## 8. Blank frozen series
+
+    When a fund closes or merges, Datastream keeps repeating its last price and total return on every later date. Those repeated values are not returns. They would add a 0% return on every day and push volatility and beta down.
+
+    A total-return series is frozen when its level stops changing and stays flat for at least 5 sessions where the S&P 500 moved, up to the last date of the series. The price must be flat over the same sessions. If the price still moves, the fund is still pricing (for example a fund moving to cash before liquidation), and the series is left as it is. The last real print is kept. Every later level and daily return is blanked, for both the total return and the price. A series that never moves is blanked entirely. Total net assets are monthly values repeated daily, so they are left unchanged.
+    """)
+    return
+
+
+@app.cell
+def _(catalog, mo, pd, repaired_observations):
+    def blank_frozen_tails(source, catalog_frame, min_sessions=5):
+        def column_id(header):
+            match = catalog_frame.loc[catalog_frame["header"].eq(header), "column"]
+            return None if match.empty else int(match.iloc[0])
+
+        def fund_label(isin):
+            names = catalog_frame.loc[catalog_frame["id"].eq(isin), "name"].astype("string")
+            label = str(names.iloc[0]) if len(names) else isin
+            for suffix in (" - TOT RETURN IND", " - PRICE", " - TOTAL NET ASSETS"):
+                if label.endswith(suffix):
+                    return label[: -len(suffix)]
+            return label
+
+        def last_change(levels):
+            # Position of the last level that differs from the one before it,
+            # or None when the series never moves.
+            values = levels.dropna()
+            moved = values.diff().fillna(0).ne(0)
+            if not moved.any():
+                return None
+            return source.index.get_loc(values.index[moved.to_numpy()][-1])
+
+        market_return = source[column_id("S&P 500 TR %")]
+        is_level = catalog_frame["note"].astype("string").eq("Total return index, daily")
+        cleaned = source.copy()
+        rows = []
+        for tr_row in catalog_frame.loc[is_level].itertuples(index=False):
+            isin = str(tr_row.id)
+            if str(tr_row.category) == "Index":
+                continue
+            tr_id = int(tr_row.column)
+            tr_levels = cleaned[tr_id]
+            present = tr_levels.notna().to_numpy()
+            if present.sum() < 2:
+                continue
+            first = int(present.argmax())
+            last = len(present) - 1 - int(present[::-1].argmax())
+            tr_cut = last_change(tr_levels)
+            price_id = column_id(f"{isin} Price")
+            price_cut = None if price_id is None else last_change(cleaned[price_id])
+            cuts = [cut for cut in (tr_cut, price_cut) if cut is not None]
+            never_moves = not cuts
+            # Keep the last real print: blank from the session after it.
+            # A series that never moves is blanked from its first value.
+            start = first if never_moves else max(cuts) + 1
+            if start > last:
+                continue
+            tail = market_return.iloc[start : last + 1]
+            moved_sessions = int(tail.fillna(0).ne(0).sum())
+            if not never_moves and moved_sessions < min_sessions:
+                continue
+            blanked = 0
+            for header in (f"{isin} TR", f"{isin} TR %", f"{isin} Price", f"{isin} Price %"):
+                target = column_id(header)
+                if target is None:
+                    continue
+                values = cleaned[target].to_numpy(dtype="float64", copy=True)
+                blanked += int((values[start:] == values[start:]).sum())
+                values[start:] = float("nan")
+                cleaned[target] = values
+            rows.append(
+                {
+                    "isin": isin,
+                    "fund": fund_label(isin),
+                    "pattern": "never moves" if never_moves else "frozen tail",
+                    "last_real_print": None if never_moves else source.index[start - 1].strftime("%Y-%m-%d"),
+                    "frozen_from": source.index[start].strftime("%Y-%m-%d"),
+                    "frozen_to": source.index[last].strftime("%Y-%m-%d"),
+                    "frozen_sessions": last - start + 1,
+                    "sessions_where_sp500_moved": moved_sessions,
+                    "frozen_level": float(source[tr_id].iloc[last]),
+                    "cells": blanked,
+                }
+            )
+        log = pd.DataFrame(
+            rows,
+            columns=[
+                "isin",
+                "fund",
+                "pattern",
+                "last_real_print",
+                "frozen_from",
+                "frozen_to",
+                "frozen_sessions",
+                "sessions_where_sp500_moved",
+                "frozen_level",
+                "cells",
+            ],
+        )
+        if len(log):
+            log = log.sort_values("frozen_sessions", ascending=False).reset_index(drop=True)
+        return cleaned, log
+
+    cleaned_observations, frozen_log = blank_frozen_tails(repaired_observations, catalog)
+    never_moving = frozen_log.loc[frozen_log["pattern"].eq("never moves")]
+    frozen_tails = frozen_log.loc[frozen_log["pattern"].eq("frozen tail")]
+    frozen_summary = mo.md(
+        f"- **{len(never_moving):,}** funds never move and are blanked entirely \n"
+        f"- **{len(frozen_tails):,}** funds have a frozen tail, blanked after their last real print \n"
+        f"- **{int(frozen_log['cells'].sum()):,}** cells blanked across total return, price, and their daily returns \n"
+    )
+    frozen_table = mo.ui.table(
+        frozen_log,
+        label="Frozen series",
+        selection=None,
+        pagination=False,
+    )
+    mo.vstack([frozen_summary, frozen_table])
+    return cleaned_observations, frozen_log
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## 9. Conclusion
 
     The total-return series are usable for performance measurement and for a regression against the S&P 500.
 
@@ -1136,102 +1268,97 @@ def _(mo):
 
     Three scale flags are explained and left as published. Principal Value ETF printed a flat NAV on most days from 2016 through 2018. Allspring Core Builder is flat for its first fortnight. Johnson Enhanced Return goes to cash after 18 Oct 2026 because the fund liquidates around 30 Nov 2026. The price drop on 26 Oct is the published $1.53 distribution, and the total return already includes it.
 
-    Four series should be set aside before a statistic is computed. Fifth Third Equity Index A (US31678R6760), Large Cap Core A (US31678R6273) and Dividend Growth A (US3167865654) never move: price and total return stay at one number from November 2015 through October 2026. Fidelity Advisor Mega Cap (US31617F8178) is unchanged on 76% of days, so its volatility and beta would be too low. Principal Value ETF can be used from 2019, once the NAV is marked daily.
+    Frozen series are blanked in step 8. Fifth Third Equity Index A (US31678R6760), Large Cap Core A (US31678R6273) and Dividend Growth A (US3167865654) never move: price and total return stay at one number from November 2015 through October 2026, and EDGAR lists them as closed. They have no usable data and are blanked entirely. Fidelity Advisor Mega Cap (US31617F8178) stops on 21 Sep 2018. Its net assets stop at the end of August 2018 and EDGAR lists it as closed, so only its history up to that date is kept. The Funds sheet names this ISIN "Fidelity Advisor Series Growth & Income Fund", which does not match the series name, so the match should be checked. Sequoia Fund and US00791R7807 freeze over their last sessions in October 2026. Principal Value ETF can be used from 2019, once the NAV is marked daily.
 
     On the Goldman, Natixis, SEI and Schwab distribution days where the dollar amount could not be confirmed, that single day's total return was set equal to the S&P 500. Across roughly 2,800 days this does not move a Sharpe ratio, an alpha, or a tracking error.
 
     Use the total-return column for the study. The price column still falls by the distribution, which is the published NAV.
 
-    The corrected sheet is saved beside the source as `output-data/v2-d-timeseries-corrected.xlsx`. It keeps the six label rows and the same columns. The source file is left as it was, so running this notebook again does not apply the corrections a second time. Opening the notebook leaves the corrected file in place. The button below writes it again.
+    The cleaned data replaces the sheet `D-Timeseries final` of `output-data/v2-funds-normalized.xlsx`. It keeps the six label rows and the same columns, and every other sheet is left as it was. The first time, the original sheet is kept as `D-Timeseries raw`. This notebook always starts from that original, so running it again does not apply the corrections a second time. Opening the notebook does not write anything. The button below does.
     """)
     return
 
 
 @app.cell
-def _(mo, workbook):
-    import zipfile
-
-    corrected_destination = workbook.parent / "v2-d-timeseries-corrected.xlsx"
-
-    def corrected_workbook_ready(path) -> bool:
-        if not path.is_file() or path.stat().st_size < 1_000_000:
-            return False
-        try:
-            with zipfile.ZipFile(path) as book:
-                return (
-                    book.testzip() is None
-                    and "xl/worksheets/sheet1.xml" in book.namelist()
-                )
-        except zipfile.BadZipFile:
-            return False
-
-    corrected_workbook_exists = corrected_workbook_ready(corrected_destination)
+def _(mo, pd, raw_sheet_name, sheet_name, source_sheet, workbook):
+    already_cleaned = source_sheet == raw_sheet_name
     save_corrected_button = mo.ui.run_button(
-        label="Write the corrected workbook again"
-        if corrected_workbook_exists
-        else "Save the corrected workbook"
+        label="Replace the sheet again"
+        if already_cleaned
+        else "Replace the sheet with the cleaned data"
     )
     corrected_status = mo.md(
-        f"- Corrected workbook: `{corrected_destination}` \n"
+        f"- Workbook: `{workbook}` \n"
+        f"- Sheet to replace: `{sheet_name}` \n"
         + (
-            "- The file is already saved. Opening this notebook does not rewrite it. \n"
-            if corrected_workbook_exists
-            else "- The file is not saved yet. \n"
+            f"- The original is kept in `{raw_sheet_name}`, and the notebook starts from it. \n"
+            if already_cleaned
+            else f"- Not replaced yet. The original will be kept in `{raw_sheet_name}`. \n"
         )
     )
     mo.vstack([corrected_status, save_corrected_button])
-    return corrected_destination, save_corrected_button
+    return (save_corrected_button,)
 
 
 @app.cell
 def _(
-    corrected_destination,
     label_rows,
     mo,
     observations,
     pd,
     raw,
-    repaired_observations,
+    raw_sheet_name,
+    cleaned_observations,
     save_corrected_button,
+    sheet_name,
+    source_sheet,
     workbook,
 ):
     def export_corrected_series():
         import os
+        import shutil
         import tempfile
 
-        if not repaired_observations.columns.equals(observations.columns):
+        if not cleaned_observations.columns.equals(observations.columns):
             raise ValueError("Corrected columns do not match the loaded sheet")
-        if not repaired_observations.index.equals(observations.index):
+        if not cleaned_observations.index.equals(observations.index):
             raise ValueError("Corrected dates do not match the loaded sheet")
-        if corrected_destination.resolve() == workbook.resolve():
-            raise ValueError("Refusing to overwrite the source workbook")
-        difference = observations.sub(repaired_observations).abs()
+        difference = observations.sub(cleaned_observations).abs()
         changed = difference.gt(1e-12) | (
-            observations.isna() ^ repaired_observations.isna()
+            observations.isna() ^ cleaned_observations.isna()
         )
         sheet = raw.copy()
         block = sheet.iloc[label_rows:, 1:].to_numpy(copy=True)
         changed_positions = changed.to_numpy()
-        block[changed_positions] = repaired_observations.to_numpy()[changed_positions]
+        block[changed_positions] = cleaned_observations.to_numpy()[changed_positions]
         sheet.iloc[label_rows:, 1:] = block
         temporary_handle = tempfile.NamedTemporaryFile(
-            prefix="v2-d-timeseries-corrected-",
+            prefix="v2-funds-normalized-",
             suffix=".xlsx",
             delete=False,
         )
         temporary_path = temporary_handle.name
         temporary_handle.close()
         try:
-            # Local temp file: writing the zip straight into this folder times out.
-            sheet.to_excel(
-                temporary_path, index=False, header=False, engine="openpyxl"
-            )
+            # Work on a local copy: writing the zip straight into this folder times out.
+            shutil.copyfile(workbook, temporary_path)
+            with pd.ExcelWriter(
+                temporary_path,
+                engine="openpyxl",
+                mode="a",
+                if_sheet_exists="replace",
+            ) as writer:
+                if source_sheet != raw_sheet_name:
+                    raw.to_excel(
+                        writer, sheet_name=raw_sheet_name, index=False, header=False
+                    )
+                sheet.to_excel(
+                    writer, sheet_name=sheet_name, index=False, header=False
+                )
             try:
-                os.replace(temporary_path, corrected_destination)
+                os.replace(temporary_path, workbook)
             except OSError:
-                import shutil
-
-                shutil.move(temporary_path, corrected_destination)
+                shutil.move(temporary_path, workbook)
         finally:
             if os.path.exists(temporary_path):
                 os.remove(temporary_path)
@@ -1241,8 +1368,8 @@ def _(
     if save_corrected_button.value:
         corrected_cell_count = export_corrected_series()
         corrected_export_note = mo.md(
-            f"- Wrote **{corrected_cell_count:,}** corrected cells to `{corrected_destination}` \n"
-            f"- Source left unchanged: `{workbook}` \n"
+            f"- Replaced `{sheet_name}` in `{workbook}`, with **{corrected_cell_count:,}** corrected cells \n"
+            f"- Original kept in `{raw_sheet_name}` \n"
         )
     corrected_export_note
     return
