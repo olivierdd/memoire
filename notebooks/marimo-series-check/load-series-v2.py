@@ -224,7 +224,7 @@ def _(mo):
     mo.md("""
     ## 4. Check each total-return series
 
-    Same controls as `notebooks/check-fund-timeseries.ipynb`, applied to each daily **price total return** (`TR %`) rather than to a monthly return or to the price-only return. Each series is judged on its own against the daily **S&P 500 TR** return.
+    Same controls as `old/check-fund-timeseries.ipynb`, applied to each daily **price total return** (`TR %`) rather than to a monthly return or to the price-only return. Each series is judged on its own against the daily **S&P 500 TR** return.
 
     A gap is a missing daily return inside the series, a skipped month, or more than 45 days between dates. A spike is a daily return of at least 10% that reverses the next day while the index does not, or that the index does not follow. A scale shift is a median absolute return that stays at least 5× higher or lower across 12 daily returns. A level jump is a move of at least 50% that does not come back. A day is far from the index when the absolute gap is at least 5%.
     """)

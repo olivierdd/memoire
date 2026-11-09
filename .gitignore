@@ -39,6 +39,9 @@ __marimo__/
 input-data/
 output-data/
 
+# Earlier Jupyter notebooks. The marimo notebooks stay in notebooks/.
+old/
+
 # Local scratch
 *.cache
 *.sqlite
