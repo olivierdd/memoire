@@ -1258,7 +1258,193 @@ def _(catalog, mo, pd, repaired_observations):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ## 9. Conclusion
+    ## 9. Drop four closed funds
+
+    Four funds have a Datastream column and no usable return in this sample. Lipper already marked each one absent and left it unselected. The column is non-null, so the earlier keep step still held them. Step 8 blanks a frozen tail and keeps the last real print. That is the wrong cut for these four: the print is not a series this study can use. This step blanks every column, including net assets, sets the fund to Drop, and removes it from the fund set.
+    """)
+    return
+
+
+@app.cell
+def _(
+    catalog,
+    cleaned_observations,
+    label_rows,
+    mo,
+    observations,
+    pd,
+    raw,
+    raw_sheet_name,
+    sheet_name,
+    source_sheet,
+    workbook,
+):
+    closed_funds = pd.DataFrame(
+        [
+            {
+                "isin": "US31678R6760",
+                "fund": "Fifth Third Equity Index Fund;A",
+                "why": (
+                    "Liquidated on 27 July 2012, before the sample. "
+                    "Price 24.61 and total return 301.87 are repeated from November 2015 through October 2026. Net assets are empty."
+                ),
+            },
+            {
+                "isin": "US31678R6273",
+                "fund": "Fifth Third Structured Large Cap Plus Fund;A",
+                "why": (
+                    "Same liquidation on 27 July 2012. Datastream still says Large Cap Core, the name until 2 July 2007. "
+                    "Price 12.99 and total return 149.19 never move. Net assets are empty."
+                ),
+            },
+            {
+                "isin": "US3167865654",
+                "fund": "Fifth Third Dividend Growth Fund;A",
+                "why": (
+                    "Liquidated on 27 July 2012. "
+                    "Price 23.64 and total return 89.04 never move. Net assets are empty."
+                ),
+            },
+            {
+                "isin": "US31617F8178",
+                "fund": "Fidelity Advisor Series Growth & Income Fund",
+                "why": (
+                    "Feeder FMALX, sold only to other Fidelity funds. Renamed from Advisor Series Mega Cap on 1 August 2013, which is the Datastream name. "
+                    "Reorganized in September 2018 into Fidelity Series Large Cap Stock Fund (US31617F8335), which stays. "
+                    "Last real print is 21 September 2018. The later flat prices, and the history before the merger, are blanked."
+                ),
+            },
+        ]
+    )
+    drop_isins = set(closed_funds["isin"])
+    excluded_observations = cleaned_observations.copy()
+    blanked_cells = 0
+    for _isin in closed_funds["isin"]:
+        for _column in catalog.loc[catalog["id"].eq(_isin), "column"]:
+            _values = excluded_observations[int(_column)]
+            blanked_cells += int(_values.notna().sum())
+            excluded_observations[int(_column)] = float("nan")
+
+    def save_closed_funds():
+        import os
+        import shutil
+        import tempfile
+
+        from openpyxl import load_workbook
+
+        if not excluded_observations.columns.equals(observations.columns):
+            raise ValueError("Corrected columns do not match the loaded sheet")
+        if not excluded_observations.index.equals(observations.index):
+            raise ValueError("Corrected dates do not match the loaded sheet")
+        difference = observations.sub(excluded_observations).abs()
+        changed = difference.gt(1e-12) | (
+            observations.isna() ^ excluded_observations.isna()
+        )
+        series = raw.copy()
+        block = series.iloc[label_rows:, 1:].to_numpy(copy=True)
+        changed_positions = changed.to_numpy()
+        block[changed_positions] = excluded_observations.to_numpy()[changed_positions]
+        series.iloc[label_rows:, 1:] = block
+        temporary_handle = tempfile.NamedTemporaryFile(
+            prefix="v2-funds-normalized-",
+            suffix=".xlsx",
+            delete=False,
+        )
+        temporary_path = temporary_handle.name
+        temporary_handle.close()
+        try:
+            shutil.copyfile(workbook, temporary_path)
+            with pd.ExcelWriter(
+                temporary_path,
+                engine="openpyxl",
+                mode="a",
+                if_sheet_exists="replace",
+            ) as writer:
+                if source_sheet != raw_sheet_name:
+                    raw.to_excel(
+                        writer, sheet_name=raw_sheet_name, index=False, header=False
+                    )
+                series.to_excel(
+                    writer, sheet_name=sheet_name, index=False, header=False
+                )
+            book = load_workbook(temporary_path)
+            funds = book["Funds"]
+            funds_header = {
+                cell.value: cell.column
+                for cell in next(funds.iter_rows(min_row=1, max_row=1))
+                if cell.value is not None
+            }
+            isin_column = funds_header["ds.isin"]
+            keep_column = funds_header.get("timeseries.keep_or_drop")
+            note_column = funds_header.get("edgar.match_note")
+            has_column = funds_header.get("timeseries.has_daily_total_return")
+            observations_column = funds_header.get("timeseries.daily_tr_observations")
+            reasons = dict(zip(closed_funds["isin"], closed_funds["why"]))
+            marked = 0
+            for row in range(2, funds.max_row + 1):
+                isin = funds.cell(row, isin_column).value
+                if isin not in drop_isins:
+                    continue
+                if keep_column is not None:
+                    funds.cell(row, keep_column).value = "Drop"
+                if note_column is not None:
+                    funds.cell(row, note_column).value = reasons[isin]
+                if has_column is not None:
+                    funds.cell(row, has_column).value = False
+                if observations_column is not None:
+                    funds.cell(row, observations_column).value = 0
+                marked += 1
+            removed = {}
+            for fund_sheet in ("Funds with daily TR", "Funds final"):
+                worksheet = book[fund_sheet]
+                header = {
+                    cell.value: cell.column
+                    for cell in next(worksheet.iter_rows(min_row=1, max_row=1))
+                    if cell.value is not None
+                }
+                rows = [
+                    row
+                    for row in range(2, worksheet.max_row + 1)
+                    if worksheet.cell(row, header["ISIN"]).value in drop_isins
+                ]
+                for row in reversed(rows):
+                    worksheet.delete_rows(row)
+                removed[fund_sheet] = len(rows)
+            book.save(temporary_path)
+            book.close()
+            try:
+                os.replace(temporary_path, workbook)
+            except OSError:
+                shutil.move(temporary_path, workbook)
+        finally:
+            if os.path.exists(temporary_path):
+                os.remove(temporary_path)
+        return int(changed_positions.sum()), marked, removed
+
+    corrected_cells, marked_funds, removed_rows = save_closed_funds()
+    closed_summary = mo.md(
+        f"- **{len(closed_funds)}** funds dropped \n"
+        f"- **{blanked_cells:,}** cells blanked on this step, across total return, price, daily returns, and net assets \n"
+        f"- **{marked_funds}** rows set to Drop on `Funds` \n"
+        f"- **{removed_rows['Funds with daily TR']}** rows removed from `Funds with daily TR` \n"
+        f"- **{removed_rows['Funds final']}** rows removed from `Funds final` \n"
+        f"- Wrote `{sheet_name}` in `{workbook}`, with **{corrected_cells:,}** cells different from the original series \n"
+        f"- Fidelity Series Large Cap Stock Fund (US31617F8335) stays \n"
+    )
+    closed_table = mo.ui.table(
+        closed_funds,
+        label="Closed funds dropped from the sample",
+        selection=None,
+        pagination=False,
+    )
+    mo.vstack([closed_summary, closed_table])
+    return (excluded_observations,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## 10. Conclusion
 
     The total-return series are usable for performance measurement and for a regression against the S&P 500.
 
@@ -1268,13 +1454,13 @@ def _(mo):
 
     Three scale flags are explained and left as published. Principal Value ETF printed a flat NAV on most days from 2016 through 2018. Allspring Core Builder is flat for its first fortnight. Johnson Enhanced Return goes to cash after 18 Oct 2026 because the fund liquidates around 30 Nov 2026. The price drop on 26 Oct is the published $1.53 distribution, and the total return already includes it.
 
-    Frozen series are blanked in step 8. Fifth Third Equity Index A (US31678R6760), Large Cap Core A (US31678R6273) and Dividend Growth A (US3167865654) never move: price and total return stay at one number from November 2015 through October 2026, and EDGAR lists them as closed. They have no usable data and are blanked entirely. Fidelity Advisor Mega Cap (US31617F8178) stops on 21 Sep 2018. Its net assets stop at the end of August 2018 and EDGAR lists it as closed, so only its history up to that date is kept. The Funds sheet names this ISIN "Fidelity Advisor Series Growth & Income Fund", which does not match the series name, so the match should be checked. Sequoia Fund and US00791R7807 freeze over their last sessions in October 2026. Principal Value ETF can be used from 2019, once the NAV is marked daily.
+    Frozen series are blanked in step 8. Step 9 then drops four closed funds. Fifth Third Equity Index A (US31678R6760), Structured Large Cap Plus A (US31678R6273) and Dividend Growth A (US3167865654) were liquidated on 27 July 2012. Their price and total return are one number from November 2015 through October 2026. Structured Large Cap Plus is still labelled Large Cap Core in Datastream; that was its name until 2 July 2007. Fidelity Advisor Series Growth & Income (US31617F8178, FMALX) was renamed from Advisor Series Mega Cap on 1 August 2013 and reorganized in September 2018 into Fidelity Series Large Cap Stock (US31617F8335), which stays. Sequoia Fund and US00791R7807 freeze over their last sessions in October 2026. Principal Value ETF can be used from 2019, once the NAV is marked daily.
 
     On the Goldman, Natixis, SEI and Schwab distribution days where the dollar amount could not be confirmed, that single day's total return was set equal to the S&P 500. Across roughly 2,800 days this does not move a Sharpe ratio, an alpha, or a tracking error.
 
     Use the total-return column for the study. The price column still falls by the distribution, which is the published NAV.
 
-    The cleaned data replaces the sheet `D-Timeseries final` of `output-data/v2-funds-normalized.xlsx`. It keeps the six label rows and the same columns, and every other sheet is left as it was. The first time, the original sheet is kept as `D-Timeseries raw`. This notebook always starts from that original, so running it again does not apply the corrections a second time. Opening the notebook does not write anything. The button below does.
+    Step 9 writes the workbook. The cleaned series replace `D-Timeseries final` of `output-data/v2-funds-normalized.xlsx`. The six label rows and the columns stay as they are. The first time, the original series are kept as `D-Timeseries raw`. The four funds are set to Drop on `Funds` and removed from `Funds with daily TR` and `Funds final`. This notebook always starts from the original series, so running it again does not apply the corrections a second time. The button below writes the cleaned series again.
     """)
     return
 
@@ -1308,7 +1494,7 @@ def _(
     pd,
     raw,
     raw_sheet_name,
-    cleaned_observations,
+    excluded_observations,
     save_corrected_button,
     sheet_name,
     source_sheet,
@@ -1319,18 +1505,18 @@ def _(
         import shutil
         import tempfile
 
-        if not cleaned_observations.columns.equals(observations.columns):
+        if not excluded_observations.columns.equals(observations.columns):
             raise ValueError("Corrected columns do not match the loaded sheet")
-        if not cleaned_observations.index.equals(observations.index):
+        if not excluded_observations.index.equals(observations.index):
             raise ValueError("Corrected dates do not match the loaded sheet")
-        difference = observations.sub(cleaned_observations).abs()
+        difference = observations.sub(excluded_observations).abs()
         changed = difference.gt(1e-12) | (
-            observations.isna() ^ cleaned_observations.isna()
+            observations.isna() ^ excluded_observations.isna()
         )
         sheet = raw.copy()
         block = sheet.iloc[label_rows:, 1:].to_numpy(copy=True)
         changed_positions = changed.to_numpy()
-        block[changed_positions] = cleaned_observations.to_numpy()[changed_positions]
+        block[changed_positions] = excluded_observations.to_numpy()[changed_positions]
         sheet.iloc[label_rows:, 1:] = block
         temporary_handle = tempfile.NamedTemporaryFile(
             prefix="v2-funds-normalized-",

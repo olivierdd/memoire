@@ -24,6 +24,8 @@ SPX_BENCH_HEADER = "S&P 500 TR %"
 US_TBILL_HEADER = "US T-Bill 3M"
 MIN_BENCH_DAYS_PER_MONTH = 15
 DEFAULT_HORIZON_MONTHS: dict[str, int] = {"3y": 36, "5y": 60, "10y": 120}
+# Lipper horizon stats and performance on the Funds sheet end on this date.
+LIPPER_AS_OF = pd.Timestamp("2026-09-30")
 
 # Lipper tickers present in the daily sheet header row.
 BENCHMARK_TICKER_TO_HEADER: dict[str, str] = {
@@ -93,6 +95,17 @@ def load_daily_return_panel(
     return body, counts
 
 
+def clip_daily_panel_to_lipper_as_of(
+    daily: pd.DataFrame,
+    *,
+    as_of: pd.Timestamp = LIPPER_AS_OF,
+) -> tuple[pd.DataFrame, pd.Series]:
+    """Drop sessions after Lipper's last month end and refresh benchmark day counts."""
+    clipped = daily.loc[daily.index <= as_of]
+    counts = clipped[SPX_BENCH_HEADER].groupby(clipped.index.to_period("M")).count()
+    return clipped, counts
+
+
 def compound_daily_to_monthly(
     daily: pd.DataFrame,
     bench_counts: pd.Series,
@@ -150,6 +163,12 @@ def horizon_total_return_pct(returns: np.ndarray) -> float:
     return float((np.prod(1.0 + returns) - 1.0) * 100.0)
 
 
+def _has_variation(values: np.ndarray) -> bool:
+    """False when correlation or R² would divide by a zero standard deviation."""
+    scale = float(np.std(values, ddof=1))
+    return bool(np.isfinite(scale) and scale > 0.0)
+
+
 def horizon_sharpe_ratio(
     returns: np.ndarray,
     risk_free: np.ndarray | None = None,
@@ -198,7 +217,15 @@ def fit_monthly_regression(
     beta = float(fit.params[1])
     excess = y - x
     te = float(np.std(excess, ddof=1) * np.sqrt(12) * 100) if len(excess) > 2 else float("nan")
-    corr = float(np.corrcoef(x, y)[0, 1])
+    fund_varies = _has_variation(y)
+    bench_varies = _has_variation(x)
+    # Flat series make corrcoef and rsquared divide by zero; those stats are undefined.
+    corr = (
+        float(np.corrcoef(x, y)[0, 1])
+        if fund_varies and bench_varies
+        else float("nan")
+    )
+    r_squared = float(fit.rsquared) if fund_varies else float("nan")
     rf: np.ndarray | None = None
     if risk_free_monthly is not None:
         aligned_rf = risk_free_monthly.reindex(window.index)
@@ -212,7 +239,7 @@ def fit_monthly_regression(
         window_end=str(window.index[-1]),
         alpha_pct_per_month=alpha * 100.0,
         beta=beta,
-        r_squared=float(fit.rsquared),
+        r_squared=r_squared,
         tracking_error_ann_pct=te,
         correlation=corr,
         total_return_pct=horizon_total_return_pct(y),
@@ -506,6 +533,7 @@ def monthly_returns_from_workbook(
 ) -> tuple[pd.DataFrame, pd.Series | None]:
     raw = load_daily_timeseries_raw(workbook, sheet_name=sheet_name)
     daily, bench_counts = load_daily_return_panel(raw)
+    daily, bench_counts = clip_daily_panel_to_lipper_as_of(daily)
     monthly = compound_daily_to_monthly(daily, bench_counts)
     risk_free = monthly_risk_free_rate(daily)
     return monthly, risk_free
@@ -572,4 +600,8 @@ def monthly_scatter_frame(
         axis=1,
     ).dropna()
     window = aligned.iloc[-last_n_months:]
-    return window.reset_index(names="month")
+    frame = window.reset_index(names="month")
+    # Altair serializes the frame as JSON; pandas Period is not serializable.
+    if isinstance(frame["month"].dtype, pd.PeriodDtype):
+        frame["month"] = frame["month"].astype(str)
+    return frame

@@ -1,17 +1,23 @@
+import json
 import unittest
+import warnings
 
 import numpy as np
 import pandas as pd
 
 from helpers.timeseries_functions.regress_daily_to_benchmark import (
     BENCHMARK_TICKER_TO_HEADER,
+    LIPPER_AS_OF,
     LIPPER_MATCH_TOLERANCES,
+    SPX_BENCH_HEADER,
+    clip_daily_panel_to_lipper_as_of,
     compound_daily_to_monthly,
     fit_monthly_regression,
     fund_tr_return_header,
     horizon_sharpe_ratio,
     horizon_total_return_pct,
     lipper_horizon_match,
+    monthly_scatter_frame,
     regression_rows_for_funds,
 )
 
@@ -55,6 +61,36 @@ class RegressDailyToBenchmarkTests(unittest.TestCase):
         self.assertAlmostEqual(result.beta, 0.95)
         self.assertAlmostEqual(result.r_squared, 1.0)
         self.assertEqual(result.months, 4)
+
+    def test_flat_fund_leaves_r_squared_and_correlation_undefined(self):
+        bench = pd.Series(
+            np.array([-0.02, 0.0, 0.01, 0.03]),
+            index=pd.PeriodIndex(["2024-01", "2024-02", "2024-03", "2024-04"], freq="M"),
+        )
+        fund = pd.Series(0.0, index=bench.index)
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            result = fit_monthly_regression(fund, bench, horizon="3y", last_n_months=4)
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertTrue(np.isnan(result.r_squared))
+        self.assertTrue(np.isnan(result.correlation))
+        self.assertAlmostEqual(result.alpha_pct_per_month, 0.0)
+        self.assertAlmostEqual(result.beta, 0.0)
+
+    def test_monthly_scatter_frame_months_are_json_strings(self):
+        monthly = pd.DataFrame(
+            {
+                "S&P 500 TR %": [0.01, 0.02, -0.01],
+                fund_tr_return_header("US0000000005"): [0.0, 0.01, 0.02],
+            },
+            index=pd.period_range("2024-01", periods=3, freq="M"),
+        )
+        frame = monthly_scatter_frame(
+            monthly, "US0000000005", "S&P 500 TR %", last_n_months=3
+        )
+        self.assertEqual(list(frame["month"]), ["2024-01", "2024-02", "2024-03"])
+        json.dumps(frame.to_dict(orient="records"))
 
     def test_lipper_alpha_units_on_comparison_row(self):
         periods = pd.period_range("2024-01", periods=36, freq="M")
@@ -148,6 +184,22 @@ class RegressDailyToBenchmarkTests(unittest.TestCase):
         self.assertEqual(
             BENCHMARK_TICKER_TO_HEADER[".SPXTR"], "S&P 500 TR %"
         )
+
+    def test_clip_daily_panel_drops_sessions_after_lipper_as_of(self):
+        dates = pd.to_datetime(
+            ["2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02"]
+        )
+        daily = pd.DataFrame(
+            {
+                SPX_BENCH_HEADER: [0.01, 0.02, 0.03, 0.04],
+                "US0000000004 TR %": [0.005, 0.005, 0.005, 0.005],
+            },
+            index=dates,
+        )
+        clipped, counts = clip_daily_panel_to_lipper_as_of(daily)
+        self.assertEqual(clipped.index.max(), LIPPER_AS_OF)
+        self.assertEqual(len(clipped), 2)
+        self.assertNotIn(pd.Period("2026-10"), counts.index)
 
 
 if __name__ == "__main__":

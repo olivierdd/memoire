@@ -46,6 +46,7 @@ def _(mo):
     ## Method
 
     - Daily `… TR %` columns only. Month return compounds within the calendar month.
+    - Regression windows end on **30 September 2026**, the last month Lipper uses on the Funds sheet.
     - Benchmark mapping: `.SPXTR` → `S&P 500 TR %`, `.INX` → `S&P 500 C Price %`.
     - OLS: fund monthly return on benchmark monthly return (no risk-free subtraction).
     - Lipper alpha is percent per month; tracking error is annualized percent.
@@ -287,6 +288,7 @@ def _(comparison, mo, pd, primary_source):
         options=labels,
         value=next(iter(labels)) if labels else None,
         label="Fund",
+        searchable=True,
     )
     horizon_picker = mo.ui.dropdown(
         options=["3y", "5y", "10y"],
@@ -370,20 +372,33 @@ def _(
         .mark_line(color="#C2410C", strokeWidth=2)
         .encode(x="benchmark:Q", y="fund:Q")
     )
-    lipper_beta = row["lipper_beta"]
-    lipper_beta_text = (
-        f"{float(lipper_beta):.3f}" if pd.notna(lipper_beta) else "n/a"
+    def _annualized_alpha(monthly_pct: object) -> str:
+        # Lipper and the OLS intercept are percent per month; ×12 matches the sheet.
+        if pd.isna(monthly_pct):
+            return "n/a"
+        return f"{float(monthly_pct) * 12:+.2f}%/yr"
+
+    def _coef(value: object) -> str:
+        if pd.isna(value):
+            return "n/a"
+        return f"{float(value):.3f}"
+
+    ours = (
+        f"α = {_annualized_alpha(fit.alpha_pct_per_month)}, "
+        f"β = {_coef(fit.beta)}, "
+        f"R² = {_coef(fit.r_squared)}"
+    )
+    lipper = (
+        f"Lipper α = {_annualized_alpha(row['lipper_alpha_pct_per_month'])}, "
+        f"β = {_coef(row['lipper_beta'])}, "
+        f"R² = {_coef(row['lipper_r_squared'])}"
     )
     chart = (points + rule).properties(
         width=720,
         height=380,
         title=alt.Title(
             f"{row['name']}",
-            subtitle=(
-                f"{horizon} OLS: α = {fit.alpha_pct_per_month:+.3f}%/mo, "
-                f"β = {fit.beta:.3f}, R² = {fit.r_squared:.3f} "
-                f"(Lipper β = {lipper_beta_text})"
-            ),
+            subtitle=f"{horizon}: {ours} ({lipper})",
         ),
     )
     chart
