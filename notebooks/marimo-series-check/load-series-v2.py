@@ -6,6 +6,7 @@
 #     "openpyxl>=3.1.5",
 #     "pandas>=3.0.6",
 #     "statsmodels>=0.15.0",
+#     "yfinance>=1.7.0",
 # ]
 # ///
 
@@ -1258,7 +1259,55 @@ def _(catalog, mo, pd, repaired_observations):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ## 9. Drop four closed funds
+    ## 9. Fill the 3-month T-bill
+
+    The Datastream column `US T-Bill 3M` is empty. The Sharpe ratio uses the last annualised percent in each month. Yahoo `^IRX` is the 13-week Treasury bill yield, already in percent. Each sheet date that Yahoo printed receives that close. Dates Yahoo skips, including US holidays, stay blank. The next step writes this column with the rest of the cleaned sheet.
+    """)
+    return
+
+
+@app.cell
+def _(catalog, cleaned_observations, mo, pd):
+    import yfinance as yf
+
+    _matches = catalog.loc[catalog["header"].eq("US T-Bill 3M"), "column"]
+    if len(_matches) != 1:
+        raise ValueError("Expected one US T-Bill 3M column")
+    _rate_column = int(_matches.iloc[0])
+    _start = pd.Timestamp(cleaned_observations.index.min())
+    _end = pd.Timestamp(cleaned_observations.index.max()) + pd.Timedelta(days=1)
+    _history = yf.Ticker("^IRX").history(
+        start=_start,
+        end=_end,
+        interval="1d",
+        auto_adjust=False,
+        repair=False,
+    )
+    if _history.empty:
+        raise ValueError("Yahoo returned no ^IRX history")
+    _history.index = _history.index.tz_localize(None).normalize()
+    _close = _history["Close"].astype(float)
+    _dates = pd.DatetimeIndex(pd.to_datetime(cleaned_observations.index)).normalize()
+    _aligned = _close.reindex(_dates)
+    rated_observations = cleaned_observations.copy()
+    rated_observations[_rate_column] = _aligned.to_numpy()
+    _filled = int(_aligned.notna().sum())
+    _blank = int(_aligned.isna().sum())
+    _present = _aligned.dropna()
+    irx_summary = mo.md(
+        f"- **{_filled:,}** sessions filled from Yahoo `^IRX` \n"
+        f"- **{_blank:,}** sessions left blank \n"
+        f"- First print {_present.index[0].strftime('%Y-%m-%d')}: **{float(_present.iloc[0]):.2f}%** \n"
+        f"- Last print {_present.index[-1].strftime('%Y-%m-%d')}: **{float(_present.iloc[-1]):.2f}%** \n"
+    )
+    irx_summary
+    return (rated_observations,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## 10. Drop four closed funds
 
     Four funds have a Datastream column and no usable return in this sample. Lipper already marked each one absent and left it unselected. The column is non-null, so the earlier keep step still held them. Step 8 blanks a frozen tail and keeps the last real print. That is the wrong cut for these four: the print is not a series this study can use. This step blanks every column, including net assets, sets the fund to Drop, and removes it from the fund set.
     """)
@@ -1268,7 +1317,7 @@ def _(mo):
 @app.cell
 def _(
     catalog,
-    cleaned_observations,
+    rated_observations,
     label_rows,
     mo,
     observations,
@@ -1317,7 +1366,7 @@ def _(
         ]
     )
     drop_isins = set(closed_funds["isin"])
-    excluded_observations = cleaned_observations.copy()
+    excluded_observations = rated_observations.copy()
     blanked_cells = 0
     for _isin in closed_funds["isin"]:
         for _column in catalog.loc[catalog["id"].eq(_isin), "column"]:
@@ -1341,6 +1390,11 @@ def _(
             observations.isna() ^ excluded_observations.isna()
         )
         series = raw.copy()
+        _bill_columns = series.iloc[5].eq("US T-Bill 3M")
+        series.loc[1, _bill_columns] = "CBOE 13-week Treasury bill (^IRX)"
+        series.loc[4, _bill_columns] = (
+            "Yahoo ^IRX close, annualised rate in %. Blank when Yahoo has no print."
+        )
         block = series.iloc[label_rows:, 1:].to_numpy(copy=True)
         changed_positions = changed.to_numpy()
         block[changed_positions] = excluded_observations.to_numpy()[changed_positions]
@@ -1444,7 +1498,7 @@ def _(
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ## 10. Conclusion
+    ## 11. Conclusion
 
     The total-return series are usable for performance measurement and for a regression against the S&P 500.
 
@@ -1454,13 +1508,13 @@ def _(mo):
 
     Three scale flags are explained and left as published. Principal Value ETF printed a flat NAV on most days from 2016 through 2018. Allspring Core Builder is flat for its first fortnight. Johnson Enhanced Return goes to cash after 18 Oct 2026 because the fund liquidates around 30 Nov 2026. The price drop on 26 Oct is the published $1.53 distribution, and the total return already includes it.
 
-    Frozen series are blanked in step 8. Step 9 then drops four closed funds. Fifth Third Equity Index A (US31678R6760), Structured Large Cap Plus A (US31678R6273) and Dividend Growth A (US3167865654) were liquidated on 27 July 2012. Their price and total return are one number from November 2015 through October 2026. Structured Large Cap Plus is still labelled Large Cap Core in Datastream; that was its name until 2 July 2007. Fidelity Advisor Series Growth & Income (US31617F8178, FMALX) was renamed from Advisor Series Mega Cap on 1 August 2013 and reorganized in September 2018 into Fidelity Series Large Cap Stock (US31617F8335), which stays. Sequoia Fund and US00791R7807 freeze over their last sessions in October 2026. Principal Value ETF can be used from 2019, once the NAV is marked daily.
+    Frozen series are blanked in step 8. Step 9 fills `US T-Bill 3M` with the Yahoo `^IRX` close. Step 10 then drops four closed funds. Fifth Third Equity Index A (US31678R6760), Structured Large Cap Plus A (US31678R6273) and Dividend Growth A (US3167865654) were liquidated on 27 July 2012. Their price and total return are one number from November 2015 through October 2026. Structured Large Cap Plus is still labelled Large Cap Core in Datastream; that was its name until 2 July 2007. Fidelity Advisor Series Growth & Income (US31617F8178, FMALX) was renamed from Advisor Series Mega Cap on 1 August 2013 and reorganized in September 2018 into Fidelity Series Large Cap Stock (US31617F8335), which stays. Sequoia Fund and US00791R7807 freeze over their last sessions in October 2026. Principal Value ETF can be used from 2019, once the NAV is marked daily.
 
     On the Goldman, Natixis, SEI and Schwab distribution days where the dollar amount could not be confirmed, that single day's total return was set equal to the S&P 500. Across roughly 2,800 days this does not move a Sharpe ratio, an alpha, or a tracking error.
 
     Use the total-return column for the study. The price column still falls by the distribution, which is the published NAV.
 
-    Step 9 writes the workbook. The cleaned series replace `D-Timeseries final` of `output-data/v2-funds-normalized.xlsx`. The six label rows and the columns stay as they are. The first time, the original series are kept as `D-Timeseries raw`. The four funds are set to Drop on `Funds` and removed from `Funds with daily TR` and `Funds final`. This notebook always starts from the original series, so running it again does not apply the corrections a second time. The button below writes the cleaned series again.
+    Step 10 writes the workbook, including the `^IRX` series from step 9. The cleaned series replace `D-Timeseries final` of `output-data/v2-funds-normalized.xlsx`. The six label rows and the columns stay as they are. The first time, the original series are kept as `D-Timeseries raw`. The four funds are set to Drop on `Funds` and removed from `Funds with daily TR` and `Funds final`. This notebook always starts from the original series, so running it again does not apply the corrections a second time. The button below writes the cleaned series again.
     """)
     return
 
@@ -1514,6 +1568,11 @@ def _(
             observations.isna() ^ excluded_observations.isna()
         )
         sheet = raw.copy()
+        _bill_columns = sheet.iloc[5].eq("US T-Bill 3M")
+        sheet.loc[1, _bill_columns] = "CBOE 13-week Treasury bill (^IRX)"
+        sheet.loc[4, _bill_columns] = (
+            "Yahoo ^IRX close, annualised rate in %. Blank when Yahoo has no print."
+        )
         block = sheet.iloc[label_rows:, 1:].to_numpy(copy=True)
         changed_positions = changed.to_numpy()
         block[changed_positions] = excluded_observations.to_numpy()[changed_positions]
