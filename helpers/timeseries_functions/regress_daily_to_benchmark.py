@@ -39,6 +39,8 @@ LIPPER_MATCH_TOLERANCES = {
 }
 # Cumulative total return, in percentage points. Used only to mark the charts.
 TOTAL_RETURN_CLOSE_PP = 1.0
+# Monthly alpha, in percentage points. Same band as the Lipper match tolerance.
+ALPHA_CLOSE_PP = LIPPER_MATCH_TOLERANCES["alpha_pp_per_month"]
 
 
 def find_output_data_file(filename: str) -> Path:
@@ -280,40 +282,48 @@ def _full_horizon_window(months: object, horizon: str) -> bool:
 
 
 @dataclass(frozen=True)
-class TotalReturnLipperReport:
-    """Fund cumulative return set next to Lipper's horizon performance."""
+class MetricLipperReport:
+    """One Lipper horizon metric set next to the same figure from the daily series."""
 
     comparable: pd.DataFrame
     short_window: pd.DataFrame
     summary: pd.DataFrame
 
 
-def total_return_lipper_report(
+# Kept for callers that import the older name.
+TotalReturnLipperReport = MetricLipperReport
+
+
+def metric_lipper_report(
     comparison: pd.DataFrame,
     *,
-    close_pp: float = TOTAL_RETURN_CLOSE_PP,
-) -> TotalReturnLipperReport:
-    """Split computed total return against Lipper by horizon.
+    computed_col: str,
+    lipper_col: str,
+    delta_col: str,
+    close_pp: float,
+    abs_delta_col: str,
+) -> MetricLipperReport:
+    """Split one computed metric against Lipper by horizon.
 
-    ``comparable`` keeps a full month count and a Lipper performance.
-    ``short_window`` has a Lipper performance and fewer months than the horizon.
+    ``comparable`` keeps a full month count and a Lipper value.
+    ``short_window`` has a Lipper value and fewer months than the horizon.
     """
     ok = comparison.loc[comparison["status"].eq("ok")].copy()
     ok["full_window"] = [
         _full_horizon_window(months, horizon)
         for months, horizon in zip(ok["months"], ok["horizon"], strict=True)
     ]
-    ok["has_lipper"] = ok["lipper_total_return_pct"].notna()
+    ok["has_lipper"] = ok[lipper_col].notna()
     comparable = ok.loc[ok["full_window"] & ok["has_lipper"]].copy()
-    comparable["abs_delta_total_return_pct"] = comparable["delta_total_return_pct"].abs()
-    comparable["within_close"] = comparable["abs_delta_total_return_pct"] <= close_pp
+    comparable[abs_delta_col] = comparable[delta_col].abs()
+    comparable["within_close"] = comparable[abs_delta_col] <= close_pp
     short_window = ok.loc[~ok["full_window"] & ok["has_lipper"]].copy()
     rows: list[dict] = []
     for horizon in DEFAULT_HORIZON_MONTHS:
         part = ok.loc[ok["horizon"].eq(horizon)]
         both = comparable.loc[comparable["horizon"].eq(horizon)]
         compared = len(both)
-        gap = both["delta_total_return_pct"]
+        gap = both[delta_col]
         if compared:
             start = both["window_start"].mode().iloc[0]
             end = both["window_end"].mode().iloc[0]
@@ -321,7 +331,7 @@ def total_return_lipper_report(
                 (both["window_start"].eq(start) & both["window_end"].eq(end)).sum()
             )
             correlation = (
-                float(both["total_return_pct"].corr(both["lipper_total_return_pct"]))
+                float(both[computed_col].corr(both[lipper_col]))
                 if compared >= 2
                 else float("nan")
             )
@@ -349,10 +359,42 @@ def total_return_lipper_report(
             }
         )
     summary = pd.DataFrame(rows)
-    return TotalReturnLipperReport(
+    return MetricLipperReport(
         comparable=comparable.reset_index(drop=True),
         short_window=short_window.reset_index(drop=True),
         summary=summary,
+    )
+
+
+def total_return_lipper_report(
+    comparison: pd.DataFrame,
+    *,
+    close_pp: float = TOTAL_RETURN_CLOSE_PP,
+) -> MetricLipperReport:
+    """Split computed total return against Lipper by horizon."""
+    return metric_lipper_report(
+        comparison,
+        computed_col="total_return_pct",
+        lipper_col="lipper_total_return_pct",
+        delta_col="delta_total_return_pct",
+        close_pp=close_pp,
+        abs_delta_col="abs_delta_total_return_pct",
+    )
+
+
+def alpha_lipper_report(
+    comparison: pd.DataFrame,
+    *,
+    close_pp: float = ALPHA_CLOSE_PP,
+) -> MetricLipperReport:
+    """Split computed monthly alpha against Lipper by horizon."""
+    return metric_lipper_report(
+        comparison,
+        computed_col="alpha_pct_per_month",
+        lipper_col="lipper_alpha_pct_per_month",
+        delta_col="delta_alpha_pp_per_month",
+        close_pp=close_pp,
+        abs_delta_col="abs_delta_alpha_pp_per_month",
     )
 
 

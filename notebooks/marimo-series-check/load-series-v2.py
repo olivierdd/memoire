@@ -1001,6 +1001,111 @@ def _(catalog, corrected_observations, mo, pd):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
+    ## 6b. Rebuild total return from distributions
+
+    After splits and level breaks, each fund's daily **total return** is rebuilt from the published **price** and cash **distributions** (Yahoo, then FMP cache). On ex-dates the return reinvests the cash amount on the prior NAV. The series is kept only when 3y, 5y or 10y cumulative return moves closer to Lipper's horizon performance (10y rules). Index funds without a dividend history still get the December miss heuristic (that day's return set to the S&P).
+
+    Run the button once to refresh the total-return series before step 7. Results are logged in the table below.
+    """)
+    return
+
+
+@app.cell
+def _(mo):
+    rebuild_tr_button = mo.ui.run_button(
+        label="Rebuild total return from distributions (Lipper gate)"
+    )
+    mo.vstack([rebuild_tr_button])
+    return (rebuild_tr_button,)
+
+
+@app.cell
+def _(adjusted_observations, catalog, mo, pd, rebuild_tr_button, workbook):
+    def _code_root():
+        from pathlib import Path
+
+        start = Path.cwd().resolve()
+        for directory in [start, *start.parents]:
+            if (directory / "helpers").is_dir():
+                return directory
+        raise FileNotFoundError(f"Could not find helpers/, starting from {start}")
+
+    def _openfigi_tickers() -> dict[str, str]:
+        import json
+
+        cache_path = _code_root() / "cache" / "cache-isin-openfigi.json"
+        payload = json.loads(cache_path.read_text())
+        return {
+            str(isin).strip(): str(ticker).strip()
+            for isin, ticker in payload.items()
+            if isinstance(isin, str) and isinstance(ticker, str) and ticker
+        }
+
+    from helpers.timeseries_functions.rebuild_tr_from_distributions import (
+        load_distributions_cache,
+        rebuild_tr_panel,
+    )
+    from helpers.timeseries_functions.regress_daily_to_benchmark import (
+        FUNDS_SHEET,
+        load_funds_reference,
+    )
+
+    funds = load_funds_reference(workbook, sheet_name=FUNDS_SHEET)
+    funds_by_isin = {
+        str(row["ISIN"]).strip(): row for _, row in funds.iterrows() if pd.notna(row.get("ISIN"))
+    }
+    isin_to_ticker = _openfigi_tickers()
+
+    if rebuild_tr_button.value:
+        tr_ready_observations, rebuild_log = rebuild_tr_panel(
+            adjusted_observations,
+            catalog,
+            funds_by_isin,
+            isin_to_ticker,
+            distributions_cache=load_distributions_cache(),
+        )
+    else:
+        tr_ready_observations = adjusted_observations
+        rebuild_log = pd.DataFrame(
+            columns=[
+                "isin",
+                "fund",
+                "ticker",
+                "decision",
+                "source",
+                "n_ex_dates",
+                "n_days_changed",
+                "gap_10y_before",
+                "gap_10y_after",
+            ]
+        )
+
+    adopted = int(rebuild_log["decision"].eq("adopted").sum()) if len(rebuild_log) else 0
+    rebuild_summary = mo.md(
+        f"- **{len(rebuild_log):,}** funds evaluated \n"
+        f"- **{adopted:,}** adopted the distribution rebuild \n"
+        f"- **{len(rebuild_log) - adopted:,}** kept the Datastream total return \n"
+    )
+    _sorted = rebuild_log
+    if len(rebuild_log) and "gap_10y_before" in rebuild_log.columns:
+        _sorted = rebuild_log.assign(
+            _abs_gap=rebuild_log["gap_10y_before"].abs()
+        ).sort_values("_abs_gap", ascending=False).drop(columns="_abs_gap")
+    rebuild_table = mo.ui.table(
+        _sorted,
+        label="Distribution rebuild",
+        selection=None,
+        pagination=len(rebuild_log) > 15,
+        page_size=15,
+        max_height=420,
+    )
+    mo.vstack([rebuild_summary, rebuild_table])
+    return rebuild_log, tr_ready_observations
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
     ## 7. Repair distribution-day total returns
 
     A spike is repaired when the total return disagrees with the price. On a distribution day the price falls by the payout and the total return should stay near that day's investment return. The total-return level from that day forward is rescaled so the day's return matches the S&P 500, and every later daily return stays as it was. The price is left as published.
@@ -1013,7 +1118,7 @@ def _(mo):
 
 
 @app.cell
-def _(adjusted_observations, catalog, mo, pd):
+def _(catalog, mo, pd, tr_ready_observations):
     def repair_distribution_spikes(source, catalog_frame):
         def column_id(header):
             match = catalog_frame.loc[catalog_frame["header"].eq(header), "column"]
@@ -1051,8 +1156,6 @@ def _(adjusted_observations, catalog, mo, pd):
             ("US38141W6205", "2021-12-14", "forward", "The price falls 22% and the total return only 14%, so the distribution was partly omitted. The day's total return is set to the S&P return."),
             ("US38141W6205", "2024-12-12", "forward", "The price falls 14% and the total return 12%. Same partial distribution add-back."),
             ("US63872T4893", "2021-12-23", "forward", "The price falls 27% and the total return 13% while the S&P rose 0.6%."),
-            ("US7839808240", "2021-12-16", "forward", "The price falls 23% and the total return 11% while the S&P fell 0.9%."),
-            ("US8085098064", "2021-12-16", "forward", "The price falls 23% and the total return 10% while the S&P fell 0.9%."),
             ("US0263933063", "2025-12-01", "one-day", "The total return jumps +14.6% and reverses the next day. The price does not jump. Only that total-return print is replaced."),
         ]
         kept_spikes = [
@@ -1164,7 +1267,7 @@ def _(adjusted_observations, catalog, mo, pd):
         return repaired, log
 
     repaired_observations, distribution_log = repair_distribution_spikes(
-        adjusted_observations, catalog
+        tr_ready_observations, catalog
     )
     repaired_rows = distribution_log.loc[distribution_log["decision"].eq("repaired")]
     kept_rows = distribution_log.loc[distribution_log["decision"].eq("kept")]

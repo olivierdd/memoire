@@ -1,0 +1,5657 @@
+{
+  "LEXCX": {
+    "source": "yahoo",
+    "symbol": "LEXCX",
+    "horizons": {
+      "5y": {
+        "alpha": 6.76,
+        "beta": 0.64,
+        "r_squared": 34.66
+      },
+      "3y": {
+        "alpha": 10.54,
+        "beta": 0.3,
+        "r_squared": 6.32
+      },
+      "10y": {
+        "alpha": 1.54,
+        "beta": 0.85,
+        "r_squared": 58.06
+      }
+    }
+  },
+  "SPY": {
+    "source": "yahoo",
+    "symbol": "SPY",
+    "horizons": {
+      "5y": {
+        "alpha": 1.06,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.64,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.77,
+        "beta": 0.96,
+        "r_squared": 99.25
+      }
+    }
+  },
+  "AUXFX": {
+    "source": "yahoo",
+    "symbol": "AUXFX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.12,
+        "beta": 0.59,
+        "r_squared": 59.48
+      },
+      "3y": {
+        "alpha": 3.16,
+        "beta": 0.47,
+        "r_squared": 38.23
+      },
+      "10y": {
+        "alpha": -0.87,
+        "beta": 0.73,
+        "r_squared": 76.3
+      }
+    }
+  },
+  "AGTHX": {
+    "source": "yahoo",
+    "symbol": "AGTHX",
+    "horizons": {
+      "5y": {
+        "alpha": -2.6,
+        "beta": 1.12,
+        "r_squared": 92.26
+      },
+      "3y": {
+        "alpha": -2.03,
+        "beta": 1.19,
+        "r_squared": 91.98
+      },
+      "10y": {
+        "alpha": -0.07,
+        "beta": 1.05,
+        "r_squared": 91.96
+      }
+    }
+  },
+  "PLFPX": {
+    "source": "yahoo",
+    "symbol": "PLFPX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.75,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.36,
+        "beta": 0.97,
+        "r_squared": 99.11
+      },
+      "10y": {
+        "alpha": 0.44,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "FLCSX": {
+    "source": "yahoo",
+    "symbol": "FLCSX",
+    "horizons": {
+      "5y": {
+        "alpha": 4.22,
+        "beta": 0.93,
+        "r_squared": 87.64
+      },
+      "3y": {
+        "alpha": 4.3,
+        "beta": 0.88,
+        "r_squared": 88.8
+      },
+      "10y": {
+        "alpha": 0.81,
+        "beta": 0.98,
+        "r_squared": 89.33
+      }
+    }
+  },
+  "DFUSX": {
+    "source": "yahoo",
+    "symbol": "DFUSX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.07,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.66,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.77,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "LSGRX": {
+    "source": "yahoo",
+    "symbol": "LSGRX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.59,
+        "beta": 1.18,
+        "r_squared": 83.86
+      },
+      "3y": {
+        "alpha": -4.45,
+        "beta": 1.2,
+        "r_squared": 80.19
+      },
+      "10y": {
+        "alpha": 0.89,
+        "beta": 1.03,
+        "r_squared": 82.49
+      }
+    }
+  },
+  "VINIX": {
+    "source": "yahoo",
+    "symbol": "VINIX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.11,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.7,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.81,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "AIVSX": {
+    "source": "yahoo",
+    "symbol": "AIVSX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.89,
+        "beta": 0.93,
+        "r_squared": 95.34
+      },
+      "3y": {
+        "alpha": 0.43,
+        "beta": 0.97,
+        "r_squared": 94.66
+      },
+      "10y": {
+        "alpha": 0.28,
+        "beta": 0.9,
+        "r_squared": 95.62
+      }
+    }
+  },
+  "ANCFX": {
+    "source": "yahoo",
+    "symbol": "ANCFX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.85,
+        "beta": 0.99,
+        "r_squared": 95.03
+      },
+      "3y": {
+        "alpha": 1.38,
+        "beta": 1.03,
+        "r_squared": 92.36
+      },
+      "10y": {
+        "alpha": 0.21,
+        "beta": 0.95,
+        "r_squared": 95.65
+      }
+    }
+  },
+  "TISPX": {
+    "source": "yahoo",
+    "symbol": "TISPX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.1,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.7,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.79,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "SLASX": {
+    "source": "yahoo",
+    "symbol": "SLASX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.17,
+        "beta": 0.94,
+        "r_squared": 76.88
+      },
+      "3y": {
+        "alpha": 3.66,
+        "beta": 0.87,
+        "r_squared": 71.22
+      },
+      "10y": {
+        "alpha": -1.53,
+        "beta": 1.02,
+        "r_squared": 83.13
+      }
+    }
+  },
+  "SDYAX": {
+    "source": "yahoo",
+    "symbol": "SDYAX",
+    "horizons": {
+      "5y": {
+        "alpha": 5.27,
+        "beta": 1.23,
+        "r_squared": 80.65
+      },
+      "3y": {
+        "alpha": 5.28,
+        "beta": 1.12,
+        "r_squared": 68.15
+      },
+      "10y": {
+        "alpha": 4.39,
+        "beta": 1.37,
+        "r_squared": 84.91
+      }
+    }
+  },
+  "SSHFX": {
+    "source": "yahoo",
+    "symbol": "SSHFX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.45,
+        "beta": 0.94,
+        "r_squared": 74.93
+      },
+      "3y": {
+        "alpha": 1.85,
+        "beta": 0.86,
+        "r_squared": 67.18
+      },
+      "10y": {
+        "alpha": -2.97,
+        "beta": 1.0,
+        "r_squared": 82.75
+      }
+    }
+  },
+  "WFSPX": {
+    "source": "yahoo",
+    "symbol": "WFSPX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.1,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.68,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.81,
+        "beta": 0.97,
+        "r_squared": 99.25
+      }
+    }
+  },
+  "ALBAX": {
+    "source": "yahoo",
+    "symbol": "ALBAX",
+    "horizons": {
+      "5y": {
+        "alpha": 2.58,
+        "beta": 0.85,
+        "r_squared": 93.69
+      },
+      "3y": {
+        "alpha": 2.23,
+        "beta": 0.85,
+        "r_squared": 91.09
+      },
+      "10y": {
+        "alpha": 1.63,
+        "beta": 0.88,
+        "r_squared": 95.4
+      }
+    }
+  },
+  "SPIDX": {
+    "source": "yahoo",
+    "symbol": "SPIDX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.84,
+        "beta": 0.98,
+        "r_squared": 99.28
+      },
+      "3y": {
+        "alpha": 0.42,
+        "beta": 0.97,
+        "r_squared": 99.13
+      },
+      "10y": {
+        "alpha": 0.53,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "FCUIX": {
+    "source": "yahoo",
+    "symbol": "FCUIX",
+    "horizons": {
+      "5y": {
+        "alpha": -3.63,
+        "beta": 0.85,
+        "r_squared": 83.72
+      },
+      "3y": {
+        "alpha": -6.69,
+        "beta": 0.81,
+        "r_squared": 73.7
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "BDAIX": {
+    "source": "yahoo",
+    "symbol": "BDAIX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.29,
+        "beta": 1.07,
+        "r_squared": 86.02
+      },
+      "3y": {
+        "alpha": -4.05,
+        "beta": 1.14,
+        "r_squared": 81.06
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "JACNX": {
+    "source": "yahoo",
+    "symbol": "JACNX",
+    "horizons": {
+      "5y": {
+        "alpha": -4.56,
+        "beta": 1.19,
+        "r_squared": 80.55
+      },
+      "3y": {
+        "alpha": -6.19,
+        "beta": 1.3,
+        "r_squared": 77.14
+      },
+      "10y": {
+        "alpha": -2.83,
+        "beta": 1.14,
+        "r_squared": 83.3
+      }
+    }
+  },
+  "MIFOX": {
+    "source": "yahoo",
+    "symbol": "MIFOX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.31,
+        "beta": 1.09,
+        "r_squared": 81.22
+      },
+      "3y": {
+        "alpha": -2.39,
+        "beta": 1.16,
+        "r_squared": 79.27
+      },
+      "10y": {
+        "alpha": 2.07,
+        "beta": 1.04,
+        "r_squared": 80.24
+      }
+    }
+  },
+  "NBSRX": {
+    "source": "yahoo",
+    "symbol": "NBSRX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.93,
+        "beta": 0.92,
+        "r_squared": 89.79
+      },
+      "3y": {
+        "alpha": 2.68,
+        "beta": 0.9,
+        "r_squared": 79.47
+      },
+      "10y": {
+        "alpha": 0.2,
+        "beta": 0.94,
+        "r_squared": 92.92
+      }
+    }
+  },
+  "AMRMX": {
+    "source": "yahoo",
+    "symbol": "AMRMX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.33,
+        "beta": 0.66,
+        "r_squared": 74.14
+      },
+      "3y": {
+        "alpha": 1.9,
+        "beta": 0.64,
+        "r_squared": 63.61
+      },
+      "10y": {
+        "alpha": 0.42,
+        "beta": 0.7,
+        "r_squared": 83.01
+      }
+    }
+  },
+  "MFRBX": {
+    "source": "yahoo",
+    "symbol": "MFRBX",
+    "horizons": {
+      "5y": {
+        "alpha": -2.75,
+        "beta": 0.92,
+        "r_squared": 97.6
+      },
+      "3y": {
+        "alpha": -4.16,
+        "beta": 0.93,
+        "r_squared": 97.02
+      },
+      "10y": {
+        "alpha": -1.52,
+        "beta": 0.92,
+        "r_squared": 97.29
+      }
+    }
+  },
+  "INDEX": {
+    "source": "yahoo",
+    "symbol": "INDEX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.18,
+        "beta": 0.98,
+        "r_squared": 94.35
+      },
+      "3y": {
+        "alpha": 0.54,
+        "beta": 0.96,
+        "r_squared": 99.03
+      },
+      "10y": {
+        "alpha": -1.51,
+        "beta": 1.02,
+        "r_squared": 94.56
+      }
+    }
+  },
+  "FDSSX": {
+    "source": "yahoo",
+    "symbol": "FDSSX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.29,
+        "beta": 1.02,
+        "r_squared": 98.05
+      },
+      "3y": {
+        "alpha": -0.02,
+        "beta": 1.06,
+        "r_squared": 96.84
+      },
+      "10y": {
+        "alpha": 0.14,
+        "beta": 1.02,
+        "r_squared": 98.25
+      }
+    }
+  },
+  "NSGAX": {
+    "source": "yahoo",
+    "symbol": "NSGAX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.06,
+        "beta": 0.95,
+        "r_squared": 95.85
+      },
+      "3y": {
+        "alpha": -1.16,
+        "beta": 0.95,
+        "r_squared": 92.8
+      },
+      "10y": {
+        "alpha": 0.19,
+        "beta": 0.96,
+        "r_squared": 96.69
+      }
+    }
+  },
+  "HAIAX": {
+    "source": "yahoo",
+    "symbol": "HAIAX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.66,
+        "beta": 0.9,
+        "r_squared": 97.23
+      },
+      "3y": {
+        "alpha": 0.02,
+        "beta": 0.88,
+        "r_squared": 96.16
+      },
+      "10y": {
+        "alpha": 0.24,
+        "beta": 0.91,
+        "r_squared": 97.43
+      }
+    }
+  },
+  "BTEFX": {
+    "source": "yahoo",
+    "symbol": "BTEFX",
+    "horizons": {
+      "5y": {
+        "alpha": -2.16,
+        "beta": 0.84,
+        "r_squared": 87.19
+      },
+      "3y": {
+        "alpha": -2.44,
+        "beta": 0.73,
+        "r_squared": 75.38
+      },
+      "10y": {
+        "alpha": -0.43,
+        "beta": 0.88,
+        "r_squared": 91.13
+      }
+    }
+  },
+  "TARKX": {
+    "source": "yahoo",
+    "symbol": "TARKX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.58,
+        "beta": 1.43,
+        "r_squared": 74.51
+      },
+      "3y": {
+        "alpha": 0.07,
+        "beta": 1.47,
+        "r_squared": 63.93
+      },
+      "10y": {
+        "alpha": -3.57,
+        "beta": 1.37,
+        "r_squared": 75.47
+      }
+    }
+  },
+  "AWSHX": {
+    "source": "yahoo",
+    "symbol": "AWSHX",
+    "horizons": {
+      "5y": {
+        "alpha": 2.02,
+        "beta": 0.76,
+        "r_squared": 84.89
+      },
+      "3y": {
+        "alpha": 2.05,
+        "beta": 0.72,
+        "r_squared": 77.87
+      },
+      "10y": {
+        "alpha": 0.87,
+        "beta": 0.82,
+        "r_squared": 89.77
+      }
+    }
+  },
+  "WPSGX": {
+    "source": "yahoo",
+    "symbol": "WPSGX",
+    "horizons": {
+      "5y": {
+        "alpha": -8.14,
+        "beta": 0.95,
+        "r_squared": 85.18
+      },
+      "3y": {
+        "alpha": -9.09,
+        "beta": 0.87,
+        "r_squared": 73.91
+      },
+      "10y": {
+        "alpha": -2.58,
+        "beta": 0.98,
+        "r_squared": 88.65
+      }
+    }
+  },
+  "JMUEX": {
+    "source": "yahoo",
+    "symbol": "JMUEX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.91,
+        "beta": 0.97,
+        "r_squared": 97.66
+      },
+      "3y": {
+        "alpha": -3.41,
+        "beta": 1.02,
+        "r_squared": 96.69
+      },
+      "10y": {
+        "alpha": 0.22,
+        "beta": 0.99,
+        "r_squared": 97.5
+      }
+    }
+  },
+  "GEQYX": {
+    "source": "yahoo",
+    "symbol": "GEQYX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.8,
+        "beta": 0.98,
+        "r_squared": 99.26
+      },
+      "3y": {
+        "alpha": 0.45,
+        "beta": 0.97,
+        "r_squared": 99.04
+      },
+      "10y": {
+        "alpha": 0.69,
+        "beta": 0.97,
+        "r_squared": 99.24
+      }
+    }
+  },
+  "PNRAX": {
+    "source": "yahoo",
+    "symbol": "PNRAX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.86,
+        "beta": 0.98,
+        "r_squared": 98.13
+      },
+      "3y": {
+        "alpha": 1.34,
+        "beta": 1.0,
+        "r_squared": 97.33
+      },
+      "10y": {
+        "alpha": 1.46,
+        "beta": 0.96,
+        "r_squared": 98.01
+      }
+    }
+  },
+  "NEFSX": {
+    "source": "yahoo",
+    "symbol": "NEFSX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.49,
+        "beta": 1.05,
+        "r_squared": 86.54
+      },
+      "3y": {
+        "alpha": -0.15,
+        "beta": 0.94,
+        "r_squared": 76.68
+      },
+      "10y": {
+        "alpha": -0.3,
+        "beta": 1.04,
+        "r_squared": 90.38
+      }
+    }
+  },
+  "MINVX": {
+    "source": "yahoo",
+    "symbol": "MINVX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.3,
+        "beta": 0.88,
+        "r_squared": 81.26
+      },
+      "3y": {
+        "alpha": -4.67,
+        "beta": 0.83,
+        "r_squared": 65.75
+      },
+      "10y": {
+        "alpha": -0.2,
+        "beta": 0.86,
+        "r_squared": 86.1
+      }
+    }
+  },
+  "PTMQX": {
+    "source": "yahoo",
+    "symbol": "PTMQX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.67,
+        "beta": 0.98,
+        "r_squared": 98.1
+      },
+      "3y": {
+        "alpha": 0.59,
+        "beta": 0.99,
+        "r_squared": 97.64
+      },
+      "10y": {
+        "alpha": 0.05,
+        "beta": 0.99,
+        "r_squared": 97.97
+      }
+    }
+  },
+  "OMSOX": {
+    "source": "yahoo",
+    "symbol": "OMSOX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.24,
+        "beta": 0.96,
+        "r_squared": 96.74
+      },
+      "3y": {
+        "alpha": -1.05,
+        "beta": 1.04,
+        "r_squared": 96.55
+      },
+      "10y": {
+        "alpha": -0.64,
+        "beta": 0.97,
+        "r_squared": 97.12
+      }
+    }
+  },
+  "SBSPX": {
+    "source": "yahoo",
+    "symbol": "SBSPX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.65,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.21,
+        "beta": 0.97,
+        "r_squared": 99.13
+      },
+      "10y": {
+        "alpha": 0.31,
+        "beta": 0.97,
+        "r_squared": 99.25
+      }
+    }
+  },
+  "FGRIX": {
+    "source": "yahoo",
+    "symbol": "FGRIX",
+    "horizons": {
+      "5y": {
+        "alpha": 3.26,
+        "beta": 0.84,
+        "r_squared": 83.12
+      },
+      "3y": {
+        "alpha": 3.82,
+        "beta": 0.74,
+        "r_squared": 82.15
+      },
+      "10y": {
+        "alpha": 0.4,
+        "beta": 0.91,
+        "r_squared": 87.14
+      }
+    }
+  },
+  "MSPIX": {
+    "source": "yahoo",
+    "symbol": "MSPIX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.88,
+        "beta": 0.98,
+        "r_squared": 99.28
+      },
+      "3y": {
+        "alpha": 0.48,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.58,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "SAPYX": {
+    "source": "yahoo",
+    "symbol": "SAPYX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.43,
+        "beta": 0.83,
+        "r_squared": 91.98
+      },
+      "3y": {
+        "alpha": -0.65,
+        "beta": 0.81,
+        "r_squared": 88.69
+      },
+      "10y": {
+        "alpha": 0.62,
+        "beta": 0.86,
+        "r_squared": 94.06
+      }
+    }
+  },
+  "GABVX": {
+    "source": "yahoo",
+    "symbol": "GABVX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.37,
+        "beta": 0.84,
+        "r_squared": 65.34
+      },
+      "3y": {
+        "alpha": 5.67,
+        "beta": 0.61,
+        "r_squared": 42.2
+      },
+      "10y": {
+        "alpha": -4.44,
+        "beta": 0.91,
+        "r_squared": 73.42
+      }
+    }
+  },
+  "SSEYX": {
+    "source": "yahoo",
+    "symbol": "SSEYX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.1,
+        "beta": 0.98,
+        "r_squared": 99.28
+      },
+      "3y": {
+        "alpha": 0.7,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.78,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "SCPAX": {
+    "source": "yahoo",
+    "symbol": "SCPAX",
+    "horizons": {
+      "5y": {
+        "alpha": 2.3,
+        "beta": 0.91,
+        "r_squared": 97.26
+      },
+      "3y": {
+        "alpha": 2.03,
+        "beta": 0.91,
+        "r_squared": 96.1
+      },
+      "10y": {
+        "alpha": 0.22,
+        "beta": 0.94,
+        "r_squared": 97.68
+      }
+    }
+  },
+  "IGIAX": {
+    "source": "yahoo",
+    "symbol": "IGIAX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.25,
+        "beta": 1.03,
+        "r_squared": 87.58
+      },
+      "3y": {
+        "alpha": 1.66,
+        "beta": 1.02,
+        "r_squared": 77.57
+      },
+      "10y": {
+        "alpha": 0.99,
+        "beta": 0.95,
+        "r_squared": 89.47
+      }
+    }
+  },
+  "FTQGX": {
+    "source": "yahoo",
+    "symbol": "FTQGX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.22,
+        "beta": 1.16,
+        "r_squared": 78.55
+      },
+      "3y": {
+        "alpha": -3.66,
+        "beta": 1.43,
+        "r_squared": 74.18
+      },
+      "10y": {
+        "alpha": 2.25,
+        "beta": 1.06,
+        "r_squared": 80.16
+      }
+    }
+  },
+  "DNVYX": {
+    "source": "yahoo",
+    "symbol": "DNVYX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.69,
+        "beta": 0.91,
+        "r_squared": 72.54
+      },
+      "3y": {
+        "alpha": 4.15,
+        "beta": 0.84,
+        "r_squared": 67.76
+      },
+      "10y": {
+        "alpha": -1.24,
+        "beta": 0.99,
+        "r_squared": 80.14
+      }
+    }
+  },
+  "PSPAX": {
+    "source": "yahoo",
+    "symbol": "PSPAX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.28,
+        "beta": 1.01,
+        "r_squared": 99.23
+      },
+      "3y": {
+        "alpha": -0.16,
+        "beta": 1.0,
+        "r_squared": 98.98
+      },
+      "10y": {
+        "alpha": -0.46,
+        "beta": 1.01,
+        "r_squared": 99.23
+      }
+    }
+  },
+  "SPINX": {
+    "source": "yahoo",
+    "symbol": "SPINX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.06,
+        "beta": 0.98,
+        "r_squared": 99.26
+      },
+      "3y": {
+        "alpha": 0.66,
+        "beta": 0.97,
+        "r_squared": 99.09
+      },
+      "10y": {
+        "alpha": 0.78,
+        "beta": 0.97,
+        "r_squared": 99.25
+      }
+    }
+  },
+  "STFGX": {
+    "source": "yahoo",
+    "symbol": "STFGX",
+    "horizons": {
+      "5y": {
+        "alpha": 2.43,
+        "beta": 0.9,
+        "r_squared": 93.5
+      },
+      "3y": {
+        "alpha": 2.29,
+        "beta": 0.86,
+        "r_squared": 91.78
+      },
+      "10y": {
+        "alpha": 0.99,
+        "beta": 0.87,
+        "r_squared": 92.98
+      }
+    }
+  },
+  "FMAGX": {
+    "source": "yahoo",
+    "symbol": "FMAGX",
+    "horizons": {
+      "5y": {
+        "alpha": -4.02,
+        "beta": 1.08,
+        "r_squared": 88.07
+      },
+      "3y": {
+        "alpha": -6.0,
+        "beta": 1.12,
+        "r_squared": 83.3
+      },
+      "10y": {
+        "alpha": -1.0,
+        "beta": 1.01,
+        "r_squared": 88.35
+      }
+    }
+  },
+  "POGRX": {
+    "source": "yahoo",
+    "symbol": "POGRX",
+    "horizons": {
+      "5y": {
+        "alpha": 2.83,
+        "beta": 1.05,
+        "r_squared": 77.62
+      },
+      "3y": {
+        "alpha": 2.14,
+        "beta": 1.19,
+        "r_squared": 67.06
+      },
+      "10y": {
+        "alpha": 0.99,
+        "beta": 1.04,
+        "r_squared": 80.67
+      }
+    }
+  },
+  "CHASX": {
+    "source": "yahoo",
+    "symbol": "CHASX",
+    "horizons": {
+      "5y": {
+        "alpha": 3.97,
+        "beta": 1.07,
+        "r_squared": 85.63
+      },
+      "3y": {
+        "alpha": 3.46,
+        "beta": 1.28,
+        "r_squared": 85.15
+      },
+      "10y": {
+        "alpha": 1.62,
+        "beta": 0.98,
+        "r_squared": 87.43
+      }
+    }
+  },
+  "CPEAX": {
+    "source": "yahoo",
+    "symbol": "CPEAX",
+    "horizons": {
+      "5y": {
+        "alpha": -2.39,
+        "beta": 1.06,
+        "r_squared": 76.62
+      },
+      "3y": {
+        "alpha": -6.79,
+        "beta": 1.26,
+        "r_squared": 70.9
+      },
+      "10y": {
+        "alpha": -3.0,
+        "beta": 0.99,
+        "r_squared": 79.52
+      }
+    }
+  },
+  "ADGAX": {
+    "source": "yahoo",
+    "symbol": "ADGAX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.2,
+        "beta": 0.94,
+        "r_squared": 94.72
+      },
+      "3y": {
+        "alpha": -2.03,
+        "beta": 0.98,
+        "r_squared": 93.38
+      },
+      "10y": {
+        "alpha": -0.45,
+        "beta": 0.92,
+        "r_squared": 94.75
+      }
+    }
+  },
+  "TIHGX": {
+    "source": "yahoo",
+    "symbol": "TIHGX",
+    "horizons": {
+      "5y": {
+        "alpha": -3.69,
+        "beta": 1.2,
+        "r_squared": 83.46
+      },
+      "3y": {
+        "alpha": -4.08,
+        "beta": 1.19,
+        "r_squared": 77.76
+      },
+      "10y": {
+        "alpha": -0.63,
+        "beta": 1.13,
+        "r_squared": 84.86
+      }
+    }
+  },
+  "MUIGX": {
+    "source": "yahoo",
+    "symbol": "MUIGX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.89,
+        "beta": 0.99,
+        "r_squared": 98.72
+      },
+      "3y": {
+        "alpha": -0.54,
+        "beta": 0.98,
+        "r_squared": 98.8
+      },
+      "10y": {
+        "alpha": 0.83,
+        "beta": 0.99,
+        "r_squared": 96.88
+      }
+    }
+  },
+  "VNSYX": {
+    "source": "yahoo",
+    "symbol": "VNSYX",
+    "horizons": {
+      "5y": {
+        "alpha": -3.0,
+        "beta": 0.95,
+        "r_squared": 87.32
+      },
+      "3y": {
+        "alpha": -7.55,
+        "beta": 1.07,
+        "r_squared": 89.42
+      },
+      "10y": {
+        "alpha": -0.99,
+        "beta": 0.98,
+        "r_squared": 90.26
+      }
+    }
+  },
+  "GRISX": {
+    "source": "yahoo",
+    "symbol": "GRISX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.7,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.3,
+        "beta": 0.97,
+        "r_squared": 99.14
+      },
+      "10y": {
+        "alpha": 0.4,
+        "beta": 0.97,
+        "r_squared": 99.28
+      }
+    }
+  },
+  "AMRBX": {
+    "source": "yahoo",
+    "symbol": "AMRBX",
+    "horizons": {},
+    "error": "http_404"
+  },
+  "GSSQX": {
+    "source": "yahoo",
+    "symbol": "GSSQX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.58,
+        "beta": 0.98,
+        "r_squared": 97.41
+      },
+      "3y": {
+        "alpha": -1.2,
+        "beta": 0.99,
+        "r_squared": 95.51
+      },
+      "10y": {
+        "alpha": -0.71,
+        "beta": 0.98,
+        "r_squared": 97.74
+      }
+    }
+  },
+  "FZANX": {
+    "source": "yahoo",
+    "symbol": "FZANX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.64,
+        "beta": 1.0,
+        "r_squared": 86.97
+      },
+      "3y": {
+        "alpha": 2.8,
+        "beta": 1.02,
+        "r_squared": 79.59
+      },
+      "10y": {
+        "alpha": 1.47,
+        "beta": 0.99,
+        "r_squared": 89.46
+      }
+    }
+  },
+  "EWMCX": {
+    "source": "yahoo",
+    "symbol": "EWMCX",
+    "horizons": {
+      "5y": {
+        "alpha": -2.81,
+        "beta": 1.0,
+        "r_squared": 92.73
+      },
+      "3y": {
+        "alpha": -4.6,
+        "beta": 0.98,
+        "r_squared": 87.7
+      },
+      "10y": {
+        "alpha": -0.14,
+        "beta": 1.0,
+        "r_squared": 94.06
+      }
+    }
+  },
+  "UIVQX": {
+    "source": "yahoo",
+    "symbol": "UIVQX",
+    "horizons": {
+      "5y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      },
+      "3y": {
+        "alpha": -2.94,
+        "beta": 0.82,
+        "r_squared": 66.25
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "FFDKX": {
+    "source": "yahoo",
+    "symbol": "FFDKX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.13,
+        "beta": 1.0,
+        "r_squared": 90.79
+      },
+      "3y": {
+        "alpha": 0.41,
+        "beta": 0.98,
+        "r_squared": 84.46
+      },
+      "10y": {
+        "alpha": 1.49,
+        "beta": 0.95,
+        "r_squared": 90.58
+      }
+    }
+  },
+  "DRIPX": {
+    "source": "yahoo",
+    "symbol": "DRIPX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.74,
+        "beta": 0.76,
+        "r_squared": 71.46
+      },
+      "3y": {
+        "alpha": 1.58,
+        "beta": 0.66,
+        "r_squared": 53.73
+      },
+      "10y": {
+        "alpha": -1.41,
+        "beta": 0.82,
+        "r_squared": 81.79
+      }
+    }
+  },
+  "MSOAX": {
+    "source": "yahoo",
+    "symbol": "MSOAX",
+    "horizons": {
+      "5y": {
+        "alpha": -4.69,
+        "beta": 0.83,
+        "r_squared": 63.12
+      },
+      "3y": {
+        "alpha": -5.92,
+        "beta": 0.73,
+        "r_squared": 37.89
+      },
+      "10y": {
+        "alpha": -2.42,
+        "beta": 0.92,
+        "r_squared": 79.1
+      }
+    }
+  },
+  "TAGRX": {
+    "source": "yahoo",
+    "symbol": "TAGRX",
+    "horizons": {
+      "5y": {
+        "alpha": -3.42,
+        "beta": 1.04,
+        "r_squared": 90.85
+      },
+      "3y": {
+        "alpha": -4.25,
+        "beta": 1.03,
+        "r_squared": 86.1
+      },
+      "10y": {
+        "alpha": -2.97,
+        "beta": 1.11,
+        "r_squared": 93.58
+      }
+    }
+  },
+  "ARILX": {
+    "source": "yahoo",
+    "symbol": "ARILX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.42,
+        "beta": 1.05,
+        "r_squared": 94.79
+      },
+      "3y": {
+        "alpha": -1.19,
+        "beta": 1.07,
+        "r_squared": 88.89
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "REDWX": {
+    "source": "yahoo",
+    "symbol": "REDWX",
+    "horizons": {
+      "5y": {
+        "alpha": -3.14,
+        "beta": 1.01,
+        "r_squared": 93.15
+      },
+      "3y": {
+        "alpha": -5.92,
+        "beta": 1.09,
+        "r_squared": 90.24
+      },
+      "10y": {
+        "alpha": -2.7,
+        "beta": 1.1,
+        "r_squared": 91.42
+      }
+    }
+  },
+  "MUOIX": {
+    "source": "yahoo",
+    "symbol": "MUOIX",
+    "horizons": {
+      "5y": {
+        "alpha": -2.03,
+        "beta": 0.99,
+        "r_squared": 91.09
+      },
+      "3y": {
+        "alpha": -1.74,
+        "beta": 1.04,
+        "r_squared": 89.64
+      },
+      "10y": {
+        "alpha": -0.94,
+        "beta": 1.03,
+        "r_squared": 93.18
+      }
+    }
+  },
+  "DSEEX": {
+    "source": "yahoo",
+    "symbol": "DSEEX",
+    "horizons": {
+      "5y": {
+        "alpha": -6.22,
+        "beta": 0.98,
+        "r_squared": 75.76
+      },
+      "3y": {
+        "alpha": -6.04,
+        "beta": 0.81,
+        "r_squared": 54.46
+      },
+      "10y": {
+        "alpha": -3.69,
+        "beta": 1.06,
+        "r_squared": 85.32
+      }
+    }
+  },
+  "MONTX": {
+    "source": "yahoo",
+    "symbol": "MONTX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.26,
+        "beta": 1.1,
+        "r_squared": 83.53
+      },
+      "3y": {
+        "alpha": -2.17,
+        "beta": 1.2,
+        "r_squared": 75.2
+      },
+      "10y": {
+        "alpha": -1.0,
+        "beta": 1.07,
+        "r_squared": 87.67
+      }
+    }
+  },
+  "HSTIX": {
+    "source": "yahoo",
+    "symbol": "HSTIX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.68,
+        "beta": 0.98,
+        "r_squared": 99.29
+      },
+      "3y": {
+        "alpha": 0.26,
+        "beta": 0.97,
+        "r_squared": 99.13
+      },
+      "10y": {
+        "alpha": 0.33,
+        "beta": 0.97,
+        "r_squared": 99.27
+      }
+    }
+  },
+  "OSTFX": {
+    "source": "yahoo",
+    "symbol": "OSTFX",
+    "horizons": {
+      "5y": {
+        "alpha": -3.65,
+        "beta": 0.86,
+        "r_squared": 89.74
+      },
+      "3y": {
+        "alpha": -3.46,
+        "beta": 0.88,
+        "r_squared": 83.09
+      },
+      "10y": {
+        "alpha": -1.7,
+        "beta": 0.85,
+        "r_squared": 91.02
+      }
+    }
+  },
+  "POSKX": {
+    "source": "yahoo",
+    "symbol": "POSKX",
+    "horizons": {
+      "5y": {
+        "alpha": 2.01,
+        "beta": 0.97,
+        "r_squared": 83.0
+      },
+      "3y": {
+        "alpha": 0.57,
+        "beta": 1.02,
+        "r_squared": 73.46
+      },
+      "10y": {
+        "alpha": 0.1,
+        "beta": 0.98,
+        "r_squared": 86.98
+      }
+    }
+  },
+  "VFINX": {
+    "source": "yahoo",
+    "symbol": "VFINX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.0,
+        "beta": 0.98,
+        "r_squared": 99.28
+      },
+      "3y": {
+        "alpha": 0.59,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.7,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "RETSX": {
+    "source": "yahoo",
+    "symbol": "RETSX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.07,
+        "beta": 0.95,
+        "r_squared": 98.88
+      },
+      "3y": {
+        "alpha": -1.35,
+        "beta": 0.93,
+        "r_squared": 98.65
+      },
+      "10y": {
+        "alpha": -0.89,
+        "beta": 0.95,
+        "r_squared": 98.96
+      }
+    }
+  },
+  "FDESX": {
+    "source": "yahoo",
+    "symbol": "FDESX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.47,
+        "beta": 1.0,
+        "r_squared": 95.39
+      },
+      "3y": {
+        "alpha": -1.27,
+        "beta": 1.08,
+        "r_squared": 93.08
+      },
+      "10y": {
+        "alpha": 1.12,
+        "beta": 0.96,
+        "r_squared": 95.01
+      }
+    }
+  },
+  "AMCPX": {
+    "source": "yahoo",
+    "symbol": "AMCPX",
+    "horizons": {
+      "5y": {
+        "alpha": -4.48,
+        "beta": 1.07,
+        "r_squared": 93.84
+      },
+      "3y": {
+        "alpha": -4.71,
+        "beta": 1.13,
+        "r_squared": 94.05
+      },
+      "10y": {
+        "alpha": -2.01,
+        "beta": 0.99,
+        "r_squared": 93.77
+      }
+    }
+  },
+  "MSIGX": {
+    "source": "yahoo",
+    "symbol": "MSIGX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.02,
+        "beta": 0.93,
+        "r_squared": 96.9
+      },
+      "3y": {
+        "alpha": -1.43,
+        "beta": 0.98,
+        "r_squared": 95.81
+      },
+      "10y": {
+        "alpha": -1.19,
+        "beta": 0.94,
+        "r_squared": 96.87
+      }
+    }
+  },
+  "TLVAX": {
+    "source": "yahoo",
+    "symbol": "TLVAX",
+    "horizons": {
+      "5y": {
+        "alpha": -2.62,
+        "beta": 0.81,
+        "r_squared": 75.0
+      },
+      "3y": {
+        "alpha": -1.56,
+        "beta": 0.66,
+        "r_squared": 49.66
+      },
+      "10y": {
+        "alpha": -2.52,
+        "beta": 0.88,
+        "r_squared": 84.64
+      }
+    }
+  },
+  "DVRUX": {
+    "source": "yahoo",
+    "symbol": "DVRUX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.69,
+        "beta": 0.8,
+        "r_squared": 85.1
+      },
+      "3y": {
+        "alpha": 0.8,
+        "beta": 0.83,
+        "r_squared": 82.97
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "WAYFX": {
+    "source": "yahoo",
+    "symbol": "WAYFX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.19,
+        "beta": 1.04,
+        "r_squared": 93.47
+      },
+      "3y": {
+        "alpha": -2.21,
+        "beta": 1.03,
+        "r_squared": 89.31
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "BRGIX": {
+    "source": "yahoo",
+    "symbol": "BRGIX",
+    "horizons": {
+      "5y": {
+        "alpha": -2.02,
+        "beta": 1.05,
+        "r_squared": 90.93
+      },
+      "3y": {
+        "alpha": -3.0,
+        "beta": 1.01,
+        "r_squared": 85.47
+      },
+      "10y": {
+        "alpha": -0.7,
+        "beta": 1.05,
+        "r_squared": 93.15
+      }
+    }
+  },
+  "NINDX": {
+    "source": "yahoo",
+    "symbol": "NINDX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.95,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.51,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.63,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "VPMCX": {
+    "source": "yahoo",
+    "symbol": "VPMCX",
+    "horizons": {
+      "5y": {
+        "alpha": 3.42,
+        "beta": 1.0,
+        "r_squared": 80.79
+      },
+      "3y": {
+        "alpha": 2.13,
+        "beta": 1.08,
+        "r_squared": 69.1
+      },
+      "10y": {
+        "alpha": 2.25,
+        "beta": 0.97,
+        "r_squared": 85.61
+      }
+    }
+  },
+  "GQEPX": {
+    "source": "yahoo",
+    "symbol": "GQEPX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.55,
+        "beta": 0.66,
+        "r_squared": 40.17
+      },
+      "3y": {
+        "alpha": -4.05,
+        "beta": 0.65,
+        "r_squared": 25.5
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "WCEAX": {
+    "source": "yahoo",
+    "symbol": "WCEAX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.45,
+        "beta": 1.0,
+        "r_squared": 96.51
+      },
+      "3y": {
+        "alpha": -1.64,
+        "beta": 1.03,
+        "r_squared": 93.86
+      },
+      "10y": {
+        "alpha": 0.05,
+        "beta": 0.97,
+        "r_squared": 95.11
+      }
+    }
+  },
+  "ETLIX": {
+    "source": "yahoo",
+    "symbol": "ETLIX",
+    "horizons": {
+      "5y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      },
+      "3y": {
+        "alpha": -3.32,
+        "beta": 1.04,
+        "r_squared": 78.13
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "GQLOX": {
+    "source": "yahoo",
+    "symbol": "GQLOX",
+    "horizons": {
+      "5y": {
+        "alpha": 2.22,
+        "beta": 0.87,
+        "r_squared": 88.18
+      },
+      "3y": {
+        "alpha": 0.69,
+        "beta": 0.87,
+        "r_squared": 84.66
+      },
+      "10y": {
+        "alpha": 2.88,
+        "beta": 0.86,
+        "r_squared": 89.23
+      }
+    }
+  },
+  "NICSX": {
+    "source": "yahoo",
+    "symbol": "NICSX",
+    "horizons": {
+      "5y": {
+        "alpha": -2.03,
+        "beta": 0.93,
+        "r_squared": 91.3
+      },
+      "3y": {
+        "alpha": -5.78,
+        "beta": 0.93,
+        "r_squared": 85.73
+      },
+      "10y": {
+        "alpha": -0.68,
+        "beta": 0.93,
+        "r_squared": 93.87
+      }
+    }
+  },
+  "SDLAX": {
+    "source": "yahoo",
+    "symbol": "SDLAX",
+    "horizons": {
+      "5y": {
+        "alpha": 6.06,
+        "beta": 1.24,
+        "r_squared": 80.98
+      },
+      "3y": {
+        "alpha": 6.08,
+        "beta": 1.14,
+        "r_squared": 68.84
+      },
+      "10y": {
+        "alpha": 5.12,
+        "beta": 1.38,
+        "r_squared": 85.1
+      }
+    }
+  },
+  "AUUYX": {
+    "source": "yahoo",
+    "symbol": "AUUYX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.72,
+        "beta": 0.85,
+        "r_squared": 95.61
+      },
+      "3y": {
+        "alpha": 2.06,
+        "beta": 0.86,
+        "r_squared": 96.16
+      },
+      "10y": {
+        "alpha": 1.48,
+        "beta": 0.88,
+        "r_squared": 95.84
+      }
+    }
+  },
+  "BEQGX": {
+    "source": "yahoo",
+    "symbol": "BEQGX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.43,
+        "beta": 0.96,
+        "r_squared": 97.16
+      },
+      "3y": {
+        "alpha": 0.45,
+        "beta": 1.0,
+        "r_squared": 96.13
+      },
+      "10y": {
+        "alpha": -0.65,
+        "beta": 0.94,
+        "r_squared": 96.85
+      }
+    }
+  },
+  "SWANX": {
+    "source": "yahoo",
+    "symbol": "SWANX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.37,
+        "beta": 0.88,
+        "r_squared": 92.18
+      },
+      "3y": {
+        "alpha": -1.6,
+        "beta": 0.88,
+        "r_squared": 88.46
+      },
+      "10y": {
+        "alpha": -1.12,
+        "beta": 0.93,
+        "r_squared": 95.09
+      }
+    }
+  },
+  "EILGX": {
+    "source": "yahoo",
+    "symbol": "EILGX",
+    "horizons": {
+      "5y": {
+        "alpha": -3.58,
+        "beta": 0.8,
+        "r_squared": 66.9
+      },
+      "3y": {
+        "alpha": -2.0,
+        "beta": 0.63,
+        "r_squared": 39.39
+      },
+      "10y": {
+        "alpha": 2.38,
+        "beta": 0.82,
+        "r_squared": 74.51
+      }
+    }
+  },
+  "CHTYX": {
+    "source": "yahoo",
+    "symbol": "CHTYX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.82,
+        "beta": 0.93,
+        "r_squared": 97.3
+      },
+      "3y": {
+        "alpha": -1.22,
+        "beta": 0.97,
+        "r_squared": 96.13
+      },
+      "10y": {
+        "alpha": -2.04,
+        "beta": 0.94,
+        "r_squared": 96.46
+      }
+    }
+  },
+  "SSPIX": {
+    "source": "yahoo",
+    "symbol": "SSPIX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.86,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.44,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.56,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "DFDPX": {
+    "source": "yahoo",
+    "symbol": "DFDPX",
+    "horizons": {
+      "5y": {
+        "alpha": -8.66,
+        "beta": 1.07,
+        "r_squared": 88.95
+      },
+      "3y": {
+        "alpha": -8.54,
+        "beta": 1.03,
+        "r_squared": 81.18
+      },
+      "10y": {
+        "alpha": -2.16,
+        "beta": 1.01,
+        "r_squared": 86.14
+      }
+    }
+  },
+  "FDETX": {
+    "source": "yahoo",
+    "symbol": "FDETX",
+    "horizons": {
+      "5y": {
+        "alpha": 4.4,
+        "beta": 0.94,
+        "r_squared": 87.81
+      },
+      "3y": {
+        "alpha": 4.31,
+        "beta": 0.9,
+        "r_squared": 89.22
+      },
+      "10y": {
+        "alpha": 0.91,
+        "beta": 0.98,
+        "r_squared": 89.36
+      }
+    }
+  },
+  "MXKWX": {
+    "source": "yahoo",
+    "symbol": "MXKWX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.0,
+        "beta": 0.97,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.65,
+        "beta": 0.96,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.7,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "MUEAX": {
+    "source": "yahoo",
+    "symbol": "MUEAX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.78,
+        "beta": 0.95,
+        "r_squared": 97.68
+      },
+      "3y": {
+        "alpha": 0.78,
+        "beta": 0.95,
+        "r_squared": 96.31
+      },
+      "10y": {
+        "alpha": -0.07,
+        "beta": 0.97,
+        "r_squared": 97.86
+      }
+    }
+  },
+  "EIFGX": {
+    "source": "yahoo",
+    "symbol": "EIFGX",
+    "horizons": {
+      "5y": {
+        "alpha": -3.27,
+        "beta": 1.18,
+        "r_squared": 86.48
+      },
+      "3y": {
+        "alpha": -4.53,
+        "beta": 1.17,
+        "r_squared": 79.19
+      },
+      "10y": {
+        "alpha": -0.78,
+        "beta": 1.12,
+        "r_squared": 87.89
+      }
+    }
+  },
+  "FLRYX": {
+    "source": "yahoo",
+    "symbol": "FLRYX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.28,
+        "beta": 1.0,
+        "r_squared": 96.18
+      },
+      "3y": {
+        "alpha": -2.5,
+        "beta": 1.05,
+        "r_squared": 94.16
+      },
+      "10y": {
+        "alpha": -0.57,
+        "beta": 1.02,
+        "r_squared": 95.1
+      }
+    }
+  },
+  "BLPIX": {
+    "source": "yahoo",
+    "symbol": "BLPIX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.88,
+        "beta": 0.98,
+        "r_squared": 99.22
+      },
+      "3y": {
+        "alpha": -1.42,
+        "beta": 0.97,
+        "r_squared": 99.02
+      },
+      "10y": {
+        "alpha": -1.12,
+        "beta": 0.97,
+        "r_squared": 99.24
+      }
+    }
+  },
+  "NEFOX": {
+    "source": "yahoo",
+    "symbol": "NEFOX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.65,
+        "beta": 0.9,
+        "r_squared": 63.32
+      },
+      "3y": {
+        "alpha": 3.19,
+        "beta": 0.65,
+        "r_squared": 35.67
+      },
+      "10y": {
+        "alpha": -1.26,
+        "beta": 1.08,
+        "r_squared": 77.34
+      }
+    }
+  },
+  "MSHOX": {
+    "source": "yahoo",
+    "symbol": "MSHOX",
+    "horizons": {
+      "5y": {
+        "alpha": -4.61,
+        "beta": 1.06,
+        "r_squared": 79.09
+      },
+      "3y": {
+        "alpha": -4.59,
+        "beta": 1.01,
+        "r_squared": 67.81
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "MRFOX": {
+    "source": "yahoo",
+    "symbol": "MRFOX",
+    "horizons": {
+      "5y": {
+        "alpha": 3.82,
+        "beta": 0.6,
+        "r_squared": 50.34
+      },
+      "3y": {
+        "alpha": 2.19,
+        "beta": 0.49,
+        "r_squared": 28.15
+      },
+      "10y": {
+        "alpha": 4.72,
+        "beta": 0.68,
+        "r_squared": 66.72
+      }
+    }
+  },
+  "RBCGX": {
+    "source": "yahoo",
+    "symbol": "RBCGX",
+    "horizons": {
+      "5y": {
+        "alpha": -4.97,
+        "beta": 1.04,
+        "r_squared": 82.54
+      },
+      "3y": {
+        "alpha": -4.67,
+        "beta": 1.14,
+        "r_squared": 75.95
+      },
+      "10y": {
+        "alpha": -1.78,
+        "beta": 1.04,
+        "r_squared": 82.62
+      }
+    }
+  },
+  "LSVMX": {
+    "source": "yahoo",
+    "symbol": "LSVMX",
+    "horizons": {
+      "5y": {
+        "alpha": 2.89,
+        "beta": 0.6,
+        "r_squared": 56.11
+      },
+      "3y": {
+        "alpha": 6.39,
+        "beta": 0.48,
+        "r_squared": 34.07
+      },
+      "10y": {
+        "alpha": -0.55,
+        "beta": 0.69,
+        "r_squared": 69.41
+      }
+    }
+  },
+  "PROVX": {
+    "source": "yahoo",
+    "symbol": "PROVX",
+    "horizons": {
+      "5y": {
+        "alpha": -4.33,
+        "beta": 0.81,
+        "r_squared": 77.4
+      },
+      "3y": {
+        "alpha": -2.35,
+        "beta": 0.81,
+        "r_squared": 63.95
+      },
+      "10y": {
+        "alpha": 0.35,
+        "beta": 0.81,
+        "r_squared": 83.08
+      }
+    }
+  },
+  "ETTGX": {
+    "source": "yahoo",
+    "symbol": "ETTGX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.23,
+        "beta": 0.98,
+        "r_squared": 97.21
+      },
+      "3y": {
+        "alpha": -1.28,
+        "beta": 0.98,
+        "r_squared": 94.68
+      },
+      "10y": {
+        "alpha": -0.1,
+        "beta": 0.99,
+        "r_squared": 98.07
+      }
+    }
+  },
+  "BBTLX": {
+    "source": "yahoo",
+    "symbol": "BBTLX",
+    "horizons": {
+      "5y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      },
+      "3y": {
+        "alpha": -0.86,
+        "beta": 0.9,
+        "r_squared": 96.73
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "CRQSX": {
+    "source": "yahoo",
+    "symbol": "CRQSX",
+    "horizons": {
+      "5y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      },
+      "3y": {
+        "alpha": -0.5,
+        "beta": 1.0,
+        "r_squared": 98.7
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "SRIDX": {
+    "source": "yahoo",
+    "symbol": "SRIDX",
+    "horizons": {
+      "5y": {
+        "alpha": -4.45,
+        "beta": 0.96,
+        "r_squared": 85.37
+      },
+      "3y": {
+        "alpha": -1.96,
+        "beta": 0.83,
+        "r_squared": 70.16
+      },
+      "10y": {
+        "alpha": -3.78,
+        "beta": 0.98,
+        "r_squared": 88.72
+      }
+    }
+  },
+  "ITHIX": {
+    "source": "yahoo",
+    "symbol": "ITHIX",
+    "horizons": {
+      "5y": {
+        "alpha": -2.74,
+        "beta": 0.97,
+        "r_squared": 97.76
+      },
+      "3y": {
+        "alpha": -3.69,
+        "beta": 1.01,
+        "r_squared": 97.99
+      },
+      "10y": {
+        "alpha": -2.08,
+        "beta": 0.97,
+        "r_squared": 96.48
+      }
+    }
+  },
+  "TIGRX": {
+    "source": "yahoo",
+    "symbol": "TIGRX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.02,
+        "beta": 1.0,
+        "r_squared": 96.8
+      },
+      "3y": {
+        "alpha": -1.65,
+        "beta": 1.01,
+        "r_squared": 94.82
+      },
+      "10y": {
+        "alpha": -0.28,
+        "beta": 1.0,
+        "r_squared": 97.72
+      }
+    }
+  },
+  "TLACX": {
+    "source": "yahoo",
+    "symbol": "TLACX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.98,
+        "beta": 0.96,
+        "r_squared": 98.75
+      },
+      "3y": {
+        "alpha": -0.16,
+        "beta": 0.95,
+        "r_squared": 98.18
+      },
+      "10y": {
+        "alpha": 0.06,
+        "beta": 0.96,
+        "r_squared": 98.39
+      }
+    }
+  },
+  "LMOPX": {
+    "source": "yahoo",
+    "symbol": "LMOPX",
+    "horizons": {
+      "5y": {
+        "alpha": -5.08,
+        "beta": 1.46,
+        "r_squared": 78.49
+      },
+      "3y": {
+        "alpha": 1.12,
+        "beta": 1.38,
+        "r_squared": 79.4
+      },
+      "10y": {
+        "alpha": -6.69,
+        "beta": 1.59,
+        "r_squared": 79.67
+      }
+    }
+  },
+  "PNOPX": {
+    "source": "yahoo",
+    "symbol": "PNOPX",
+    "horizons": {
+      "5y": {
+        "alpha": -3.56,
+        "beta": 1.01,
+        "r_squared": 94.24
+      },
+      "3y": {
+        "alpha": -5.23,
+        "beta": 1.09,
+        "r_squared": 92.46
+      },
+      "10y": {
+        "alpha": 0.35,
+        "beta": 0.97,
+        "r_squared": 93.24
+      }
+    }
+  },
+  "SVSPX": {
+    "source": "yahoo",
+    "symbol": "SVSPX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.98,
+        "beta": 0.98,
+        "r_squared": 99.28
+      },
+      "3y": {
+        "alpha": 0.57,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.72,
+        "beta": 0.97,
+        "r_squared": 99.24
+      }
+    }
+  },
+  "PSQGX": {
+    "source": "yahoo",
+    "symbol": "PSQGX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.56,
+        "beta": 0.76,
+        "r_squared": 77.04
+      },
+      "3y": {
+        "alpha": -0.92,
+        "beta": 0.71,
+        "r_squared": 64.28
+      },
+      "10y": {
+        "alpha": 1.23,
+        "beta": 0.79,
+        "r_squared": 79.9
+      }
+    }
+  },
+  "NOLCX": {
+    "source": "yahoo",
+    "symbol": "NOLCX",
+    "horizons": {
+      "5y": {
+        "alpha": 2.4,
+        "beta": 0.96,
+        "r_squared": 98.0
+      },
+      "3y": {
+        "alpha": 2.02,
+        "beta": 0.95,
+        "r_squared": 97.05
+      },
+      "10y": {
+        "alpha": 0.53,
+        "beta": 0.96,
+        "r_squared": 97.57
+      }
+    }
+  },
+  "BCIFX": {
+    "source": "yahoo",
+    "symbol": "BCIFX",
+    "horizons": {
+      "5y": {
+        "alpha": -3.9,
+        "beta": 0.91,
+        "r_squared": 76.44
+      },
+      "3y": {
+        "alpha": -4.02,
+        "beta": 0.79,
+        "r_squared": 59.93
+      },
+      "10y": {
+        "alpha": -5.76,
+        "beta": 1.02,
+        "r_squared": 80.64
+      }
+    }
+  },
+  "FEVIX": {
+    "source": "yahoo",
+    "symbol": "FEVIX",
+    "horizons": {
+      "5y": {
+        "alpha": 5.33,
+        "beta": 1.05,
+        "r_squared": 75.5
+      },
+      "3y": {
+        "alpha": 4.56,
+        "beta": 0.96,
+        "r_squared": 58.04
+      },
+      "10y": {
+        "alpha": 2.35,
+        "beta": 1.18,
+        "r_squared": 80.45
+      }
+    }
+  },
+  "NQCFX": {
+    "source": "yahoo",
+    "symbol": "NQCFX",
+    "horizons": {
+      "5y": {
+        "alpha": -4.24,
+        "beta": 1.05,
+        "r_squared": 86.05
+      },
+      "3y": {
+        "alpha": -5.66,
+        "beta": 1.05,
+        "r_squared": 74.78
+      },
+      "10y": {
+        "alpha": -1.54,
+        "beta": 1.04,
+        "r_squared": 87.74
+      }
+    }
+  },
+  "CUSEX": {
+    "source": "yahoo",
+    "symbol": "CUSEX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.63,
+        "beta": 0.87,
+        "r_squared": 93.04
+      },
+      "3y": {
+        "alpha": -0.61,
+        "beta": 0.93,
+        "r_squared": 92.28
+      },
+      "10y": {
+        "alpha": 1.06,
+        "beta": 0.84,
+        "r_squared": 93.51
+      }
+    }
+  },
+  "GINDX": {
+    "source": "yahoo",
+    "symbol": "GINDX",
+    "horizons": {
+      "5y": {
+        "alpha": 4.76,
+        "beta": 0.92,
+        "r_squared": 89.44
+      },
+      "3y": {
+        "alpha": 3.03,
+        "beta": 0.9,
+        "r_squared": 81.87
+      },
+      "10y": {
+        "alpha": 2.29,
+        "beta": 0.91,
+        "r_squared": 86.69
+      }
+    }
+  },
+  "MITTX": {
+    "source": "yahoo",
+    "symbol": "MITTX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.4,
+        "beta": 0.89,
+        "r_squared": 95.03
+      },
+      "3y": {
+        "alpha": -1.18,
+        "beta": 0.87,
+        "r_squared": 93.25
+      },
+      "10y": {
+        "alpha": -0.42,
+        "beta": 0.91,
+        "r_squared": 95.9
+      }
+    }
+  },
+  "OARDX": {
+    "source": "yahoo",
+    "symbol": "OARDX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.32,
+        "beta": 0.88,
+        "r_squared": 93.81
+      },
+      "3y": {
+        "alpha": -0.18,
+        "beta": 0.82,
+        "r_squared": 91.7
+      },
+      "10y": {
+        "alpha": -0.72,
+        "beta": 0.9,
+        "r_squared": 95.32
+      }
+    }
+  },
+  "STSEX": {
+    "source": "yahoo",
+    "symbol": "STSEX",
+    "horizons": {
+      "5y": {
+        "alpha": 3.76,
+        "beta": 0.65,
+        "r_squared": 61.88
+      },
+      "3y": {
+        "alpha": 4.87,
+        "beta": 0.53,
+        "r_squared": 39.88
+      },
+      "10y": {
+        "alpha": 2.77,
+        "beta": 0.74,
+        "r_squared": 75.52
+      }
+    }
+  },
+  "JENSX": {
+    "source": "yahoo",
+    "symbol": "JENSX",
+    "horizons": {
+      "5y": {
+        "alpha": -4.48,
+        "beta": 0.8,
+        "r_squared": 80.98
+      },
+      "3y": {
+        "alpha": -7.14,
+        "beta": 0.77,
+        "r_squared": 72.36
+      },
+      "10y": {
+        "alpha": -0.87,
+        "beta": 0.83,
+        "r_squared": 85.75
+      }
+    }
+  },
+  "INSAX": {
+    "source": "yahoo",
+    "symbol": "INSAX",
+    "horizons": {
+      "5y": {
+        "alpha": -5.51,
+        "beta": 1.31,
+        "r_squared": 53.01
+      },
+      "3y": {
+        "alpha": -0.52,
+        "beta": 1.44,
+        "r_squared": 50.73
+      },
+      "10y": {
+        "alpha": -6.27,
+        "beta": 1.15,
+        "r_squared": 57.67
+      }
+    }
+  },
+  "ARTTX": {
+    "source": "yahoo",
+    "symbol": "ARTTX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.06,
+        "beta": 0.97,
+        "r_squared": 79.35
+      },
+      "3y": {
+        "alpha": 1.14,
+        "beta": 1.06,
+        "r_squared": 74.29
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "MVEIX": {
+    "source": "yahoo",
+    "symbol": "MVEIX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.68,
+        "beta": 0.82,
+        "r_squared": 70.51
+      },
+      "3y": {
+        "alpha": 0.04,
+        "beta": 0.76,
+        "r_squared": 55.34
+      },
+      "10y": {
+        "alpha": -5.12,
+        "beta": 1.17,
+        "r_squared": 70.28
+      }
+    }
+  },
+  "DSEFX": {
+    "source": "yahoo",
+    "symbol": "DSEFX",
+    "horizons": {
+      "5y": {
+        "alpha": -3.42,
+        "beta": 1.02,
+        "r_squared": 96.15
+      },
+      "3y": {
+        "alpha": -3.41,
+        "beta": 1.03,
+        "r_squared": 95.69
+      },
+      "10y": {
+        "alpha": -1.78,
+        "beta": 0.98,
+        "r_squared": 95.49
+      }
+    }
+  },
+  "HIOIX": {
+    "source": "yahoo",
+    "symbol": "HIOIX",
+    "horizons": {
+      "5y": {
+        "alpha": -4.09,
+        "beta": 0.67,
+        "r_squared": 61.64
+      },
+      "3y": {
+        "alpha": -5.16,
+        "beta": 0.7,
+        "r_squared": 58.98
+      },
+      "10y": {
+        "alpha": -4.64,
+        "beta": 0.66,
+        "r_squared": 66.15
+      }
+    }
+  },
+  "AQEAX": {
+    "source": "yahoo",
+    "symbol": "AQEAX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.08,
+        "beta": 0.95,
+        "r_squared": 96.07
+      },
+      "3y": {
+        "alpha": -0.72,
+        "beta": 0.94,
+        "r_squared": 93.96
+      },
+      "10y": {
+        "alpha": -0.41,
+        "beta": 0.96,
+        "r_squared": 96.42
+      }
+    }
+  },
+  "FMKFX": {
+    "source": "yahoo",
+    "symbol": "FMKFX",
+    "horizons": {
+      "5y": {
+        "alpha": -3.73,
+        "beta": 1.08,
+        "r_squared": 88.01
+      },
+      "3y": {
+        "alpha": -5.73,
+        "beta": 1.12,
+        "r_squared": 83.1
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "SEQUX": {
+    "source": "yahoo",
+    "symbol": "SEQUX",
+    "horizons": {
+      "5y": {
+        "alpha": -4.34,
+        "beta": 1.06,
+        "r_squared": 86.31
+      },
+      "3y": {
+        "alpha": -1.76,
+        "beta": 0.96,
+        "r_squared": 74.96
+      },
+      "10y": {
+        "alpha": -1.27,
+        "beta": 1.07,
+        "r_squared": 86.56
+      }
+    }
+  },
+  "WOGSX": {
+    "source": "yahoo",
+    "symbol": "WOGSX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.22,
+        "beta": 0.98,
+        "r_squared": 87.75
+      },
+      "3y": {
+        "alpha": -0.16,
+        "beta": 0.96,
+        "r_squared": 82.16
+      },
+      "10y": {
+        "alpha": -0.62,
+        "beta": 0.97,
+        "r_squared": 89.6
+      }
+    }
+  },
+  "CFIMX": {
+    "source": "yahoo",
+    "symbol": "CFIMX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.66,
+        "beta": 0.91,
+        "r_squared": 74.84
+      },
+      "3y": {
+        "alpha": 3.82,
+        "beta": 0.84,
+        "r_squared": 71.1
+      },
+      "10y": {
+        "alpha": -1.55,
+        "beta": 0.99,
+        "r_squared": 82.04
+      }
+    }
+  },
+  "NWABX": {
+    "source": "yahoo",
+    "symbol": "NWABX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.22,
+        "beta": 0.94,
+        "r_squared": 97.12
+      },
+      "3y": {
+        "alpha": -1.9,
+        "beta": 0.92,
+        "r_squared": 94.62
+      },
+      "10y": {
+        "alpha": -0.48,
+        "beta": 0.96,
+        "r_squared": 97.73
+      }
+    }
+  },
+  "JDESX": {
+    "source": "yahoo",
+    "symbol": "JDESX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.89,
+        "beta": 0.96,
+        "r_squared": 98.48
+      },
+      "3y": {
+        "alpha": -0.15,
+        "beta": 0.95,
+        "r_squared": 97.68
+      },
+      "10y": {
+        "alpha": 0.73,
+        "beta": 0.98,
+        "r_squared": 98.73
+      }
+    }
+  },
+  "RYSPX": {
+    "source": "yahoo",
+    "symbol": "RYSPX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.52,
+        "beta": 0.97,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": -0.86,
+        "beta": 0.96,
+        "r_squared": 99.13
+      },
+      "10y": {
+        "alpha": -0.86,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "GABAX": {
+    "source": "yahoo",
+    "symbol": "GABAX",
+    "horizons": {
+      "5y": {
+        "alpha": -2.58,
+        "beta": 0.84,
+        "r_squared": 75.36
+      },
+      "3y": {
+        "alpha": -0.78,
+        "beta": 0.7,
+        "r_squared": 54.86
+      },
+      "10y": {
+        "alpha": -3.27,
+        "beta": 0.9,
+        "r_squared": 84.26
+      }
+    }
+  },
+  "HVEIX": {
+    "source": "yahoo",
+    "symbol": "HVEIX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.35,
+        "beta": 1.02,
+        "r_squared": 95.68
+      },
+      "3y": {
+        "alpha": -3.46,
+        "beta": 1.05,
+        "r_squared": 93.53
+      },
+      "10y": {
+        "alpha": 0.22,
+        "beta": 0.98,
+        "r_squared": 95.27
+      }
+    }
+  },
+  "POAGX": {
+    "source": "yahoo",
+    "symbol": "POAGX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.95,
+        "beta": 1.15,
+        "r_squared": 75.53
+      },
+      "3y": {
+        "alpha": -0.46,
+        "beta": 1.3,
+        "r_squared": 68.83
+      },
+      "10y": {
+        "alpha": -0.96,
+        "beta": 1.11,
+        "r_squared": 75.37
+      }
+    }
+  },
+  "PEOPX": {
+    "source": "yahoo",
+    "symbol": "PEOPX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.64,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.24,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.33,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "JICAX": {
+    "source": "yahoo",
+    "symbol": "JICAX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.79,
+        "beta": 1.0,
+        "r_squared": 97.13
+      },
+      "3y": {
+        "alpha": -2.67,
+        "beta": 1.02,
+        "r_squared": 96.33
+      },
+      "10y": {
+        "alpha": -0.52,
+        "beta": 0.97,
+        "r_squared": 96.77
+      }
+    }
+  },
+  "AFDAX": {
+    "source": "yahoo",
+    "symbol": "AFDAX",
+    "horizons": {
+      "5y": {
+        "alpha": -2.77,
+        "beta": 0.99,
+        "r_squared": 98.4
+      },
+      "3y": {
+        "alpha": -4.75,
+        "beta": 1.0,
+        "r_squared": 97.96
+      },
+      "10y": {
+        "alpha": -0.86,
+        "beta": 0.98,
+        "r_squared": 97.98
+      }
+    }
+  },
+  "SROIX": {
+    "source": "yahoo",
+    "symbol": "SROIX",
+    "horizons": {
+      "5y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      },
+      "3y": {
+        "alpha": -2.84,
+        "beta": 0.89,
+        "r_squared": 92.4
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "FDEQX": {
+    "source": "yahoo",
+    "symbol": "FDEQX",
+    "horizons": {
+      "5y": {
+        "alpha": -2.69,
+        "beta": 1.13,
+        "r_squared": 92.32
+      },
+      "3y": {
+        "alpha": -4.9,
+        "beta": 1.21,
+        "r_squared": 88.9
+      },
+      "10y": {
+        "alpha": -1.1,
+        "beta": 1.04,
+        "r_squared": 92.76
+      }
+    }
+  },
+  "FICHX": {
+    "source": "yahoo",
+    "symbol": "FICHX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.62,
+        "beta": 1.04,
+        "r_squared": 92.79
+      },
+      "3y": {
+        "alpha": 1.57,
+        "beta": 1.0,
+        "r_squared": 89.44
+      },
+      "10y": {
+        "alpha": 2.18,
+        "beta": 1.01,
+        "r_squared": 92.24
+      }
+    }
+  },
+  "VNUYX": {
+    "source": "yahoo",
+    "symbol": "VNUYX",
+    "horizons": {
+      "5y": {
+        "alpha": -4.27,
+        "beta": 0.77,
+        "r_squared": 80.45
+      },
+      "3y": {
+        "alpha": -7.38,
+        "beta": 0.67,
+        "r_squared": 66.36
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "WESWX": {
+    "source": "yahoo",
+    "symbol": "WESWX",
+    "horizons": {
+      "5y": {
+        "alpha": -3.63,
+        "beta": 0.73,
+        "r_squared": 75.72
+      },
+      "3y": {
+        "alpha": -4.02,
+        "beta": 0.65,
+        "r_squared": 62.69
+      },
+      "10y": {
+        "alpha": -3.09,
+        "beta": 0.82,
+        "r_squared": 83.97
+      }
+    }
+  },
+  "FMIHX": {
+    "source": "yahoo",
+    "symbol": "FMIHX",
+    "horizons": {
+      "5y": {
+        "alpha": -2.24,
+        "beta": 0.81,
+        "r_squared": 63.91
+      },
+      "3y": {
+        "alpha": -2.23,
+        "beta": 0.72,
+        "r_squared": 41.22
+      },
+      "10y": {
+        "alpha": -2.24,
+        "beta": 0.84,
+        "r_squared": 76.03
+      }
+    }
+  },
+  "TISCX": {
+    "source": "yahoo",
+    "symbol": "TISCX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.18,
+        "beta": 1.01,
+        "r_squared": 97.08
+      },
+      "3y": {
+        "alpha": -1.83,
+        "beta": 1.02,
+        "r_squared": 94.63
+      },
+      "10y": {
+        "alpha": -0.53,
+        "beta": 1.0,
+        "r_squared": 98.23
+      }
+    }
+  },
+  "PSPTX": {
+    "source": "yahoo",
+    "symbol": "PSPTX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.13,
+        "beta": 1.05,
+        "r_squared": 98.86
+      },
+      "3y": {
+        "alpha": -0.12,
+        "beta": 1.05,
+        "r_squared": 98.09
+      },
+      "10y": {
+        "alpha": -0.36,
+        "beta": 1.06,
+        "r_squared": 98.75
+      }
+    }
+  },
+  "VQNPX": {
+    "source": "yahoo",
+    "symbol": "VQNPX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.22,
+        "beta": 0.97,
+        "r_squared": 98.29
+      },
+      "3y": {
+        "alpha": 0.5,
+        "beta": 0.97,
+        "r_squared": 97.1
+      },
+      "10y": {
+        "alpha": 0.54,
+        "beta": 0.97,
+        "r_squared": 98.72
+      }
+    }
+  },
+  "NWAVX": {
+    "source": "yahoo",
+    "symbol": "NWAVX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.58,
+        "beta": 0.67,
+        "r_squared": 40.28
+      },
+      "3y": {
+        "alpha": -4.24,
+        "beta": 0.66,
+        "r_squared": 25.32
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "AEPIX": {
+    "source": "yahoo",
+    "symbol": "AEPIX",
+    "horizons": {
+      "5y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      },
+      "3y": {
+        "alpha": 3.8,
+        "beta": 0.63,
+        "r_squared": 76.0
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "EIERX": {
+    "source": "yahoo",
+    "symbol": "EIERX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.55,
+        "beta": 0.92,
+        "r_squared": 93.75
+      },
+      "3y": {
+        "alpha": -0.46,
+        "beta": 0.96,
+        "r_squared": 90.31
+      },
+      "10y": {
+        "alpha": 0.33,
+        "beta": 0.92,
+        "r_squared": 95.2
+      }
+    }
+  },
+  "SSGFX": {
+    "source": "yahoo",
+    "symbol": "SSGFX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.92,
+        "beta": 1.04,
+        "r_squared": 88.26
+      },
+      "3y": {
+        "alpha": -4.11,
+        "beta": 1.12,
+        "r_squared": 82.25
+      },
+      "10y": {
+        "alpha": 0.34,
+        "beta": 1.0,
+        "r_squared": 89.22
+      }
+    }
+  },
+  "USBOX": {
+    "source": "yahoo",
+    "symbol": "USBOX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.18,
+        "beta": 0.87,
+        "r_squared": 87.65
+      },
+      "3y": {
+        "alpha": -0.21,
+        "beta": 0.85,
+        "r_squared": 82.15
+      },
+      "10y": {
+        "alpha": 2.14,
+        "beta": 0.86,
+        "r_squared": 88.47
+      }
+    }
+  },
+  "NMUAX": {
+    "source": "yahoo",
+    "symbol": "NMUAX",
+    "horizons": {
+      "5y": {
+        "alpha": -2.44,
+        "beta": 0.94,
+        "r_squared": 91.5
+      },
+      "3y": {
+        "alpha": -1.61,
+        "beta": 0.85,
+        "r_squared": 83.53
+      },
+      "10y": {
+        "alpha": -1.91,
+        "beta": 0.99,
+        "r_squared": 93.91
+      }
+    }
+  },
+  "EGOAX": {
+    "source": "yahoo",
+    "symbol": "EGOAX",
+    "horizons": {
+      "5y": {
+        "alpha": 2.25,
+        "beta": 1.02,
+        "r_squared": 93.62
+      },
+      "3y": {
+        "alpha": 0.55,
+        "beta": 1.03,
+        "r_squared": 90.56
+      },
+      "10y": {
+        "alpha": -0.05,
+        "beta": 1.02,
+        "r_squared": 94.22
+      }
+    }
+  },
+  "DRTHX": {
+    "source": "yahoo",
+    "symbol": "DRTHX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.61,
+        "beta": 0.98,
+        "r_squared": 95.33
+      },
+      "3y": {
+        "alpha": -1.19,
+        "beta": 1.0,
+        "r_squared": 92.38
+      },
+      "10y": {
+        "alpha": -0.19,
+        "beta": 0.94,
+        "r_squared": 95.25
+      }
+    }
+  },
+  "FLCNX": {
+    "source": "yahoo",
+    "symbol": "FLCNX",
+    "horizons": {
+      "5y": {
+        "alpha": 2.03,
+        "beta": 1.0,
+        "r_squared": 87.93
+      },
+      "3y": {
+        "alpha": 2.7,
+        "beta": 1.03,
+        "r_squared": 82.17
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "SOAVX": {
+    "source": "yahoo",
+    "symbol": "SOAVX",
+    "horizons": {
+      "5y": {
+        "alpha": 2.25,
+        "beta": 1.04,
+        "r_squared": 94.77
+      },
+      "3y": {
+        "alpha": 1.31,
+        "beta": 1.06,
+        "r_squared": 90.27
+      },
+      "10y": {
+        "alpha": 0.5,
+        "beta": 0.99,
+        "r_squared": 96.02
+      }
+    }
+  },
+  "SWPPX": {
+    "source": "yahoo",
+    "symbol": "SWPPX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.11,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.68,
+        "beta": 0.97,
+        "r_squared": 99.1
+      },
+      "10y": {
+        "alpha": 0.8,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "ELFNX": {
+    "source": "yahoo",
+    "symbol": "ELFNX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.05,
+        "beta": 0.97,
+        "r_squared": 93.19
+      },
+      "3y": {
+        "alpha": -0.3,
+        "beta": 0.98,
+        "r_squared": 89.55
+      },
+      "10y": {
+        "alpha": 1.66,
+        "beta": 0.96,
+        "r_squared": 94.18
+      }
+    }
+  },
+  "JAMEX": {
+    "source": "yahoo",
+    "symbol": "JAMEX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.63,
+        "beta": 0.92,
+        "r_squared": 95.7
+      },
+      "3y": {
+        "alpha": 1.15,
+        "beta": 0.94,
+        "r_squared": 93.1
+      },
+      "10y": {
+        "alpha": 1.18,
+        "beta": 0.94,
+        "r_squared": 96.19
+      }
+    }
+  },
+  "FDCAX": {
+    "source": "yahoo",
+    "symbol": "FDCAX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.5,
+        "beta": 1.04,
+        "r_squared": 95.15
+      },
+      "3y": {
+        "alpha": -0.18,
+        "beta": 1.12,
+        "r_squared": 94.3
+      },
+      "10y": {
+        "alpha": 1.51,
+        "beta": 0.99,
+        "r_squared": 94.12
+      }
+    }
+  },
+  "DLACX": {
+    "source": "yahoo",
+    "symbol": "DLACX",
+    "horizons": {
+      "5y": {
+        "alpha": -2.63,
+        "beta": 0.96,
+        "r_squared": 95.79
+      },
+      "3y": {
+        "alpha": -0.79,
+        "beta": 0.95,
+        "r_squared": 94.01
+      },
+      "10y": {
+        "alpha": -0.77,
+        "beta": 0.98,
+        "r_squared": 96.82
+      }
+    }
+  },
+  "BMPEX": {
+    "source": "yahoo",
+    "symbol": "BMPEX",
+    "horizons": {
+      "5y": {
+        "alpha": -4.29,
+        "beta": 1.1,
+        "r_squared": 76.09
+      },
+      "3y": {
+        "alpha": -7.2,
+        "beta": 1.1,
+        "r_squared": 62.11
+      },
+      "10y": {
+        "alpha": -3.88,
+        "beta": 1.16,
+        "r_squared": 80.28
+      }
+    }
+  },
+  "DGAGX": {
+    "source": "yahoo",
+    "symbol": "DGAGX",
+    "horizons": {
+      "5y": {
+        "alpha": -3.84,
+        "beta": 0.91,
+        "r_squared": 89.91
+      },
+      "3y": {
+        "alpha": -5.43,
+        "beta": 0.83,
+        "r_squared": 85.35
+      },
+      "10y": {
+        "alpha": -0.58,
+        "beta": 0.91,
+        "r_squared": 91.26
+      }
+    }
+  },
+  "ISIPX": {
+    "source": "yahoo",
+    "symbol": "ISIPX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.46,
+        "beta": 0.98,
+        "r_squared": 99.25
+      },
+      "3y": {
+        "alpha": 0.01,
+        "beta": 0.97,
+        "r_squared": 99.09
+      },
+      "10y": {
+        "alpha": 0.16,
+        "beta": 0.97,
+        "r_squared": 99.25
+      }
+    }
+  },
+  "WSEFX": {
+    "source": "yahoo",
+    "symbol": "WSEFX",
+    "horizons": {
+      "5y": {
+        "alpha": -2.15,
+        "beta": 0.85,
+        "r_squared": 92.13
+      },
+      "3y": {
+        "alpha": -2.46,
+        "beta": 0.77,
+        "r_squared": 86.67
+      },
+      "10y": {
+        "alpha": -0.5,
+        "beta": 0.88,
+        "r_squared": 93.93
+      }
+    }
+  },
+  "BIAFX": {
+    "source": "yahoo",
+    "symbol": "BIAFX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.15,
+        "beta": 0.98,
+        "r_squared": 92.4
+      },
+      "3y": {
+        "alpha": -2.57,
+        "beta": 0.99,
+        "r_squared": 86.71
+      },
+      "10y": {
+        "alpha": 0.1,
+        "beta": 1.01,
+        "r_squared": 94.71
+      }
+    }
+  },
+  "PBFDX": {
+    "source": "yahoo",
+    "symbol": "PBFDX",
+    "horizons": {
+      "5y": {
+        "alpha": 2.29,
+        "beta": 0.96,
+        "r_squared": 89.17
+      },
+      "3y": {
+        "alpha": 0.81,
+        "beta": 1.0,
+        "r_squared": 84.07
+      },
+      "10y": {
+        "alpha": 1.86,
+        "beta": 0.95,
+        "r_squared": 92.26
+      }
+    }
+  },
+  "EVSRX": {
+    "source": "yahoo",
+    "symbol": "EVSRX",
+    "horizons": {
+      "5y": {
+        "alpha": 2.3,
+        "beta": 0.97,
+        "r_squared": 98.68
+      },
+      "3y": {
+        "alpha": 2.12,
+        "beta": 0.96,
+        "r_squared": 97.85
+      },
+      "10y": {
+        "alpha": 0.85,
+        "beta": 0.96,
+        "r_squared": 98.5
+      }
+    }
+  },
+  "CHDEX": {
+    "source": "yahoo",
+    "symbol": "CHDEX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.1,
+        "beta": 0.66,
+        "r_squared": 58.45
+      },
+      "3y": {
+        "alpha": 4.76,
+        "beta": 0.48,
+        "r_squared": 34.39
+      },
+      "10y": {
+        "alpha": -1.93,
+        "beta": 0.75,
+        "r_squared": 71.48
+      }
+    }
+  },
+  "NCEGX": {
+    "source": "yahoo",
+    "symbol": "NCEGX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.26,
+        "beta": 0.96,
+        "r_squared": 95.33
+      },
+      "3y": {
+        "alpha": -1.79,
+        "beta": 0.99,
+        "r_squared": 93.03
+      },
+      "10y": {
+        "alpha": 0.04,
+        "beta": 0.95,
+        "r_squared": 94.48
+      }
+    }
+  },
+  "RMBJX": {
+    "source": "yahoo",
+    "symbol": "RMBJX",
+    "horizons": {
+      "5y": {
+        "alpha": -4.76,
+        "beta": 0.92,
+        "r_squared": 91.89
+      },
+      "3y": {
+        "alpha": -6.01,
+        "beta": 0.95,
+        "r_squared": 90.06
+      },
+      "10y": {
+        "alpha": -2.16,
+        "beta": 0.97,
+        "r_squared": 93.26
+      }
+    }
+  },
+  "MPGFX": {
+    "source": "yahoo",
+    "symbol": "MPGFX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.17,
+        "beta": 0.97,
+        "r_squared": 95.8
+      },
+      "3y": {
+        "alpha": -1.96,
+        "beta": 0.98,
+        "r_squared": 93.02
+      },
+      "10y": {
+        "alpha": -0.81,
+        "beta": 0.94,
+        "r_squared": 94.64
+      }
+    }
+  },
+  "LZUSX": {
+    "source": "yahoo",
+    "symbol": "LZUSX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.92,
+        "beta": 0.88,
+        "r_squared": 93.63
+      },
+      "3y": {
+        "alpha": -1.16,
+        "beta": 0.85,
+        "r_squared": 88.12
+      },
+      "10y": {
+        "alpha": -0.54,
+        "beta": 0.92,
+        "r_squared": 95.43
+      }
+    }
+  },
+  "PSIFX": {
+    "source": "yahoo",
+    "symbol": "PSIFX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.89,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.5,
+        "beta": 0.97,
+        "r_squared": 99.11
+      },
+      "10y": {
+        "alpha": 0.61,
+        "beta": 0.97,
+        "r_squared": 99.24
+      }
+    }
+  },
+  "NEIMX": {
+    "source": "yahoo",
+    "symbol": "NEIMX",
+    "horizons": {
+      "5y": {
+        "alpha": 2.55,
+        "beta": 0.72,
+        "r_squared": 79.82
+      },
+      "3y": {
+        "alpha": 5.24,
+        "beta": 0.65,
+        "r_squared": 74.94
+      },
+      "10y": {
+        "alpha": -1.32,
+        "beta": 0.8,
+        "r_squared": 82.87
+      }
+    }
+  },
+  "PIODX": {
+    "source": "yahoo",
+    "symbol": "PIODX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.48,
+        "beta": 1.06,
+        "r_squared": 92.84
+      },
+      "3y": {
+        "alpha": -0.17,
+        "beta": 1.08,
+        "r_squared": 88.53
+      },
+      "10y": {
+        "alpha": 1.43,
+        "beta": 0.97,
+        "r_squared": 92.89
+      }
+    }
+  },
+  "HLEIX": {
+    "source": "yahoo",
+    "symbol": "HLEIX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.93,
+        "beta": 0.98,
+        "r_squared": 99.28
+      },
+      "3y": {
+        "alpha": 0.54,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.64,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "CVAIX": {
+    "source": "yahoo",
+    "symbol": "CVAIX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.03,
+        "beta": 0.95,
+        "r_squared": 95.94
+      },
+      "3y": {
+        "alpha": -2.49,
+        "beta": 0.99,
+        "r_squared": 92.8
+      },
+      "10y": {
+        "alpha": -1.41,
+        "beta": 0.98,
+        "r_squared": 96.81
+      }
+    }
+  },
+  "TFFYX": {
+    "source": "yahoo",
+    "symbol": "TFFYX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.31,
+        "beta": 0.91,
+        "r_squared": 93.72
+      },
+      "3y": {
+        "alpha": -2.45,
+        "beta": 0.9,
+        "r_squared": 89.54
+      },
+      "10y": {
+        "alpha": -1.15,
+        "beta": 0.96,
+        "r_squared": 94.53
+      }
+    }
+  },
+  "DODGX": {
+    "source": "yahoo",
+    "symbol": "DODGX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.26,
+        "beta": 0.79,
+        "r_squared": 66.09
+      },
+      "3y": {
+        "alpha": 1.04,
+        "beta": 0.67,
+        "r_squared": 47.8
+      },
+      "10y": {
+        "alpha": -1.1,
+        "beta": 0.96,
+        "r_squared": 77.02
+      }
+    }
+  },
+  "HAVGX": {
+    "source": "yahoo",
+    "symbol": "HAVGX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.68,
+        "beta": 0.77,
+        "r_squared": 80.19
+      },
+      "3y": {
+        "alpha": -1.05,
+        "beta": 0.73,
+        "r_squared": 68.96
+      },
+      "10y": {
+        "alpha": -1.32,
+        "beta": 0.87,
+        "r_squared": 87.2
+      }
+    }
+  },
+  "HESGX": {
+    "source": "yahoo",
+    "symbol": "HESGX",
+    "horizons": {
+      "5y": {
+        "alpha": 2.88,
+        "beta": 1.07,
+        "r_squared": 72.94
+      },
+      "3y": {
+        "alpha": 2.07,
+        "beta": 1.18,
+        "r_squared": 63.27
+      },
+      "10y": {
+        "alpha": null,
+        "beta": null,
+        "r_squared": null
+      }
+    }
+  },
+  "CAPEX": {
+    "source": "yahoo",
+    "symbol": "CAPEX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.03,
+        "beta": 0.98,
+        "r_squared": 97.2
+      },
+      "3y": {
+        "alpha": -1.03,
+        "beta": 0.98,
+        "r_squared": 94.68
+      },
+      "10y": {
+        "alpha": 0.19,
+        "beta": 0.99,
+        "r_squared": 98.06
+      }
+    }
+  },
+  "SEECX": {
+    "source": "yahoo",
+    "symbol": "SEECX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.1,
+        "beta": 0.99,
+        "r_squared": 99.21
+      },
+      "3y": {
+        "alpha": -0.33,
+        "beta": 0.98,
+        "r_squared": 98.93
+      },
+      "10y": {
+        "alpha": -0.9,
+        "beta": 1.02,
+        "r_squared": 98.99
+      }
+    }
+  },
+  "GCEQX": {
+    "source": "yahoo",
+    "symbol": "GCEQX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.47,
+        "beta": 1.04,
+        "r_squared": 96.42
+      },
+      "3y": {
+        "alpha": -2.43,
+        "beta": 1.09,
+        "r_squared": 94.37
+      },
+      "10y": {
+        "alpha": -0.09,
+        "beta": 0.99,
+        "r_squared": 96.6
+      }
+    }
+  },
+  "FGLGX": {
+    "source": "yahoo",
+    "symbol": "FGLGX",
+    "horizons": {
+      "5y": {
+        "alpha": 5.03,
+        "beta": 0.92,
+        "r_squared": 87.82
+      },
+      "3y": {
+        "alpha": 4.97,
+        "beta": 0.89,
+        "r_squared": 89.06
+      },
+      "10y": {
+        "alpha": 1.4,
+        "beta": 0.97,
+        "r_squared": 89.36
+      }
+    }
+  },
+  "GOODX": {
+    "source": "yahoo",
+    "symbol": "GOODX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.86,
+        "beta": 0.8,
+        "r_squared": 72.13
+      },
+      "3y": {
+        "alpha": -4.46,
+        "beta": 0.7,
+        "r_squared": 51.54
+      },
+      "10y": {
+        "alpha": -3.39,
+        "beta": 0.89,
+        "r_squared": 76.32
+      }
+    }
+  },
+  "MIEAX": {
+    "source": "yahoo",
+    "symbol": "MIEAX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.48,
+        "beta": 0.98,
+        "r_squared": 99.25
+      },
+      "3y": {
+        "alpha": 0.05,
+        "beta": 0.97,
+        "r_squared": 99.13
+      },
+      "10y": {
+        "alpha": 0.21,
+        "beta": 0.97,
+        "r_squared": 99.23
+      }
+    }
+  },
+  "JENHX": {
+    "source": "yahoo",
+    "symbol": "JENHX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.51,
+        "beta": 1.05,
+        "r_squared": 98.03
+      },
+      "3y": {
+        "alpha": -0.46,
+        "beta": 1.02,
+        "r_squared": 97.78
+      },
+      "10y": {
+        "alpha": -0.98,
+        "beta": 1.02,
+        "r_squared": 98.4
+      }
+    }
+  },
+  "BRTNX": {
+    "source": "yahoo",
+    "symbol": "BRTNX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.05,
+        "beta": 0.87,
+        "r_squared": 76.36
+      },
+      "3y": {
+        "alpha": -2.79,
+        "beta": 0.85,
+        "r_squared": 59.35
+      },
+      "10y": {
+        "alpha": -0.03,
+        "beta": 0.93,
+        "r_squared": 83.52
+      }
+    }
+  },
+  "FXAIX": {
+    "source": "yahoo",
+    "symbol": "FXAIX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.13,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.72,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.83,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "PCOTX": {
+    "source": "yahoo",
+    "symbol": "PCOTX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.24,
+        "beta": 0.92,
+        "r_squared": 87.34
+      },
+      "3y": {
+        "alpha": 0.1,
+        "beta": 0.83,
+        "r_squared": 74.55
+      },
+      "10y": {
+        "alpha": -0.87,
+        "beta": 0.94,
+        "r_squared": 92.17
+      }
+    }
+  },
+  "IICAX": {
+    "source": "yahoo",
+    "symbol": "IICAX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.36,
+        "beta": 0.87,
+        "r_squared": 90.06
+      },
+      "3y": {
+        "alpha": -0.72,
+        "beta": 0.78,
+        "r_squared": 82.6
+      },
+      "10y": {
+        "alpha": -0.11,
+        "beta": 0.9,
+        "r_squared": 92.64
+      }
+    }
+  },
+  "ARSKX": {
+    "source": "yahoo",
+    "symbol": "ARSKX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.81,
+        "beta": 0.95,
+        "r_squared": 94.65
+      },
+      "3y": {
+        "alpha": -1.87,
+        "beta": 0.94,
+        "r_squared": 89.9
+      },
+      "10y": {
+        "alpha": -1.72,
+        "beta": 0.95,
+        "r_squared": 94.51
+      }
+    }
+  },
+  "DHAMX": {
+    "source": "yahoo",
+    "symbol": "DHAMX",
+    "horizons": {
+      "5y": {
+        "alpha": 3.71,
+        "beta": 0.82,
+        "r_squared": 67.41
+      },
+      "3y": {
+        "alpha": 2.89,
+        "beta": 0.77,
+        "r_squared": 57.32
+      },
+      "10y": {
+        "alpha": 3.14,
+        "beta": 0.79,
+        "r_squared": 74.07
+      }
+    }
+  },
+  "MISEX": {
+    "source": "yahoo",
+    "symbol": "MISEX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.44,
+        "beta": 1.19,
+        "r_squared": 81.89
+      },
+      "3y": {
+        "alpha": 2.42,
+        "beta": 1.16,
+        "r_squared": 67.52
+      },
+      "10y": {
+        "alpha": -1.18,
+        "beta": 1.21,
+        "r_squared": 87.3
+      }
+    }
+  },
+  "DEOPX": {
+    "source": "yahoo",
+    "symbol": "DEOPX",
+    "horizons": {
+      "5y": {
+        "alpha": -8.14,
+        "beta": 1.0,
+        "r_squared": 73.41
+      },
+      "3y": {
+        "alpha": -10.99,
+        "beta": 0.96,
+        "r_squared": 54.88
+      },
+      "10y": {
+        "alpha": -4.12,
+        "beta": 1.0,
+        "r_squared": 79.03
+      }
+    }
+  },
+  "WFIOX": {
+    "source": "yahoo",
+    "symbol": "WFIOX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.88,
+        "beta": 0.98,
+        "r_squared": 99.28
+      },
+      "3y": {
+        "alpha": 0.46,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.54,
+        "beta": 0.97,
+        "r_squared": 99.27
+      }
+    }
+  },
+  "VALSX": {
+    "source": "yahoo",
+    "symbol": "VALSX",
+    "horizons": {
+      "5y": {
+        "alpha": -6.93,
+        "beta": 0.87,
+        "r_squared": 71.87
+      },
+      "3y": {
+        "alpha": -8.96,
+        "beta": 0.72,
+        "r_squared": 48.07
+      },
+      "10y": {
+        "alpha": -1.93,
+        "beta": 0.9,
+        "r_squared": 78.82
+      }
+    }
+  },
+  "EITGX": {
+    "source": "yahoo",
+    "symbol": "EITGX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.13,
+        "beta": 0.98,
+        "r_squared": 97.2
+      },
+      "3y": {
+        "alpha": -1.18,
+        "beta": 0.98,
+        "r_squared": 94.65
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.99,
+        "r_squared": 98.07
+      }
+    }
+  },
+  "AWEIX": {
+    "source": "yahoo",
+    "symbol": "AWEIX",
+    "horizons": {
+      "5y": {
+        "alpha": -3.08,
+        "beta": 0.91,
+        "r_squared": 95.97
+      },
+      "3y": {
+        "alpha": -3.69,
+        "beta": 0.9,
+        "r_squared": 93.24
+      },
+      "10y": {
+        "alpha": -0.7,
+        "beta": 0.92,
+        "r_squared": 96.04
+      }
+    }
+  },
+  "THPGX": {
+    "source": "yahoo",
+    "symbol": "THPGX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.53,
+        "beta": 1.04,
+        "r_squared": 86.94
+      },
+      "3y": {
+        "alpha": 3.3,
+        "beta": 0.99,
+        "r_squared": 80.82
+      },
+      "10y": {
+        "alpha": -1.2,
+        "beta": 1.12,
+        "r_squared": 88.5
+      }
+    }
+  },
+  "DREVX": {
+    "source": "yahoo",
+    "symbol": "DREVX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.26,
+        "beta": 1.04,
+        "r_squared": 93.65
+      },
+      "3y": {
+        "alpha": -1.55,
+        "beta": 1.05,
+        "r_squared": 89.38
+      },
+      "10y": {
+        "alpha": 1.18,
+        "beta": 0.98,
+        "r_squared": 94.38
+      }
+    }
+  },
+  "SRVEX": {
+    "source": "yahoo",
+    "symbol": "SRVEX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.96,
+        "beta": 0.97,
+        "r_squared": 93.6
+      },
+      "3y": {
+        "alpha": 2.48,
+        "beta": 0.9,
+        "r_squared": 92.38
+      },
+      "10y": {
+        "alpha": -0.16,
+        "beta": 1.01,
+        "r_squared": 94.68
+      }
+    }
+  },
+  "COPLX": {
+    "source": "yahoo",
+    "symbol": "COPLX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.2,
+        "beta": 0.79,
+        "r_squared": 87.01
+      },
+      "3y": {
+        "alpha": -0.06,
+        "beta": 0.8,
+        "r_squared": 76.53
+      },
+      "10y": {
+        "alpha": 0.43,
+        "beta": 0.71,
+        "r_squared": 72.11
+      }
+    }
+  },
+  "GVALX": {
+    "source": "yahoo",
+    "symbol": "GVALX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.91,
+        "beta": 0.8,
+        "r_squared": 69.8
+      },
+      "3y": {
+        "alpha": 2.48,
+        "beta": 0.66,
+        "r_squared": 47.48
+      },
+      "10y": {
+        "alpha": -0.67,
+        "beta": 0.91,
+        "r_squared": 81.38
+      }
+    }
+  },
+  "GVEQX": {
+    "source": "yahoo",
+    "symbol": "GVEQX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.95,
+        "beta": 0.96,
+        "r_squared": 95.76
+      },
+      "3y": {
+        "alpha": 1.38,
+        "beta": 0.98,
+        "r_squared": 92.99
+      },
+      "10y": {
+        "alpha": 1.21,
+        "beta": 0.94,
+        "r_squared": 95.85
+      }
+    }
+  },
+  "MXXVX": {
+    "source": "yahoo",
+    "symbol": "MXXVX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.98,
+        "beta": 1.32,
+        "r_squared": 86.1
+      },
+      "3y": {
+        "alpha": -2.34,
+        "beta": 1.35,
+        "r_squared": 85.4
+      },
+      "10y": {
+        "alpha": -3.39,
+        "beta": 1.29,
+        "r_squared": 81.99
+      }
+    }
+  },
+  "SLGYX": {
+    "source": "yahoo",
+    "symbol": "SLGYX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.18,
+        "beta": 1.12,
+        "r_squared": 82.94
+      },
+      "3y": {
+        "alpha": -2.15,
+        "beta": 1.22,
+        "r_squared": 77.4
+      },
+      "10y": {
+        "alpha": 1.16,
+        "beta": 1.03,
+        "r_squared": 84.69
+      }
+    }
+  },
+  "SAOPX": {
+    "source": "yahoo",
+    "symbol": "SAOPX",
+    "horizons": {
+      "5y": {
+        "alpha": 3.14,
+        "beta": 0.72,
+        "r_squared": 65.56
+      },
+      "3y": {
+        "alpha": 4.01,
+        "beta": 0.63,
+        "r_squared": 40.97
+      },
+      "10y": {
+        "alpha": 0.15,
+        "beta": 0.82,
+        "r_squared": 78.07
+      }
+    }
+  },
+  "FCNTX": {
+    "source": "yahoo",
+    "symbol": "FCNTX",
+    "horizons": {
+      "5y": {
+        "alpha": 2.07,
+        "beta": 1.0,
+        "r_squared": 86.49
+      },
+      "3y": {
+        "alpha": 3.11,
+        "beta": 1.02,
+        "r_squared": 80.07
+      },
+      "10y": {
+        "alpha": 2.88,
+        "beta": 0.98,
+        "r_squared": 86.78
+      }
+    }
+  },
+  "FLCPX": {
+    "source": "yahoo",
+    "symbol": "FLCPX",
+    "horizons": {
+      "5y": {
+        "alpha": 1.13,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.72,
+        "beta": 0.97,
+        "r_squared": 99.11
+      },
+      "10y": {
+        "alpha": 0.82,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "DFELX": {
+    "source": "yahoo",
+    "symbol": "DFELX",
+    "horizons": {
+      "5y": {
+        "alpha": -0.54,
+        "beta": 1.03,
+        "r_squared": 98.95
+      },
+      "3y": {
+        "alpha": -0.19,
+        "beta": 1.01,
+        "r_squared": 99.16
+      },
+      "10y": {
+        "alpha": -0.48,
+        "beta": 1.02,
+        "r_squared": 99.08
+      }
+    }
+  },
+  "SUSIX": {
+    "source": "yahoo",
+    "symbol": "SUSIX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.59,
+        "beta": 0.96,
+        "r_squared": 97.16
+      },
+      "3y": {
+        "alpha": -0.43,
+        "beta": 0.97,
+        "r_squared": 95.75
+      },
+      "10y": {
+        "alpha": 1.0,
+        "beta": 0.95,
+        "r_squared": 97.54
+      }
+    }
+  },
+  "IVV": {
+    "source": "yahoo",
+    "symbol": "IVV",
+    "horizons": {
+      "5y": {
+        "alpha": 1.11,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.71,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.81,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "SPYM": {
+    "source": "yahoo",
+    "symbol": "SPYM",
+    "horizons": {
+      "5y": {
+        "alpha": 1.12,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.71,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.82,
+        "beta": 0.97,
+        "r_squared": 99.34
+      }
+    }
+  },
+  "SIXO": {
+    "source": "yahoo",
+    "symbol": "SIXO",
+    "horizons": {
+      "5y": {
+        "alpha": -0.4,
+        "beta": 0.5,
+        "r_squared": 87.9
+      },
+      "3y": {
+        "alpha": -1.86,
+        "beta": 0.44,
+        "r_squared": 86.41
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "SIXJ": {
+    "source": "yahoo",
+    "symbol": "SIXJ",
+    "horizons": {
+      "5y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      },
+      "3y": {
+        "alpha": 2.18,
+        "beta": 0.44,
+        "r_squared": 88.01
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "APRT": {
+    "source": "yahoo",
+    "symbol": "APRT",
+    "horizons": {
+      "5y": {
+        "alpha": 1.74,
+        "beta": 0.59,
+        "r_squared": 89.54
+      },
+      "3y": {
+        "alpha": 1.11,
+        "beta": 0.55,
+        "r_squared": 81.05
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "JANT": {
+    "source": "yahoo",
+    "symbol": "JANT",
+    "horizons": {
+      "5y": {
+        "alpha": 1.11,
+        "beta": 0.66,
+        "r_squared": 93.26
+      },
+      "3y": {
+        "alpha": 2.05,
+        "beta": 0.6,
+        "r_squared": 87.59
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "JULT": {
+    "source": "yahoo",
+    "symbol": "JULT",
+    "horizons": {
+      "5y": {
+        "alpha": 2.24,
+        "beta": 0.61,
+        "r_squared": 93.74
+      },
+      "3y": {
+        "alpha": 0.96,
+        "beta": 0.61,
+        "r_squared": 94.05
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "OCTT": {
+    "source": "yahoo",
+    "symbol": "OCTT",
+    "horizons": {
+      "5y": {
+        "alpha": 1.55,
+        "beta": 0.59,
+        "r_squared": 94.61
+      },
+      "3y": {
+        "alpha": 0.58,
+        "beta": 0.58,
+        "r_squared": 91.88
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "APRW": {
+    "source": "yahoo",
+    "symbol": "APRW",
+    "horizons": {
+      "5y": {
+        "alpha": 0.49,
+        "beta": 0.34,
+        "r_squared": 83.75
+      },
+      "3y": {
+        "alpha": 0.22,
+        "beta": 0.34,
+        "r_squared": 75.5
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "JANW": {
+    "source": "yahoo",
+    "symbol": "JANW",
+    "horizons": {
+      "5y": {
+        "alpha": 1.61,
+        "beta": 0.35,
+        "r_squared": 86.4
+      },
+      "3y": {
+        "alpha": 0.56,
+        "beta": 0.35,
+        "r_squared": 83.04
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "JULW": {
+    "source": "yahoo",
+    "symbol": "JULW",
+    "horizons": {
+      "5y": {
+        "alpha": 2.0,
+        "beta": 0.37,
+        "r_squared": 87.03
+      },
+      "3y": {
+        "alpha": 0.84,
+        "beta": 0.39,
+        "r_squared": 84.67
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "OCTW": {
+    "source": "yahoo",
+    "symbol": "OCTW",
+    "horizons": {
+      "5y": {
+        "alpha": 2.44,
+        "beta": 0.3,
+        "r_squared": 81.41
+      },
+      "3y": {
+        "alpha": -0.08,
+        "beta": 0.36,
+        "r_squared": 88.51
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "SSUS": {
+    "source": "yahoo",
+    "symbol": "SSUS",
+    "horizons": {
+      "5y": {
+        "alpha": 0.04,
+        "beta": 0.84,
+        "r_squared": 92.25
+      },
+      "3y": {
+        "alpha": -1.42,
+        "beta": 0.92,
+        "r_squared": 91.59
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "WDTE": {
+    "source": "yahoo",
+    "symbol": "WDTE",
+    "horizons": {
+      "5y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      },
+      "3y": {
+        "alpha": 10.26,
+        "beta": 8.36,
+        "r_squared": 0.41
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "CAPE": {
+    "source": "yahoo",
+    "symbol": "CAPE",
+    "horizons": {
+      "5y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      },
+      "3y": {
+        "alpha": -4.57,
+        "beta": 0.76,
+        "r_squared": 55.55
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "GSPY": {
+    "source": "yahoo",
+    "symbol": "GSPY",
+    "horizons": {
+      "5y": {
+        "alpha": 1.73,
+        "beta": 0.95,
+        "r_squared": 98.39
+      },
+      "3y": {
+        "alpha": 1.32,
+        "beta": 0.94,
+        "r_squared": 97.86
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "STNC": {
+    "source": "yahoo",
+    "symbol": "STNC",
+    "horizons": {
+      "5y": {
+        "alpha": -2.51,
+        "beta": 0.81,
+        "r_squared": 68.01
+      },
+      "3y": {
+        "alpha": -0.92,
+        "beta": 0.74,
+        "r_squared": 49.76
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "OCTH": {
+    "source": "yahoo",
+    "symbol": "OCTH",
+    "horizons": {
+      "5y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      },
+      "3y": {
+        "alpha": -1.1,
+        "beta": 0.17,
+        "r_squared": 56.02
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "OCTJ": {
+    "source": "yahoo",
+    "symbol": "OCTJ",
+    "horizons": {
+      "5y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      },
+      "3y": {
+        "alpha": -0.88,
+        "beta": 0.1,
+        "r_squared": 42.03
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "PJAN": {
+    "source": "yahoo",
+    "symbol": "PJAN",
+    "horizons": {
+      "5y": {
+        "alpha": 1.13,
+        "beta": 0.5,
+        "r_squared": 90.77
+      },
+      "3y": {
+        "alpha": 1.12,
+        "beta": 0.45,
+        "r_squared": 83.76
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "XUSP": {
+    "source": "yahoo",
+    "symbol": "XUSP",
+    "horizons": {
+      "5y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      },
+      "3y": {
+        "alpha": -2.1,
+        "beta": 1.32,
+        "r_squared": 98.5
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "SECT": {
+    "source": "yahoo",
+    "symbol": "SECT",
+    "horizons": {
+      "5y": {
+        "alpha": 0.34,
+        "beta": 0.96,
+        "r_squared": 94.57
+      },
+      "3y": {
+        "alpha": -2.78,
+        "beta": 1.04,
+        "r_squared": 94.51
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "PY": {
+    "source": "yahoo",
+    "symbol": "PY",
+    "horizons": {
+      "5y": {
+        "alpha": -0.52,
+        "beta": 0.82,
+        "r_squared": 70.06
+      },
+      "3y": {
+        "alpha": 0.5,
+        "beta": 0.73,
+        "r_squared": 56.34
+      },
+      "10y": {
+        "alpha": -2.82,
+        "beta": 1.03,
+        "r_squared": 78.48
+      }
+    }
+  },
+  "XLSR": {
+    "source": "yahoo",
+    "symbol": "XLSR",
+    "horizons": {
+      "5y": {
+        "alpha": -1.79,
+        "beta": 0.94,
+        "r_squared": 96.33
+      },
+      "3y": {
+        "alpha": -3.78,
+        "beta": 0.97,
+        "r_squared": 94.81
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "HEGD": {
+    "source": "yahoo",
+    "symbol": "HEGD",
+    "horizons": {
+      "5y": {
+        "alpha": -0.46,
+        "beta": 0.52,
+        "r_squared": 92.12
+      },
+      "3y": {
+        "alpha": -0.47,
+        "beta": 0.58,
+        "r_squared": 95.1
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "NITE": {
+    "source": "yahoo",
+    "symbol": "NITE",
+    "horizons": {
+      "5y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      },
+      "3y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "APRZ": {
+    "source": "yahoo",
+    "symbol": "APRZ",
+    "horizons": {
+      "5y": {
+        "alpha": 0.44,
+        "beta": 0.72,
+        "r_squared": 97.7
+      },
+      "3y": {
+        "alpha": -1.78,
+        "beta": 0.75,
+        "r_squared": 98.16
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "AUGZ": {
+    "source": "yahoo",
+    "symbol": "AUGZ",
+    "horizons": {
+      "5y": {
+        "alpha": 0.27,
+        "beta": 0.67,
+        "r_squared": 97.11
+      },
+      "3y": {
+        "alpha": -1.52,
+        "beta": 0.74,
+        "r_squared": 97.94
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "FEBZ": {
+    "source": "yahoo",
+    "symbol": "FEBZ",
+    "horizons": {
+      "5y": {
+        "alpha": 0.4,
+        "beta": 0.7,
+        "r_squared": 98.28
+      },
+      "3y": {
+        "alpha": -1.4,
+        "beta": 0.71,
+        "r_squared": 98.82
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "JULZ": {
+    "source": "yahoo",
+    "symbol": "JULZ",
+    "horizons": {
+      "5y": {
+        "alpha": 0.61,
+        "beta": 0.7,
+        "r_squared": 95.46
+      },
+      "3y": {
+        "alpha": -1.91,
+        "beta": 0.79,
+        "r_squared": 96.87
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "JUNZ": {
+    "source": "yahoo",
+    "symbol": "JUNZ",
+    "horizons": {
+      "5y": {
+        "alpha": -0.59,
+        "beta": 0.71,
+        "r_squared": 97.85
+      },
+      "3y": {
+        "alpha": -1.95,
+        "beta": 0.77,
+        "r_squared": 98.01
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "MARZ": {
+    "source": "yahoo",
+    "symbol": "MARZ",
+    "horizons": {
+      "5y": {
+        "alpha": 0.07,
+        "beta": 0.68,
+        "r_squared": 96.75
+      },
+      "3y": {
+        "alpha": -1.33,
+        "beta": 0.73,
+        "r_squared": 98.63
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "MAYZ": {
+    "source": "yahoo",
+    "symbol": "MAYZ",
+    "horizons": {
+      "5y": {
+        "alpha": -0.99,
+        "beta": 0.73,
+        "r_squared": 97.4
+      },
+      "3y": {
+        "alpha": -2.1,
+        "beta": 0.8,
+        "r_squared": 97.39
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "SEPZ": {
+    "source": "yahoo",
+    "symbol": "SEPZ",
+    "horizons": {
+      "5y": {
+        "alpha": 0.8,
+        "beta": 0.69,
+        "r_squared": 97.84
+      },
+      "3y": {
+        "alpha": -1.2,
+        "beta": 0.74,
+        "r_squared": 98.22
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "DECZ": {
+    "source": "yahoo",
+    "symbol": "DECZ",
+    "horizons": {
+      "5y": {
+        "alpha": 0.43,
+        "beta": 0.72,
+        "r_squared": 97.89
+      },
+      "3y": {
+        "alpha": -1.03,
+        "beta": 0.72,
+        "r_squared": 98.33
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "JANZ": {
+    "source": "yahoo",
+    "symbol": "JANZ",
+    "horizons": {
+      "5y": {
+        "alpha": -0.26,
+        "beta": 0.76,
+        "r_squared": 97.93
+      },
+      "3y": {
+        "alpha": -1.12,
+        "beta": 0.73,
+        "r_squared": 98.74
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "NOVZ": {
+    "source": "yahoo",
+    "symbol": "NOVZ",
+    "horizons": {
+      "5y": {
+        "alpha": 0.16,
+        "beta": 0.74,
+        "r_squared": 98.01
+      },
+      "3y": {
+        "alpha": -1.14,
+        "beta": 0.74,
+        "r_squared": 98.64
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  },
+  "OCTZ": {
+    "source": "yahoo",
+    "symbol": "OCTZ",
+    "horizons": {
+      "5y": {
+        "alpha": 0.4,
+        "beta": 0.7,
+        "r_squared": 97.94
+      },
+      "3y": {
+        "alpha": -1.07,
+        "beta": 0.73,
+        "r_squared": 98.4
+      },
+      "10y": {
+        "alpha": 0.0,
+        "beta": 0.0,
+        "r_squared": 0.0
+      }
+    }
+  }
+}

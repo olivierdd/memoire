@@ -21,6 +21,7 @@ from helpers.timeseries_functions.regress_daily_to_benchmark import (
     monthly_scatter_frame,
     index_total_return_check,
     regression_rows_for_funds,
+    alpha_lipper_report,
     total_return_lipper_report,
 )
 
@@ -303,6 +304,57 @@ class RegressDailyToBenchmarkTests(unittest.TestCase):
         empty = report.summary.loc[report.summary["horizon"].eq("10y")].iloc[0]
         self.assertEqual(empty["compared"], 0)
         self.assertTrue(np.isnan(empty["correlation"]))
+
+    def test_alpha_lipper_report_marks_close_funds(self):
+        comparison = pd.DataFrame(
+            [
+                {
+                    "status": "ok",
+                    "horizon": "3y",
+                    "months": 36,
+                    "isin": "A",
+                    "name": "Close",
+                    "alpha_pct_per_month": 0.02,
+                    "lipper_alpha_pct_per_month": 0.03,
+                    "delta_alpha_pp_per_month": -0.01,
+                    "window_start": "2023-10",
+                    "window_end": "2026-09",
+                },
+                {
+                    "status": "ok",
+                    "horizon": "3y",
+                    "months": 36,
+                    "isin": "B",
+                    "name": "Wide",
+                    "alpha_pct_per_month": -0.10,
+                    "lipper_alpha_pct_per_month": 0.05,
+                    "delta_alpha_pp_per_month": -0.15,
+                    "window_start": "2023-10",
+                    "window_end": "2026-09",
+                },
+                {
+                    "status": "ok",
+                    "horizon": "3y",
+                    "months": 20,
+                    "isin": "C",
+                    "name": "Short",
+                    "alpha_pct_per_month": 0.01,
+                    "lipper_alpha_pct_per_month": 0.02,
+                    "delta_alpha_pp_per_month": -0.01,
+                    "window_start": "2025-02",
+                    "window_end": "2026-09",
+                },
+            ]
+        )
+        report = alpha_lipper_report(comparison)
+        self.assertEqual(set(report.comparable["isin"]), {"A", "B"})
+        self.assertEqual(list(report.short_window["isin"]), ["C"])
+        self.assertTrue(bool(report.comparable.loc[report.comparable["isin"].eq("A"), "within_close"].iloc[0]))
+        self.assertFalse(bool(report.comparable.loc[report.comparable["isin"].eq("B"), "within_close"].iloc[0]))
+        row = report.summary.loc[report.summary["horizon"].eq("3y")].iloc[0]
+        self.assertEqual(row["compared"], 2)
+        self.assertEqual(row["within_close"], 1)
+        self.assertAlmostEqual(row["median_gap_pp"], -0.08)
 
     def test_index_check_uses_the_most_common_lipper_print(self):
         periods = pd.period_range("2016-10", periods=120, freq="M")

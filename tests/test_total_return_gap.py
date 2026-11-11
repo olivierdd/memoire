@@ -6,6 +6,8 @@ import pandas as pd
 from helpers.timeseries_functions.total_return_gap import (
     return_gap_attribution,
     return_gap_cause_summary,
+    return_gap_outlier_summary,
+    return_gap_outliers,
     total_return_level_identity,
 )
 
@@ -81,6 +83,49 @@ class DecemberAttributionTests(unittest.TestCase):
         self.assertEqual(three_year["n_large_december"], 1)
         self.assertEqual(three_year["n_quiet_december"], 0)
         self.assertAlmostEqual(three_year["median_gap_large_december"], -4.0)
+
+
+class RemainingOutlierTests(unittest.TestCase):
+    def test_outliers_are_the_funds_beyond_one_point(self):
+        attribution = pd.DataFrame(
+            [
+                {
+                    "isin": "US1",
+                    "name": "Close fund",
+                    "horizon": "10y",
+                    "gap_pp": -0.2,
+                    "december_log_excess": 0.0,
+                    "other_log_excess": -0.01,
+                },
+                {
+                    "isin": "US2",
+                    "name": "Outlier fund",
+                    "horizon": "10y",
+                    "gap_pp": -8.5,
+                    "december_log_excess": -0.01,
+                    "other_log_excess": -0.20,
+                },
+                {
+                    "isin": "US2",
+                    "name": "Outlier fund",
+                    "horizon": "3y",
+                    "gap_pp": -0.1,
+                    "december_log_excess": 0.0,
+                    "other_log_excess": 0.0,
+                },
+            ]
+        )
+        outliers = return_gap_outliers(attribution)
+        self.assertEqual(list(outliers["isin"]), ["US2"])
+        self.assertEqual(list(outliers["horizon"]), ["10y"])
+        summary = return_gap_outlier_summary(attribution)
+        ten = summary.loc[summary["horizon"].eq("10y")].iloc[0]
+        three = summary.loc[summary["horizon"].eq("3y")].iloc[0]
+        self.assertEqual(ten["n_outliers"], 1)
+        self.assertEqual(ten["n_within_threshold"], 1)
+        self.assertAlmostEqual(ten["within_share"], 0.5)
+        self.assertEqual(ten["worst_name"], "Outlier fund")
+        self.assertEqual(three["n_outliers"], 0)
 
 
 if __name__ == "__main__":

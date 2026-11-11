@@ -18,6 +18,8 @@ RETURN_LEVEL_BREAK = 1e-4
 # Log-excess versus the S&P, summed over Decembers.
 QUIET_DECEMBER_LOG = 0.01
 LARGE_DECEMBER_LOG = 0.02
+# Absolute gap versus Lipper (pp) that marks a remaining outlier.
+OUTLIER_GAP_PP = 1.0
 
 
 def horizon_anchors(daily: pd.DataFrame) -> dict[str, tuple[pd.Timestamp, pd.Timestamp]]:
@@ -198,6 +200,59 @@ def return_gap_cause_summary(
                 "corr_gap_expense": _correlation(part["gap_pp"], part["expense"]),
                 "median_december_log_excess": float(part["december_log_excess"].median()),
                 "median_other_log_excess": float(part["other_log_excess"].median()),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def return_gap_outliers(
+    attribution: pd.DataFrame,
+    *,
+    threshold_pp: float = OUTLIER_GAP_PP,
+) -> pd.DataFrame:
+    """Funds whose absolute Lipper gap exceeds ``threshold_pp``."""
+    if attribution.empty:
+        return attribution.copy()
+    out = attribution.loc[attribution["gap_pp"].abs() > threshold_pp].copy()
+    out["abs_gap_pp"] = out["gap_pp"].abs()
+    return out.sort_values(["horizon", "abs_gap_pp"], ascending=[True, False]).reset_index(
+        drop=True
+    )
+
+
+def return_gap_outlier_summary(
+    attribution: pd.DataFrame,
+    *,
+    threshold_pp: float = OUTLIER_GAP_PP,
+) -> pd.DataFrame:
+    """One row per horizon: how many funds still sit beyond ``threshold_pp`` of Lipper."""
+    rows: list[dict] = []
+    if attribution.empty:
+        return pd.DataFrame(rows)
+    for horizon in DEFAULT_HORIZON_MONTHS:
+        part = attribution.loc[attribution["horizon"].eq(horizon)]
+        if part.empty:
+            continue
+        outliers = part.loc[part["gap_pp"].abs() > threshold_pp]
+        close = part.loc[part["gap_pp"].abs() <= threshold_pp]
+        worst = outliers.loc[outliers["gap_pp"].abs().idxmax()] if len(outliers) else None
+        rows.append(
+            {
+                "horizon": horizon,
+                "funds": int(len(part)),
+                "n_within_threshold": int(len(close)),
+                "within_share": float(len(close) / len(part)),
+                "n_outliers": int(len(outliers)),
+                "median_abs_gap_outliers": (
+                    float(outliers["gap_pp"].abs().median()) if len(outliers) else float("nan")
+                ),
+                "max_abs_gap_pp": (
+                    float(outliers["gap_pp"].abs().max()) if len(outliers) else 0.0
+                ),
+                "worst_name": None if worst is None else str(worst["name"]),
+                "worst_gap_pp": float("nan") if worst is None else float(worst["gap_pp"]),
+                "corr_gap_december": _correlation(part["gap_pp"], part["december_log_excess"]),
+                "corr_gap_other": _correlation(part["gap_pp"], part["other_log_excess"]),
             }
         )
     return pd.DataFrame(rows)

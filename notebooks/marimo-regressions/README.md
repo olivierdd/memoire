@@ -34,4 +34,8 @@ These three files must already be in `output-data/`:
 - `v2-d-timeseries-final.xlsx` — written by the same notebook
 - `v2-d-timeseries-corrected.xlsx` — written by the save button in `notebooks/marimo-series-check/load-series-v2.py`
 
-The notebook reads those files and does not write a new workbook.
+The notebook reads `output-data/v2-funds-normalized.xlsx` (`Funds final` and `D-Timeseries final`) and does not write a new workbook.
+
+## Total return vs Lipper
+
+Fund daily total return should match Lipper horizon **performance** when distributions are reinvested on the published NAV. Step **6b** in `load-series-v2.py` rebuilds `TR %` from Datastream **price** plus Yahoo/FMP cash distributions, then keeps the series only when 3y/5y/10y cumulative return moves closer to Lipper. Sharpe is still computed locally and may differ from Lipper’s definition.
