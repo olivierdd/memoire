@@ -1,4 +1,4 @@
-"""Monthly fund-on-benchmark OLS from the daily D-Timeseries sheets vs Lipper Funds stats."""
+"""Monthly fund-on-benchmark OLS from the cleaned daily series vs Lipper Funds stats."""
 
 from __future__ import annotations
 
@@ -16,10 +16,8 @@ from helpers.timeseries_functions.compare_regression_to_lipper_funds import (
 LABEL_ROWS = 6
 DEFAULT_WORKBOOK_FILENAME = "v2-funds-normalized.xlsx"
 FUNDS_SHEET = "Funds final"
-# The series notebook replaces CORRECTED_SHEET with the cleaned data and keeps
-# the sheet as it was before cleaning in ORIGINAL_SHEET.
+# Cleaned daily series written by the series notebook.
 CORRECTED_SHEET = "D-Timeseries final"
-ORIGINAL_SHEET = "D-Timeseries raw"
 SPX_BENCH_HEADER = "S&P 500 TR %"
 US_TBILL_HEADER = "US T-Bill 3M"
 MIN_BENCH_DAYS_PER_MONTH = 15
@@ -39,6 +37,8 @@ LIPPER_MATCH_TOLERANCES = {
     "r_squared": 0.05,
     "tracking_error_pp": 0.5,
 }
+# Cumulative total return, in percentage points. Used only to mark the charts.
+TOTAL_RETURN_CLOSE_PP = 1.0
 
 
 def find_output_data_file(filename: str) -> Path:
@@ -155,6 +155,10 @@ def _lipper_performance_column(years: int) -> str:
     return f"{years} Year Performance to Last Month End"
 
 
+def _lipper_relative_column(years: int) -> str:
+    return f"Relative Performance for {years} Years to Last Month End, (%)"
+
+
 def _lipper_sharpe_column(years: int) -> str:
     return f"Sharpe Ratio for {years} Years to Last Month End"
 
@@ -247,15 +251,188 @@ def fit_monthly_regression(
     )
 
 
+def _parse_lipper_number(value: object) -> float:
+    """Read a Lipper cell. A few 10-year cells use a comma as the decimal mark."""
+    if isinstance(value, str):
+        text = value.strip()
+        if "," in text and "." not in text:
+            text = text.replace(",", ".")
+        value = text
+    number = pd.to_numeric(value, errors="coerce")
+    if pd.isna(number):
+        return float("nan")
+    return float(number)
+
+
 def _lipper_value(row: pd.Series, years: int, key: str) -> float:
     col = _lipper_horizon_columns(years)[key]
-    value = pd.to_numeric(row.get(col), errors="coerce")
-    return float(value) if pd.notna(value) else float("nan")
+    return _parse_lipper_number(row.get(col))
 
 
 def _lipper_metric(row: pd.Series, years: int, column: str) -> float:
-    value = pd.to_numeric(row.get(column), errors="coerce")
-    return float(value) if pd.notna(value) else float("nan")
+    return _parse_lipper_number(row.get(column))
+
+
+def _full_horizon_window(months: object, horizon: str) -> bool:
+    if pd.isna(months):
+        return False
+    return int(months) == DEFAULT_HORIZON_MONTHS[horizon]
+
+
+@dataclass(frozen=True)
+class TotalReturnLipperReport:
+    """Fund cumulative return set next to Lipper's horizon performance."""
+
+    comparable: pd.DataFrame
+    short_window: pd.DataFrame
+    summary: pd.DataFrame
+
+
+def total_return_lipper_report(
+    comparison: pd.DataFrame,
+    *,
+    close_pp: float = TOTAL_RETURN_CLOSE_PP,
+) -> TotalReturnLipperReport:
+    """Split computed total return against Lipper by horizon.
+
+    ``comparable`` keeps a full month count and a Lipper performance.
+    ``short_window`` has a Lipper performance and fewer months than the horizon.
+    """
+    ok = comparison.loc[comparison["status"].eq("ok")].copy()
+    ok["full_window"] = [
+        _full_horizon_window(months, horizon)
+        for months, horizon in zip(ok["months"], ok["horizon"], strict=True)
+    ]
+    ok["has_lipper"] = ok["lipper_total_return_pct"].notna()
+    comparable = ok.loc[ok["full_window"] & ok["has_lipper"]].copy()
+    comparable["abs_delta_total_return_pct"] = comparable["delta_total_return_pct"].abs()
+    comparable["within_close"] = comparable["abs_delta_total_return_pct"] <= close_pp
+    short_window = ok.loc[~ok["full_window"] & ok["has_lipper"]].copy()
+    rows: list[dict] = []
+    for horizon in DEFAULT_HORIZON_MONTHS:
+        part = ok.loc[ok["horizon"].eq(horizon)]
+        both = comparable.loc[comparable["horizon"].eq(horizon)]
+        compared = len(both)
+        gap = both["delta_total_return_pct"]
+        if compared:
+            start = both["window_start"].mode().iloc[0]
+            end = both["window_end"].mode().iloc[0]
+            same_window = int(
+                (both["window_start"].eq(start) & both["window_end"].eq(end)).sum()
+            )
+            correlation = (
+                float(both["total_return_pct"].corr(both["lipper_total_return_pct"]))
+                if compared >= 2
+                else float("nan")
+            )
+        else:
+            start, end, same_window, correlation = None, None, 0, float("nan")
+        rows.append(
+            {
+                "horizon": horizon,
+                "computed": int(len(part)),
+                "full_window": int(part["full_window"].sum()),
+                "lipper_present": int(part["has_lipper"].sum()),
+                "compared": compared,
+                "median_gap_pp": float(gap.median()) if compared else float("nan"),
+                "median_abs_gap_pp": float(gap.abs().median()) if compared else float("nan"),
+                "within_close": int(both["within_close"].sum()) if compared else 0,
+                "within_close_share": (
+                    float(both["within_close"].mean()) if compared else float("nan")
+                ),
+                "negative_share": float((gap < 0).mean()) if compared else float("nan"),
+                "max_abs_gap_pp": float(gap.abs().max()) if compared else float("nan"),
+                "correlation": correlation,
+                "window_start": start,
+                "window_end": end,
+                "same_window": same_window,
+            }
+        )
+    summary = pd.DataFrame(rows)
+    return TotalReturnLipperReport(
+        comparable=comparable.reset_index(drop=True),
+        short_window=short_window.reset_index(drop=True),
+        summary=summary,
+    )
+
+
+def _modal_rounded_value(values: pd.Series, *, near: float) -> float:
+    """Most common value at Lipper's 0.01 precision. Ties resolve toward ``near``."""
+    rounded = values.dropna().round(2)
+    if rounded.empty:
+        return float("nan")
+    counts = rounded.value_counts()
+    top = int(counts.max())
+    candidates = [float(value) for value, count in counts.items() if int(count) == top]
+    return min(candidates, key=lambda value: (abs(value - near), value))
+
+
+def index_total_return_check(
+    monthly: pd.DataFrame,
+    funds: pd.DataFrame,
+    *,
+    header: str = SPX_BENCH_HEADER,
+    ticker: str = ".SPXTR",
+) -> pd.DataFrame:
+    """Compound one index and set it next to Lipper's implied index return.
+
+    Lipper does not publish the index return as its own column. For a fund it is
+    the performance column minus the relative-performance column. The comparison
+    uses the value shared by the most funds on ``ticker``.
+    """
+    if header not in monthly.columns:
+        raise KeyError(f"Monthly panel has no {header!r} column")
+    series = monthly[header].dropna()
+    tickers = funds["Benchmark Ticker"].map(
+        lambda value: "" if pd.isna(value) else str(value).strip()
+    )
+    bench_funds = funds.loc[tickers.eq(ticker)]
+    rows: list[dict] = []
+    for horizon, n_months in DEFAULT_HORIZON_MONTHS.items():
+        years = int(horizon.replace("y", ""))
+        window = series.iloc[-n_months:]
+        computed = (
+            horizon_total_return_pct(window.to_numpy(dtype=float))
+            if len(window)
+            else float("nan")
+        )
+        performance = bench_funds.get(_lipper_performance_column(years))
+        relative = bench_funds.get(_lipper_relative_column(years))
+        if performance is None or relative is None:
+            implied = pd.Series(dtype=float)
+        else:
+            implied = performance.map(_parse_lipper_number) - relative.map(
+                _parse_lipper_number
+            )
+        implied = implied.dropna()
+        lipper = _modal_rounded_value(implied, near=computed)
+        rounded = implied.round(2)
+        on_print = int(rounded.eq(lipper).sum()) if pd.notna(lipper) else 0
+        # Round the difference first. 85.59 - 85.58 is a hair over 0.01 in binary.
+        within_cent = (
+            int((rounded - lipper).round(2).abs().le(0.01).sum())
+            if pd.notna(lipper)
+            else 0
+        )
+        delta = computed - lipper if pd.notna(lipper) and pd.notna(computed) else float("nan")
+        rows.append(
+            {
+                "horizon": horizon,
+                "series": header,
+                "benchmark_ticker": ticker,
+                "months": int(len(window)),
+                "full_window": len(window) == n_months,
+                "window_start": str(window.index[0]) if len(window) else None,
+                "window_end": str(window.index[-1]) if len(window) else None,
+                "computed_pct": computed,
+                "lipper_pct": lipper,
+                "delta_pp": delta,
+                "funds_on_print": on_print,
+                "funds_within_cent": within_cent,
+                "funds_with_both": int(len(implied)),
+            }
+        )
+    return pd.DataFrame(rows)
 
 
 def regression_rows_for_funds(
@@ -530,47 +707,43 @@ def monthly_returns_from_workbook(
     workbook: Path | pd.ExcelFile,
     *,
     sheet_name: str | int = 0,
-) -> tuple[pd.DataFrame, pd.Series | None]:
+) -> tuple[pd.DataFrame, pd.Series | None, pd.DataFrame]:
     raw = load_daily_timeseries_raw(workbook, sheet_name=sheet_name)
     daily, bench_counts = load_daily_return_panel(raw)
     daily, bench_counts = clip_daily_panel_to_lipper_as_of(daily)
     monthly = compound_daily_to_monthly(daily, bench_counts)
     risk_free = monthly_risk_free_rate(daily)
-    return monthly, risk_free
+    return monthly, risk_free, daily
 
 
 def daily_series_sheets(sheet_names: list[str]) -> dict[str, str]:
-    """Series versions to regress, keyed by label, the cleaned one first.
-
-    Before the series notebook saves its corrections there is no
-    ``ORIGINAL_SHEET``, and ``CORRECTED_SHEET`` still holds the data as it was
-    downloaded, so it is labelled ``original``.
-    """
+    """The cleaned daily sheet to regress, keyed by label."""
     if CORRECTED_SHEET not in sheet_names:
         raise ValueError(f"The workbook has no {CORRECTED_SHEET!r} sheet")
-    if ORIGINAL_SHEET in sheet_names:
-        return {"corrected": CORRECTED_SHEET, "original": ORIGINAL_SHEET}
-    return {"original": CORRECTED_SHEET}
+    return {"corrected": CORRECTED_SHEET}
 
 
 def compare_daily_sheets_to_lipper(
     workbook: Path | None = None,
     *,
     funds: pd.DataFrame | None = None,
-) -> tuple[pd.DataFrame, dict[str, pd.DataFrame], dict[str, str]]:
-    """Regress each daily-series sheet of the normalized workbook on its benchmark.
+) -> tuple[pd.DataFrame, dict[str, pd.DataFrame], dict[str, str], pd.DataFrame]:
+    """Regress the cleaned daily series of the normalized workbook on its benchmark.
 
-    Returns the long comparison, the monthly panel per series version, and the
-    sheet each version was read from.
+    Returns the long comparison, the monthly panel, the sheet it was read from,
+    and the level-versus-compounded check for each fund and horizon.
     """
+    from helpers.timeseries_functions.total_return_gap import total_return_level_identity
+
     path = workbook if workbook is not None else find_output_data_file(DEFAULT_WORKBOOK_FILENAME)
     with pd.ExcelFile(path, engine="openpyxl") as book:
         sheets = daily_series_sheets(book.sheet_names)
         funds = funds if funds is not None else load_funds_reference(book)
         monthly_by_source: dict[str, pd.DataFrame] = {}
         parts = []
+        level_parts = []
         for source, sheet in sheets.items():
-            monthly, risk_free = monthly_returns_from_workbook(book, sheet_name=sheet)
+            monthly, risk_free, daily = monthly_returns_from_workbook(book, sheet_name=sheet)
             monthly_by_source[source] = monthly
             parts.append(
                 regression_rows_for_funds(
@@ -580,8 +753,12 @@ def compare_daily_sheets_to_lipper(
                     risk_free_monthly=risk_free,
                 )
             )
+            identity = total_return_level_identity(daily, funds["ISIN"])
+            identity.insert(0, "series_source", source)
+            level_parts.append(identity)
     comparison = pd.concat(parts, ignore_index=True)
-    return comparison, monthly_by_source, sheets
+    level_identity = pd.concat(level_parts, ignore_index=True)
+    return comparison, monthly_by_source, sheets, level_identity
 
 
 def monthly_scatter_frame(

@@ -54,7 +54,6 @@ def _():
     label_rows = 6
     filename = "v2-funds-normalized.xlsx"
     sheet_name = "D-Timeseries final"
-    raw_sheet_name = "D-Timeseries raw"
 
     def find_series_workbook() -> Path:
         relative = Path("output-data") / filename
@@ -67,14 +66,10 @@ def _():
 
     workbook = find_series_workbook()
     with pd.ExcelFile(workbook, engine="openpyxl") as book:
-        # Once the cleaned data has replaced `sheet_name`, the original is kept
-        # in `raw_sheet_name`. Always correct from the original, so running the
-        # notebook again does not apply the corrections a second time.
-        source_sheet = raw_sheet_name if raw_sheet_name in book.sheet_names else sheet_name
-        raw = pd.read_excel(book, sheet_name=source_sheet, header=None)
+        raw = pd.read_excel(book, sheet_name=sheet_name, header=None)
     if len(raw) <= label_rows or raw.shape[1] < 2:
         raise ValueError("The daily series sheet has no observations")
-    return label_rows, pd, raw, raw_sheet_name, sheet_name, source_sheet, workbook
+    return label_rows, pd, raw, sheet_name, workbook
 
 
 @app.cell
@@ -115,7 +110,7 @@ def _(label_rows, pd, raw):
 
 
 @app.cell
-def _(catalog, mo, observations, pd, source_sheet, workbook):
+def _(catalog, mo, observations, pd, sheet_name, workbook):
     parsed_dates = observations.index.dropna()
     missing_dates = int(observations.index.isna().sum())
     category_counts = (
@@ -125,7 +120,7 @@ def _(catalog, mo, observations, pd, source_sheet, workbook):
         .sort_values(["columns", "category"], ascending=[False, True])
     )
     summary = mo.md(
-        f"- **File:** `{workbook}`, sheet `{source_sheet}` \n"
+        f"- **File:** `{workbook}`, sheet `{sheet_name}` \n"
         f"- **{len(observations):,}** dates, from **{parsed_dates.min():%Y-%m-%d}** to **{parsed_dates.max():%Y-%m-%d}** \n"
         f"- **{missing_dates:,}** rows have no date \n"
         f"- **{len(catalog):,}** series columns, **{catalog['id'].nunique():,}** ids \n"
@@ -854,6 +849,33 @@ def _(catalog, corrected_observations, mo, pd):
     action_rows = []
     for action in level_actions:
         mode = action["mode"]
+        # No pre-correction copy is kept. Rescale a side only while the break
+        # is still in the series, so a later run does not scale it again.
+        pending = [
+            side
+            for side in action["sides"]
+            if (action["isin"], action["date"], side) in break_keys
+        ]
+        for side in action["sides"]:
+            if side in pending:
+                continue
+            action_rows.append(
+                {
+                    "isin": action["isin"],
+                    "fund": fund_label(catalog, action["isin"]),
+                    "date": action["date"],
+                    "series": side,
+                    "decision": "already rescaled",
+                    "detected": False,
+                    "adjustment": "left unchanged",
+                    "return_before": None,
+                    "return_after": None,
+                    "cells": 0,
+                    "why": action["why"],
+                }
+            )
+        if not pending:
+            continue
         if "factor" in action:
             factor = action["factor"]
         elif mode == "history":
@@ -871,7 +893,7 @@ def _(catalog, corrected_observations, mo, pd):
             )
         when = "from the break forward" if mode == "forward" else "before the break"
         adjustment = describe_factor(factor, when)
-        for side in action["sides"]:
+        for side in pending:
             edited, return_before, return_after = scale_series(
                 adjusted_observations,
                 catalog,
@@ -888,7 +910,7 @@ def _(catalog, corrected_observations, mo, pd):
                     "date": action["date"],
                     "series": side,
                     "decision": "rescaled",
-                    "detected": (action["isin"], action["date"], side) in break_keys,
+                    "detected": True,
                     "adjustment": adjustment,
                     "return_before": return_before,
                     "return_after": return_after,
@@ -957,10 +979,12 @@ def _(catalog, corrected_observations, mo, pd):
             ]
         )
     rescaled = action_log.loc[action_log["decision"].eq("rescaled")]
+    already_rescaled = action_log.loc[action_log["decision"].eq("already rescaled")]
     kept = action_log.loc[action_log["decision"].eq("kept")]
     action_summary = mo.md(
         f"- **{len(breaks):,}** level breaks detected, across **{action_log['isin'].nunique():,}** funds \n"
         f"- **{len(rescaled):,}** series rescaled, **{int(rescaled['cells'].sum()):,}** cells changed \n"
+        f"- **{len(already_rescaled):,}** series already on the corrected scale \n"
         f"- **{len(kept):,}** price series kept, because the total return already accounts for the distribution \n"
     )
     action_table = mo.ui.table(
@@ -1054,7 +1078,36 @@ def _(adjusted_observations, catalog, mo, pd):
             original_levels = levels.copy()
             original_returns = returns.copy()
             previous = levels[position - 1]
+            current = levels[position]
             target = float(market.iloc[position] if mode == "forward" else repaired[price_return_id].iloc[position])
+            # Already repaired. Scaling again would multiply every later level by a rounding error.
+            if (
+                previous == previous
+                and current == current
+                and previous != 0
+                and abs(current / previous - 1.0 - target) <= 1e-8
+            ):
+                next_return = (
+                    float(original_returns[position + 1])
+                    if position + 1 < len(original_returns)
+                    else None
+                )
+                rows.append(
+                    {
+                        "isin": isin,
+                        "fund": fund_label(isin),
+                        "date": day,
+                        "decision": "repaired",
+                        "adjustment": "already matches",
+                        "return_before": float(original_returns[position]),
+                        "return_after": float(original_returns[position]),
+                        "next_return_before": next_return,
+                        "next_return_after": next_return,
+                        "cells": 0,
+                        "why": why,
+                    }
+                )
+                continue
             if mode == "forward":
                 levels[position:] *= (previous * (1.0 + target)) / levels[position]
                 returns[position] = levels[position] / previous - 1.0
@@ -1323,9 +1376,7 @@ def _(
     observations,
     pd,
     raw,
-    raw_sheet_name,
     sheet_name,
-    source_sheet,
     workbook,
 ):
     closed_funds = pd.DataFrame(
@@ -1395,6 +1446,9 @@ def _(
         series.loc[4, _bill_columns] = (
             "Yahoo ^IRX close, annualised rate in %. Blank when Yahoo has no print."
         )
+        # An all-text column is dtype str in pandas 3, and that dtype rejects the numeric fill.
+        _string_columns = series.columns[series.dtypes.astype(str).eq("str")]
+        series[_string_columns] = series[_string_columns].astype("object")
         block = series.iloc[label_rows:, 1:].to_numpy(copy=True)
         changed_positions = changed.to_numpy()
         block[changed_positions] = excluded_observations.to_numpy()[changed_positions]
@@ -1414,10 +1468,9 @@ def _(
                 mode="a",
                 if_sheet_exists="replace",
             ) as writer:
-                if source_sheet != raw_sheet_name:
-                    raw.to_excel(
-                        writer, sheet_name=raw_sheet_name, index=False, header=False
-                    )
+                removed_raw_sheet = "D-Timeseries raw" in writer.book.sheetnames
+                if removed_raw_sheet:
+                    del writer.book["D-Timeseries raw"]
                 series.to_excel(
                     writer, sheet_name=sheet_name, index=False, header=False
                 )
@@ -1473,17 +1526,18 @@ def _(
         finally:
             if os.path.exists(temporary_path):
                 os.remove(temporary_path)
-        return int(changed_positions.sum()), marked, removed
+        return int(changed_positions.sum()), marked, removed, removed_raw_sheet
 
-    corrected_cells, marked_funds, removed_rows = save_closed_funds()
+    corrected_cells, marked_funds, removed_rows, _removed_raw_sheet = save_closed_funds()
     closed_summary = mo.md(
         f"- **{len(closed_funds)}** funds dropped \n"
         f"- **{blanked_cells:,}** cells blanked on this step, across total return, price, daily returns, and net assets \n"
         f"- **{marked_funds}** rows set to Drop on `Funds` \n"
         f"- **{removed_rows['Funds with daily TR']}** rows removed from `Funds with daily TR` \n"
         f"- **{removed_rows['Funds final']}** rows removed from `Funds final` \n"
-        f"- Wrote `{sheet_name}` in `{workbook}`, with **{corrected_cells:,}** cells different from the original series \n"
-        f"- Fidelity Series Large Cap Stock Fund (US31617F8335) stays \n"
+        f"- Wrote `{sheet_name}` in `{workbook}`, with **{corrected_cells:,}** cells different from the loaded sheet \n"
+        + ("- Removed `D-Timeseries raw` \n" if _removed_raw_sheet else "")
+        + "- Fidelity Series Large Cap Stock Fund (US31617F8335) stays \n"
     )
     closed_table = mo.ui.table(
         closed_funds,
@@ -1514,27 +1568,17 @@ def _(mo):
 
     Use the total-return column for the study. The price column still falls by the distribution, which is the published NAV.
 
-    Step 10 writes the workbook, including the `^IRX` series from step 9. The cleaned series replace `D-Timeseries final` of `output-data/v2-funds-normalized.xlsx`. The six label rows and the columns stay as they are. The first time, the original series are kept as `D-Timeseries raw`. The four funds are set to Drop on `Funds` and removed from `Funds with daily TR` and `Funds final`. This notebook always starts from the original series, so running it again does not apply the corrections a second time. The button below writes the cleaned series again.
+    Step 10 writes the workbook, including the `^IRX` series from step 9. The cleaned series replace `D-Timeseries final` of `output-data/v2-funds-normalized.xlsx`. The six label rows and the columns stay as they are. `D-Timeseries raw` is not kept; if that sheet is still in the workbook, this step removes it. The four funds are set to Drop on `Funds` and removed from `Funds with daily TR` and `Funds final`. A level break or distribution day that already matches the repaired series is left unchanged, so writing the sheet again does not scale it a second time. The button below writes the cleaned series again.
     """)
     return
 
 
 @app.cell
-def _(mo, pd, raw_sheet_name, sheet_name, source_sheet, workbook):
-    already_cleaned = source_sheet == raw_sheet_name
-    save_corrected_button = mo.ui.run_button(
-        label="Replace the sheet again"
-        if already_cleaned
-        else "Replace the sheet with the cleaned data"
-    )
+def _(mo, sheet_name, workbook):
+    save_corrected_button = mo.ui.run_button(label="Replace the sheet again")
     corrected_status = mo.md(
         f"- Workbook: `{workbook}` \n"
         f"- Sheet to replace: `{sheet_name}` \n"
-        + (
-            f"- The original is kept in `{raw_sheet_name}`, and the notebook starts from it. \n"
-            if already_cleaned
-            else f"- Not replaced yet. The original will be kept in `{raw_sheet_name}`. \n"
-        )
     )
     mo.vstack([corrected_status, save_corrected_button])
     return (save_corrected_button,)
@@ -1547,11 +1591,9 @@ def _(
     observations,
     pd,
     raw,
-    raw_sheet_name,
     excluded_observations,
     save_corrected_button,
     sheet_name,
-    source_sheet,
     workbook,
 ):
     def export_corrected_series():
@@ -1573,6 +1615,9 @@ def _(
         sheet.loc[4, _bill_columns] = (
             "Yahoo ^IRX close, annualised rate in %. Blank when Yahoo has no print."
         )
+        # An all-text column is dtype str in pandas 3, and that dtype rejects the numeric fill.
+        _string_columns = sheet.columns[sheet.dtypes.astype(str).eq("str")]
+        sheet[_string_columns] = sheet[_string_columns].astype("object")
         block = sheet.iloc[label_rows:, 1:].to_numpy(copy=True)
         changed_positions = changed.to_numpy()
         block[changed_positions] = excluded_observations.to_numpy()[changed_positions]
@@ -1593,10 +1638,9 @@ def _(
                 mode="a",
                 if_sheet_exists="replace",
             ) as writer:
-                if source_sheet != raw_sheet_name:
-                    raw.to_excel(
-                        writer, sheet_name=raw_sheet_name, index=False, header=False
-                    )
+                removed_raw_sheet = "D-Timeseries raw" in writer.book.sheetnames
+                if removed_raw_sheet:
+                    del writer.book["D-Timeseries raw"]
                 sheet.to_excel(
                     writer, sheet_name=sheet_name, index=False, header=False
                 )
@@ -1607,14 +1651,14 @@ def _(
         finally:
             if os.path.exists(temporary_path):
                 os.remove(temporary_path)
-        return int(changed_positions.sum())
+        return int(changed_positions.sum()), removed_raw_sheet
 
     corrected_export_note = None
     if save_corrected_button.value:
-        corrected_cell_count = export_corrected_series()
+        corrected_cell_count, _removed_raw_sheet = export_corrected_series()
         corrected_export_note = mo.md(
             f"- Replaced `{sheet_name}` in `{workbook}`, with **{corrected_cell_count:,}** corrected cells \n"
-            f"- Original kept in `{raw_sheet_name}` \n"
+            + ("- Removed `D-Timeseries raw` \n" if _removed_raw_sheet else "")
         )
     corrected_export_note
     return
