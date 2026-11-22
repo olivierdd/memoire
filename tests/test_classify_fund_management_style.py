@@ -6,6 +6,7 @@ import pandas as pd
 
 from helpers.funds_functions.classify_fund_management_style import (
     classify_fund_management_style,
+    parse_ncen_for_series,
 )
 from helpers.funds_functions.fund_management_style_rules import (
     decide_series,
@@ -69,6 +70,24 @@ class LabelTests(unittest.TestCase):
         label, detail = label_from_ncen(parse_ncen_fund_types_for_series(xml, "S9"))
         self.assertIsNone(label)
         self.assertIn("absent", detail)
+
+    def test_series_found_in_older_cik_ncen_not_only_latest(self):
+        """Registrant N-CEN can omit a series that still appears in an earlier filing."""
+        latest = _ncen("S_OTHER", "<fundTypes><fundType>Exchange-Traded Fund</fundType></fundTypes>")
+        older = _ncen(
+            "S_TARGET",
+            """
+            <fundTypes>
+              <fundType>Underlying fund</fundType>
+              <indexFundInfo fundType="Index Fund"></indexFundInfo>
+            </fundTypes>
+            """,
+        )
+        parsed = parse_ncen_for_series("S_TARGET", cik_xmls=[latest, older])
+        label, detail = label_from_ncen(parsed)
+        self.assertEqual(label, "Passive")
+        self.assertIn("Index Fund", detail)
+        self.assertIsNone(parse_ncen_for_series("S_TARGET", cik_xmls=[latest]))
 
     def test_tracking_language_is_passive(self):
         label, _detail = label_from_objective(

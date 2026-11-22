@@ -1,6 +1,6 @@
 # Load and analyze funds (V2)
 
-`load-funds-v2.py` loads the Funds sheet, then walks the selected funds through OpenFIGI, EDGAR, share-class selection, active/passive classification, and the daily series. The sheet loads on open. Each later step that calls an API or writes an Excel file waits for its button.
+`load-funds-v2.py` loads the Funds sheet, then walks the selected funds through OpenFIGI, EDGAR, share-class selection, active/passive classification, and the daily series. The sheet loads on open. Each later step that calls an API waits for its button. Intermediate steps keep workbook sheets in memory; `output-data/v2-funds-normalized.xlsx` is written once at the final step.
 
 ## Launch
 
@@ -37,4 +37,4 @@ Put these variables in a `.env` file in the repository root. EDGAR loads that fi
 - `SEC_USER_AGENT` — a contact string such as `Name (email@domain.com)`. EDGAR refuses requests without it when the ticker cache is missing or a filing is downloaded.
 - `TYPESAFE_API_KEY` — used when the active/passive step asks Jev about a series that is not already in `cache/`.
 
-OpenFIGI, EDGAR, and Jev answers already stored under `cache/` are reused. Buttons write workbooks under `output-data/`, including `v2-funds-final.xlsx` and `v2-d-timeseries-final.xlsx`.
+OpenFIGI, EDGAR, and Jev answers already stored under `cache/` are reused. Step 10 writes the accumulated sheets once to `output-data/v2-funds-normalized.xlsx` (including `Funds final` and `D-Timeseries final`).

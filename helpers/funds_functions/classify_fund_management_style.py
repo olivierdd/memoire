@@ -35,10 +35,14 @@ from helpers.funds_functions.map_edgar_tickers import (
 )
 
 DEFAULT_CACHE = Path("cache") / "cache-fund-management-style.json"
-RULE_VERSION = "ncen-jev-v1"
+# v2: scan recent CIK N-CEN filings (and series filings) until the series appears,
+# instead of only the newest CIK-level N-CEN.
+RULE_VERSION = "ncen-jev-v2"
 JEV_MODEL = "jev-latest"
 PAUSE_SECONDS = 0.2
 SERIES_ID = re.compile(r"S\d+", re.IGNORECASE)
+NCEN_CIK_FILINGS_SCAN = 15
+NCEN_SERIES_FILINGS_SCAN = 15
 
 NcenFetcher = Callable[[str], str | None]
 ObjectiveFetcher = Callable[[str], str | None]
@@ -157,14 +161,71 @@ def _store_decision(
     _save_cache(path, cache)
 
 
-def _default_ncen_xml(cik: str) -> str | None:
-    filings = Company(cik).get_filings(form="N-CEN")
-    if filings is None or len(filings) == 0:
-        return None
-    xml = filings[0].xml()
+def _filing_xml(filing) -> str | None:
+    xml = filing.xml()
     if isinstance(xml, bytes):
         return xml.decode("utf-8", "ignore")
     return xml or None
+
+
+def _default_ncen_xml(cik: str) -> str | None:
+    """Latest CIK-level N-CEN only (kept for callers that inject a single XML)."""
+    filings = Company(cik).get_filings(form="N-CEN")
+    if filings is None or len(filings) == 0:
+        return None
+    return _filing_xml(filings[0])
+
+
+def _recent_ncen_xmls_for_cik(cik: str, *, limit: int = NCEN_CIK_FILINGS_SCAN) -> list[str]:
+    """Recent N-CEN primary docs for a registrant (newest first)."""
+    filings = Company(cik).get_filings(form="N-CEN")
+    if filings is None or len(filings) == 0:
+        return []
+    xmls: list[str] = []
+    for index, filing in enumerate(filings):
+        if index >= limit:
+            break
+        xml = _filing_xml(filing)
+        if xml:
+            xmls.append(xml)
+    return xmls
+
+
+def _ncen_xml_for_series_filings(
+    series_id: str, *, limit: int = NCEN_SERIES_FILINGS_SCAN
+) -> str | None:
+    """First Fund(series)-scoped N-CEN whose XML mentions the series id."""
+    filings = Fund(series_id).get_filings(form="N-CEN")
+    if filings is None or len(filings) == 0:
+        return None
+    for index, filing in enumerate(filings):
+        if index >= limit:
+            break
+        xml = _filing_xml(filing)
+        if xml and series_id in xml:
+            return xml
+    return None
+
+
+def parse_ncen_for_series(
+    series_id: str,
+    *,
+    cik_xmls: list[str] | None = None,
+    series_xml: str | None = None,
+) -> dict[str, Any] | None:
+    """Parse fundTypes for ``series_id`` from the first XML that contains it.
+
+    Tries CIK-level filings first (newest to older), then an optional
+    series-scoped XML. A series can be missing from the latest registrant N-CEN
+    while still appearing in an earlier census for the same CIK.
+    """
+    for xml in cik_xmls or []:
+        parsed = parse_ncen_fund_types_for_series(xml, series_id)
+        if parsed is not None:
+            return parsed
+    if series_xml:
+        return parse_ncen_fund_types_for_series(series_xml, series_id)
+    return None
 
 
 def _default_497k_objective(series_id: str) -> str | None:
@@ -308,6 +369,9 @@ def classify_fund_management_style(
     uses_jev = judge_prospectus is None
     if uses_network or uses_jev:
         ensure_sec_identity()
+    # Custom fetch_ncen_xml keeps the old single-XML-per-CIK contract (tests).
+    # The default path scans several recent CIK N-CEN filings, then series filings.
+    use_scanned_ncen = fetch_ncen_xml is None
     ncen_fetcher = fetch_ncen_xml or _default_ncen_xml
     objective_fetcher = fetch_497k_objective or _default_497k_objective
     statutory_fetcher = fetch_485_text or _default_485_text
@@ -315,6 +379,7 @@ def classify_fund_management_style(
     path = resolve_cache_path(cache_path, default=DEFAULT_CACHE)
     cache = _load_cache(path)
     ncen_by_cik: dict[str, str | None] = {}
+    ncen_xmls_by_cik: dict[str, list[str]] = {}
 
     # Build identifiers in Python. Series.map leaves a missing cell as float nan,
     # and float nan is truthy, so it was sent to EDGAR as a CIK.
@@ -370,17 +435,44 @@ def classify_fund_management_style(
                 decisions[(cik_value, series_id)] = cached
                 continue
 
-            if cik_value not in ncen_by_cik:
-                try:
-                    ncen_by_cik[cik_value] = ncen_fetcher(cik_value)
-                except Exception as exc:
-                    ncen_by_cik[cik_value] = None
-                    print(f"N-CEN failed for CIK {cik_value}: {exc}")
-                if uses_network:
-                    time.sleep(pause_seconds)
-
-            xml = ncen_by_cik[cik_value]
-            parsed = parse_ncen_fund_types_for_series(xml, series_id) if xml else None
+            if use_scanned_ncen:
+                if cik_value not in ncen_xmls_by_cik:
+                    try:
+                        ncen_xmls_by_cik[cik_value] = _recent_ncen_xmls_for_cik(
+                            cik_value
+                        )
+                    except Exception as exc:
+                        ncen_xmls_by_cik[cik_value] = []
+                        print(f"N-CEN failed for CIK {cik_value}: {exc}")
+                    if uses_network:
+                        time.sleep(pause_seconds)
+                parsed = parse_ncen_for_series(
+                    series_id, cik_xmls=ncen_xmls_by_cik[cik_value]
+                )
+                if parsed is None:
+                    try:
+                        series_xml = _ncen_xml_for_series_filings(series_id)
+                    except Exception as exc:
+                        series_xml = None
+                        print(f"N-CEN series filings failed for {series_id}: {exc}")
+                    if uses_network:
+                        time.sleep(pause_seconds)
+                    parsed = parse_ncen_for_series(
+                        series_id, series_xml=series_xml
+                    )
+            else:
+                if cik_value not in ncen_by_cik:
+                    try:
+                        ncen_by_cik[cik_value] = ncen_fetcher(cik_value)
+                    except Exception as exc:
+                        ncen_by_cik[cik_value] = None
+                        print(f"N-CEN failed for CIK {cik_value}: {exc}")
+                    if uses_network:
+                        time.sleep(pause_seconds)
+                xml = ncen_by_cik[cik_value]
+                parsed = (
+                    parse_ncen_fund_types_for_series(xml, series_id) if xml else None
+                )
             label, detail = label_from_ncen(parsed)
             if label is None:
                 label, source, detail = _judge_prospectus(

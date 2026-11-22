@@ -63,6 +63,83 @@ def series_bounds(ticker: str) -> dict | None:
     }
 
 
+def fetch_yahoo_total_return_levels(ticker: str) -> pd.Series | None:
+    """Dividend-and-split-adjusted close levels (Yahoo total-return proxy).
+
+    Uses ``auto_adjust=True`` so ``Close`` is adjusted for splits **and**
+    dividends — not the raw NAV/price series. Returns a date-indexed Series, or
+    None when Yahoo has no history.
+    """
+    history = yf.Ticker(ticker).history(period="max", auto_adjust=True, repair=False)
+    if history is None or history.empty or "Close" not in history.columns:
+        return None
+    closes = history["Close"].dropna().copy()
+    if closes.empty:
+        return None
+    closes.index = pd.to_datetime(closes.index).tz_localize(None).normalize()
+    closes = closes[~closes.index.duplicated(keep="last")].sort_index()
+    closes.name = ticker
+    return closes
+
+
+def append_yahoo_total_return_column(
+    daily: pd.DataFrame,
+    *,
+    isin: str,
+    ticker: str,
+    fund_name: str,
+    levels: pd.Series,
+    category: str = "Yahoo TR",
+    fee: object = None,
+) -> tuple[pd.DataFrame, int]:
+    """Append a Datastream-shaped total-return column (and daily-return companion).
+
+    Aligns Yahoo TR levels to the sheet date column (row 6+). Returns the wider
+    frame and the count of non-null TR observations on those dates.
+    """
+    if len(daily) < 7 or daily.shape[1] < 1:
+        raise ValueError("D-Timeseries has no label/observation rows")
+
+    level_map = levels.copy()
+    level_map.index = pd.to_datetime(level_map.index).normalize()
+    obs_values: list[object] = []
+    for raw in daily.iloc[6:, 0].tolist():
+        stamp = pd.to_datetime(raw, errors="coerce")
+        if pd.isna(stamp):
+            obs_values.append(pd.NA)
+            continue
+        key = pd.Timestamp(stamp).normalize()
+        obs_values.append(level_map[key] if key in level_map.index else pd.NA)
+    aligned = pd.Series(obs_values, dtype="Float64")
+    observations = int(aligned.notna().sum())
+    if observations <= 0:
+        return daily, 0
+
+    stem = str(fund_name).strip() or ticker
+    tr_name = f"{stem} - TOT RETURN IND"
+    ret_name = f"{stem} - TOT RETURN IND - daily return"
+    returns = aligned.astype("float64").pct_change()
+
+    tr_meta = [isin, tr_name, category, fee, "Total return index, daily", f"{isin} TR (Yahoo)"]
+    ret_meta = [
+        isin,
+        ret_name,
+        category,
+        fee,
+        "Daily simple return = P(t)/P(t-1) - 1",
+        f"{isin} TR % (Yahoo)",
+    ]
+    tr_col = pd.Series(list(tr_meta) + aligned.tolist(), index=daily.index, dtype="object")
+    ret_col = pd.Series(list(ret_meta) + returns.tolist(), index=daily.index, dtype="object")
+    out = daily.copy()
+    tr_key = int(out.shape[1])
+    ret_key = tr_key + 1
+    out[tr_key] = tr_col
+    out[ret_key] = ret_col
+    out.columns = range(out.shape[1])
+    return out, observations
+
+
 def _fetch_timeseries_with_retries(ticker: str) -> tuple[dict | None, bool]:
     """Return (bounds, finished). finished is False when rate-limited out of retries."""
     for _attempt in range(MAX_ATTEMPTS):

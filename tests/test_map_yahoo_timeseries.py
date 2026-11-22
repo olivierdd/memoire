@@ -7,7 +7,9 @@ from unittest.mock import patch
 import pandas as pd
 
 from helpers.funds_functions.map_yahoo_timeseries import (
+    append_yahoo_total_return_column,
     apply_yahoo_timeseries_flags,
+    fetch_yahoo_total_return_levels,
     map_yahoo_timeseries,
     refresh_yahoo_timeseries_cache,
     series_bounds,
@@ -75,3 +77,105 @@ class MapYahooTimeseriesTests(unittest.TestCase):
         funds = pd.DataFrame({"market_identifier": ["AAA", "BBB"]})
         enriched = map_yahoo_timeseries(funds, cache_path=Path("/unused"))
         self.assertEqual(enriched["is_yahoo_timeseries"].tolist(), [True, False])
+
+
+class FetchYahooTotalReturnLevelsTests(unittest.TestCase):
+    @patch("helpers.funds_functions.map_yahoo_timeseries.yf.Ticker")
+    def test_uses_auto_adjust_true(self, mock_ticker):
+        history = pd.DataFrame(
+            {"Close": [100.0, 101.0, 102.5]},
+            index=pd.to_datetime(
+                ["2020-01-02", "2020-01-03", "2020-01-06"], utc=True
+            ),
+        )
+        mock_ticker.return_value.history.return_value = history
+
+        levels = fetch_yahoo_total_return_levels("FRDPX")
+
+        mock_ticker.return_value.history.assert_called_once_with(
+            period="max", auto_adjust=True, repair=False
+        )
+        self.assertIsNotNone(levels)
+        assert levels is not None
+        self.assertEqual(levels.name, "FRDPX")
+        self.assertEqual(list(levels.values), [100.0, 101.0, 102.5])
+        self.assertIsNone(levels.index.tz)
+        self.assertEqual(levels.index[0], pd.Timestamp("2020-01-02"))
+
+    @patch("helpers.funds_functions.map_yahoo_timeseries.yf.Ticker")
+    def test_returns_none_when_empty(self, mock_ticker):
+        mock_ticker.return_value.history.return_value = pd.DataFrame()
+        self.assertIsNone(fetch_yahoo_total_return_levels("ZZZZ"))
+
+
+class AppendYahooTotalReturnColumnTests(unittest.TestCase):
+    def _sample_daily(self) -> pd.DataFrame:
+        # Rows 0–5 labels; row 6+ observations (Datastream layout).
+        rows = [
+            ["ISIN", "US0000000001"],
+            ["Name", "Existing Fund - TOT RETURN IND"],
+            ["Category", "Active MF"],
+            ["Fee", 0.5],
+            ["Type", "Total return index, daily"],
+            ["Code", "EXISTING"],
+            [pd.Timestamp("2020-01-02"), 10.0],
+            [pd.Timestamp("2020-01-03"), 10.5],
+            [pd.Timestamp("2020-01-06"), 11.0],
+            [pd.Timestamp("2020-01-07"), 11.2],
+        ]
+        return pd.DataFrame(rows)
+
+    def test_appends_tr_and_daily_return_columns(self):
+        daily = self._sample_daily()
+        levels = pd.Series(
+            [100.0, 110.0, 121.0],
+            index=pd.to_datetime(["2020-01-02", "2020-01-03", "2020-01-06"]),
+            name="FRDPX",
+        )
+
+        out, observations = append_yahoo_total_return_column(
+            daily,
+            isin="US3546131018",
+            ticker="FRDPX",
+            fund_name="Franklin Rising Dividends;A",
+            levels=levels,
+            category="Active MF",
+        )
+
+        self.assertEqual(observations, 3)
+        self.assertEqual(out.shape[1], 4)
+        tr_col = out.iloc[:, 2]
+        ret_col = out.iloc[:, 3]
+        self.assertEqual(tr_col.iloc[0], "US3546131018")
+        self.assertEqual(
+            tr_col.iloc[1], "Franklin Rising Dividends;A - TOT RETURN IND"
+        )
+        self.assertEqual(tr_col.iloc[2], "Active MF")
+        self.assertEqual(
+            ret_col.iloc[1],
+            "Franklin Rising Dividends;A - TOT RETURN IND - daily return",
+        )
+        self.assertAlmostEqual(float(tr_col.iloc[6]), 100.0)
+        self.assertAlmostEqual(float(tr_col.iloc[7]), 110.0)
+        self.assertAlmostEqual(float(tr_col.iloc[8]), 121.0)
+        self.assertTrue(pd.isna(tr_col.iloc[9]))
+        self.assertTrue(pd.isna(ret_col.iloc[6]))
+        self.assertAlmostEqual(float(ret_col.iloc[7]), 0.1)
+        self.assertAlmostEqual(float(ret_col.iloc[8]), 0.1)
+
+    def test_returns_zero_observations_when_no_date_overlap(self):
+        daily = self._sample_daily()
+        levels = pd.Series(
+            [100.0],
+            index=pd.to_datetime(["2019-01-02"]),
+            name="FRDPX",
+        )
+        out, observations = append_yahoo_total_return_column(
+            daily,
+            isin="US3546131018",
+            ticker="FRDPX",
+            fund_name="Franklin Rising Dividends;A",
+            levels=levels,
+        )
+        self.assertEqual(observations, 0)
+        self.assertEqual(out.shape[1], daily.shape[1])
