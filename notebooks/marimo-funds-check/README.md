@@ -21,10 +21,23 @@ uv run marimo edit notebooks/marimo-funds-check/load-funds-v2.py
 Open it as an app, without the editor:
 
 ```bash
-uv run marimo run notebooks/marimo-funds-check/load-funds-v2.py
+uv run marimo run notebooks/marimo-funds-check/load-funds-v2.py --headless
 ```
 
-marimo prints a local URL and opens it in the browser.
+marimo prints a local URL. Open that link in the browser (Command-click it in the terminal).
+
+## Extra steps for Alix
+
+1. Make sure you have a **terminal** open at the bottom of VS Code / Cursor (not an Output window).
+2. Start by pulling from origin (ask Claude Code, or run `git pull origin master` from the repository root).
+3. Launch the marimo notebook with `--headless`:
+
+```bash
+uv run marimo run notebooks/marimo-funds-check/load-funds-v2.py --headless
+```
+
+4. In the terminal, **Command-click** the local URL that marimo prints to open it in the browser.
+5. When you are done, go back to the terminal and press **Ctrl-C** to stop the notebook.
 
 ## Before you open it
 
@@ -37,4 +50,4 @@ Put these variables in a `.env` file in the repository root. EDGAR loads that fi
 - `SEC_USER_AGENT` — a contact string such as `Name (email@domain.com)`. EDGAR refuses requests without it when the ticker cache is missing or a filing is downloaded.
 - `TYPESAFE_API_KEY` — used when the active/passive step asks Jev about a series that is not already in `cache/`.
 
-OpenFIGI, EDGAR, and Jev answers already stored under `cache/` are reused. Step 10 writes the accumulated sheets once to `output-data/v2-funds-normalized.xlsx` (including `Funds final` and `D-Timeseries final`).
+OpenFIGI, EDGAR, and Jev answers already stored under `cache/` are reused. Step 8 writes the accumulated sheets once to `output-data/v2-funds-normalized.xlsx` (including `Funds final` and `D-Timeseries final`).
