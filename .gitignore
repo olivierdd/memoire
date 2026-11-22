@@ -35,9 +35,10 @@ __marimo__/
 .vscode/
 .idea/
 
-# Local workbooks. cache/ stays in the repo.
+# Local workbooks. cache/ stays in the repo (except oversized Yahoo dumps).
 input-data/
 output-data/
+cache/yahoo-distributions.json
 
 # Earlier Jupyter notebooks. The marimo notebooks stay in notebooks/.
 old/
