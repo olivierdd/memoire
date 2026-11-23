@@ -182,14 +182,16 @@ class AppendYahooPriceAndTrColumnTests(unittest.TestCase):
             tr_col.iloc[1], "Franklin Rising Dividends;A - TOT RETURN IND"
         )
         self.assertAlmostEqual(float(tr_col.iloc[6]), 100.0)
-        self.assertAlmostEqual(float(tr_col.iloc[7]), 110.0)
+        self.assertTrue(pd.isna(tr_col.iloc[7]))
         self.assertAlmostEqual(float(tr_col.iloc[8]), 121.0)
         self.assertTrue(pd.isna(tr_col.iloc[9]))
         self.assertAlmostEqual(float(price_col.iloc[6]), 50.0)
-        self.assertAlmostEqual(float(price_ret.iloc[7]), 0.1)
-        self.assertAlmostEqual(float(tr_ret.iloc[7]), 0.1)
+        self.assertTrue(pd.isna(price_ret.iloc[7]))
+        self.assertAlmostEqual(float(price_ret.iloc[8]), 0.21)
+        self.assertTrue(pd.isna(tr_ret.iloc[7]))
+        self.assertAlmostEqual(float(tr_ret.iloc[8]), 0.21)
 
-    def test_holiday_carry_fills_blank_before_pct_change(self):
+    def test_holiday_na_leaves_blank_session_and_recomputes_next_return(self):
         daily = self._sample_daily()
         # Yahoo missing on the S&P-flat holiday (2020-01-03).
         tr_levels = pd.Series(
@@ -219,9 +221,9 @@ class AppendYahooPriceAndTrColumnTests(unittest.TestCase):
         tr_col = out.iloc[:, 5]
         tr_ret = out.iloc[:, 6]
         self.assertAlmostEqual(float(tr_col.iloc[6]), 100.0)
-        self.assertAlmostEqual(float(tr_col.iloc[7]), 100.0)  # carried
+        self.assertTrue(pd.isna(tr_col.iloc[7]))
         self.assertAlmostEqual(float(tr_col.iloc[8]), 110.0)
-        self.assertAlmostEqual(float(tr_ret.iloc[7]), 0.0)
+        self.assertTrue(pd.isna(tr_ret.iloc[7]))
         self.assertAlmostEqual(float(tr_ret.iloc[8]), 0.1)
 
     def test_returns_zero_observations_when_no_date_overlap(self):

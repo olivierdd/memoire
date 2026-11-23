@@ -32,6 +32,8 @@ from helpers.timeseries_functions.regress_daily_to_benchmark import (
 DEFAULT_DISTRIBUTIONS_CACHE = Path("cache") / "yahoo-distributions.json"
 DEFAULT_FMP_CACHE = Path("cache") / "cache-financedatabase.json"
 LIPPER_CLOSE_PP = 0.5
+# Longest available horizon wins; fall back when history / Lipper is missing.
+LIPPER_TEST_HORIZONS: tuple[str, ...] = ("10y", "5y", "3y")
 SESSION_ALIGN_MAX_DAYS = 4
 INDEX_NAME_PATTERN = r"S&P 500|500 Index|Index Fund"
 
@@ -44,6 +46,8 @@ def _resolve_fmp_cache_path(cache_path: Path | None = None) -> Path:
 
 __all__ = [
     "DEFAULT_DISTRIBUTIONS_CACHE",
+    "LIPPER_CLOSE_PP",
+    "LIPPER_TEST_HORIZONS",
     "RebuildFundResult",
     "align_events_to_sessions",
     "cash_events_from_fmp",
@@ -51,12 +55,16 @@ __all__ = [
     "fetch_yahoo_cash_events",
     "horizon_gaps_vs_lipper",
     "lipper_gate_should_adopt",
+    "lipper_gate_should_adopt_only_if_pass",
+    "lipper_test_status",
     "load_distributions_cache",
+    "primary_lipper_horizon",
     "rebuild_fund_tr",
     "rebuild_tr_panel",
     "recompute_tr_level",
     "resolve_distributions_cache_path",
     "save_distributions_cache",
+    "summarize_rebuild_gate_transparency",
     "total_return_percent_from_price",
 ]
 
@@ -337,25 +345,204 @@ def horizon_gaps_vs_lipper(
     return gaps
 
 
+def primary_lipper_horizon(gaps: dict[str, float]) -> str | None:
+    """Longest horizon with a finite Lipper gap (10y → 5y → 3y)."""
+    for horizon in LIPPER_TEST_HORIZONS:
+        if pd.notna(gaps.get(horizon)):
+            return horizon
+    return None
+
+
+def lipper_test_status(
+    gaps: dict[str, float],
+    *,
+    close_pp: float = LIPPER_CLOSE_PP,
+) -> tuple[str, str | None]:
+    """Pass/fail/unscored on the longest available horizon.
+
+    Returns ``(status, horizon)`` where status is ``pass``, ``fail``, or
+    ``unscored``. Falls back 10y → 5y → 3y when a longer gap is missing.
+    """
+    horizon = primary_lipper_horizon(gaps)
+    if horizon is None:
+        return "unscored", None
+    if abs(float(gaps[horizon])) <= close_pp:
+        return "pass", horizon
+    return "fail", horizon
+
+
 def lipper_gate_should_adopt(
     gap_before: dict[str, float],
     gap_after: dict[str, float],
     *,
     close_pp: float = LIPPER_CLOSE_PP,
 ) -> bool:
-    """Adopt rebuilt TR when the 10y gap improves or is already within ``close_pp``."""
-    after10 = gap_after.get("10y")
-    before10 = gap_before.get("10y")
-    if pd.notna(after10) and abs(after10) <= close_pp:
+    """Adopt rebuilt TR when the primary Lipper gap is close or improves.
+
+    Primary horizon is the longest available on the rebuild side (10y → 5y →
+    3y). If that gap is already within ``close_pp``, adopt. Otherwise compare
+    shared horizons from longest to shortest: adopt on improvement; on a tie,
+    try the next shorter horizon; on a worse gap, keep Datastream.
+    """
+    primary_after = primary_lipper_horizon(gap_after)
+    if primary_after is not None and abs(float(gap_after[primary_after])) <= close_pp:
         return True
-    if pd.notna(before10) and pd.notna(after10) and abs(after10) < abs(before10) - 1e-12:
-        return True
-    if pd.notna(before10) and pd.notna(after10) and abs(after10) == abs(before10):
-        after5 = gap_after.get("5y")
-        before5 = gap_before.get("5y")
-        if pd.notna(before5) and pd.notna(after5) and abs(after5) < abs(before5) - 1e-12:
+
+    for horizon in LIPPER_TEST_HORIZONS:
+        before = gap_before.get(horizon)
+        after = gap_after.get(horizon)
+        if not (pd.notna(before) and pd.notna(after)):
+            continue
+        before_abs = abs(float(before))
+        after_abs = abs(float(after))
+        if after_abs < before_abs - 1e-12:
             return True
+        if after_abs > before_abs + 1e-12:
+            return False
+        # Equal on this horizon → try a shorter horizon as tie-break.
     return False
+
+
+def lipper_gate_should_adopt_only_if_pass(
+    gap_before: dict[str, float],
+    gap_after: dict[str, float],
+    *,
+    close_pp: float = LIPPER_CLOSE_PP,
+) -> bool:
+    """Stricter counterfactual gate: adopt only when the rebuild already passes.
+
+    Unlike ``lipper_gate_should_adopt``, improvement that remains outside
+    ``close_pp`` does **not** trigger adoption. ``gap_before`` is unused and
+    kept only so callers can swap gate functions with a matching signature.
+    """
+    del gap_before  # Signature parity with ``lipper_gate_should_adopt``.
+    status, _ = lipper_test_status(gap_after, close_pp=close_pp)
+    return status == "pass"
+
+
+def _gaps_from_rebuild_log_row(row: pd.Series, *, side: str) -> dict[str, float]:
+    return {
+        horizon: row.get(f"gap_{horizon}_{side}")
+        for horizon in LIPPER_TEST_HORIZONS
+    }
+
+
+def summarize_rebuild_gate_transparency(
+    rebuild_log: pd.DataFrame,
+    *,
+    close_pp: float = LIPPER_CLOSE_PP,
+) -> tuple[dict[str, Any], pd.DataFrame]:
+    """Post-adopt Lipper status and adopt-only-if-pass sensitivity.
+
+    Production decisions stay those already recorded in ``rebuild_log``
+    (``decision`` = ``adopted`` / ``kept_legacy``). This helper does not change
+    which series were written; it reports:
+
+    - among production adopts, how many rebuild candidates still fail Lipper;
+    - how many funds the stricter adopt-only-if-pass rule would have adopted;
+    - which production adopts the stricter rule would have refused.
+
+    Returns ``(summary, adopted_still_fail_table)``.
+    """
+    empty_fail = pd.DataFrame(
+        columns=[
+            "isin",
+            "ticker",
+            "decision",
+            "rebuild_vs_lipper",
+            "rebuild_lipper_horizon",
+            "gap_primary_after_pp",
+            "strict_would_adopt",
+        ]
+    )
+    if rebuild_log is None or len(rebuild_log) == 0:
+        summary = {
+            "n_funds": 0,
+            "n_adopted": 0,
+            "n_kept_legacy": 0,
+            "adopted_pass": 0,
+            "adopted_fail": 0,
+            "adopted_unscored": 0,
+            "strict_would_adopt": 0,
+            "strict_would_keep": 0,
+            "adopted_under_both": 0,
+            "adopted_only_under_production": 0,
+            "close_pp": float(close_pp),
+        }
+        return summary, empty_fail
+
+    rows: list[dict[str, Any]] = []
+    for row in rebuild_log.itertuples(index=False):
+        series = pd.Series(row._asdict())
+        gap_before = _gaps_from_rebuild_log_row(series, side="before")
+        gap_after = _gaps_from_rebuild_log_row(series, side="after")
+        rebuild_status, rebuild_horizon = lipper_test_status(
+            gap_after, close_pp=close_pp
+        )
+        production_adopted = str(series.get("decision", "")).strip() == "adopted"
+        strict_adopt = lipper_gate_should_adopt_only_if_pass(
+            gap_before, gap_after, close_pp=close_pp
+        )
+        primary_gap = (
+            float(gap_after[rebuild_horizon])
+            if rebuild_horizon is not None and pd.notna(gap_after.get(rebuild_horizon))
+            else float("nan")
+        )
+        rows.append(
+            {
+                "isin": series.get("isin"),
+                "ticker": series.get("ticker"),
+                "decision": series.get("decision"),
+                "production_adopted": production_adopted,
+                "rebuild_vs_lipper": rebuild_status,
+                "rebuild_lipper_horizon": rebuild_horizon,
+                "gap_primary_after_pp": primary_gap,
+                "strict_would_adopt": strict_adopt,
+            }
+        )
+
+    detail = pd.DataFrame(rows)
+    adopted = detail.loc[detail["production_adopted"]]
+    adopted_pass = int((adopted["rebuild_vs_lipper"] == "pass").sum())
+    adopted_fail = int((adopted["rebuild_vs_lipper"] == "fail").sum())
+    adopted_unscored = int((adopted["rebuild_vs_lipper"] == "unscored").sum())
+    strict_would_adopt = int(detail["strict_would_adopt"].sum())
+    adopted_under_both = int(
+        (detail["production_adopted"] & detail["strict_would_adopt"]).sum()
+    )
+    adopted_only_under_production = int(
+        (detail["production_adopted"] & ~detail["strict_would_adopt"]).sum()
+    )
+    summary = {
+        "n_funds": int(len(detail)),
+        "n_adopted": int(detail["production_adopted"].sum()),
+        "n_kept_legacy": int((~detail["production_adopted"]).sum()),
+        "adopted_pass": adopted_pass,
+        "adopted_fail": adopted_fail,
+        "adopted_unscored": adopted_unscored,
+        "strict_would_adopt": strict_would_adopt,
+        "strict_would_keep": int(len(detail) - strict_would_adopt),
+        "adopted_under_both": adopted_under_both,
+        "adopted_only_under_production": adopted_only_under_production,
+        "close_pp": float(close_pp),
+    }
+    fail_table = (
+        detail.loc[
+            detail["production_adopted"] & detail["rebuild_vs_lipper"].eq("fail"),
+            [
+                "isin",
+                "ticker",
+                "decision",
+                "rebuild_vs_lipper",
+                "rebuild_lipper_horizon",
+                "gap_primary_after_pp",
+                "strict_would_adopt",
+            ],
+        ]
+        .sort_values("gap_primary_after_pp", key=lambda s: s.abs(), ascending=False)
+        .reset_index(drop=True)
+    )
+    return summary, fail_table
 
 
 @dataclass

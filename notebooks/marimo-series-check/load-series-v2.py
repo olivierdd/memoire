@@ -23,6 +23,139 @@ def _():
     return (mo,)
 
 
+@app.cell
+def _(mo):
+    # State payloads for gated steps (None until Run button pressed)
+    get_gap, set_gap = mo.state(None)
+    get_holiday, set_holiday = mo.state(None)
+    get_scale, set_scale = mo.state(None)
+    get_level_jump, set_level_jump = mo.state(None)
+    get_rebuild, set_rebuild = mo.state(None)
+    get_spike, set_spike = mo.state(None)
+    get_wide, set_wide = mo.state(None)
+    get_frozen, set_frozen = mo.state(None)
+    get_tbill, set_tbill = mo.state(None)
+    get_export, set_export = mo.state(None)
+    return (
+        get_export,
+        get_frozen,
+        get_gap,
+        get_holiday,
+        get_level_jump,
+        get_rebuild,
+        get_scale,
+        get_spike,
+        get_tbill,
+        get_wide,
+        set_export,
+        set_frozen,
+        set_gap,
+        set_holiday,
+        set_level_jump,
+        set_rebuild,
+        set_scale,
+        set_spike,
+        set_tbill,
+        set_wide,
+    )
+
+
+@app.cell
+def _(mo):
+    import textwrap
+
+    def md(text: str):
+        """Render markdown after stripping common indentation (avoids code blocks)."""
+        return mo.md(textwrap.dedent(text).strip())
+
+    def review_table(frame, label):
+        return mo.ui.table(
+            frame,
+            label=label,
+            selection=None,
+            pagination=len(frame) > 12,
+            page_size=12,
+            max_height=420,
+        )
+
+    def selection_stats(n_ids: int, n_columns: int | None = None, *, when: str = "start"):
+        columns = (
+            f" ({n_columns:,} series columns)"
+            if n_columns is not None
+            else ""
+        )
+        if when == "start":
+            text = (
+                f"**Selection at the start of this step:** {n_ids:,} "
+                f"fund/index ids{columns}."
+            )
+        else:
+            text = (
+                f"**Selection remaining after this step:** {n_ids:,} "
+                f"fund/index ids{columns}."
+            )
+        return mo.md(text)
+
+    def indent_section(content):
+        """Nudge accordion body text right of the section title."""
+        return mo.vstack([content]).style({"padding-left": "1.25rem"})
+
+    def step_sections(*, documentation, result, decision, expanded=False):
+        """Three collapsible panels for each workflow step (collapsed by default)."""
+        return mo.accordion(
+            {
+                "1. Documentation": indent_section(documentation),
+                "2. Result": indent_section(result),
+                "3. Decision": indent_section(decision),
+            },
+            multiple=True,
+            expanded=expanded,
+        )
+
+    def stack(*parts):
+        return mo.vstack([part for part in parts if part is not None])
+
+    def run_step_button(*, ready=True, tooltip=None):
+        return mo.ui.run_button(
+            label="Run step",
+            disabled=not ready,
+            tooltip=tooltip,
+            kind="success",
+        )
+
+    def step_header(title: str, button):
+        return mo.vstack([mo.md(title), button])
+
+    return (
+        md,
+        review_table,
+        run_step_button,
+        selection_stats,
+        stack,
+        step_header,
+        step_sections,
+    )
+
+
+@app.cell
+def _():
+    from helpers.timeseries_functions.series_v2_pipeline import (
+        carry_holiday_placeholders,
+        flag_summary_table,
+        repair_distribution_day_tr,
+        rescale_level_breaks,
+        summarize_tr_consistency,
+    )
+
+    return (
+        carry_holiday_placeholders,
+        flag_summary_table,
+        repair_distribution_day_tr,
+        rescale_level_breaks,
+        summarize_tr_consistency,
+    )
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
@@ -31,17 +164,92 @@ def _(mo):
     Load the `D-Timeseries final` sheet of `output-data/v2-funds-normalized.xlsx`. The sheet keeps six label rows, then one row per date.
 
     The first column is the date. Each other column is one series: an index, the risk-free rate, or a fund total return, price, or net assets.
+
+    **Data sources.** The primary source is LSEG Datastream / Lipper, made
+    available to Université libre de Bruxelles (ULB) students. Yahoo Finance is
+    used only as a secondary source to correct or replace series where the
+    Datastream path is unreliable (for example lasting level jumps, missing cash
+    distributions for a TR rebuild, or the empty US T-Bill column filled from
+    `^IRX`).
+
+    **Why thorough verification and cleaning.** Equity Datastream research
+    documents that naive use of price and total-return series can materially
+    distort volatility, cumulative performance, and regression inference
+    ([Ince & Porter, 2006](https://doi.org/10.1111/j.1475-6803.2006.00189.x);
+    [Brückner, 2013](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2243816);
+    [Landis & Skouras, 2021](https://doi.org/10.1016/j.jbankfin.2021.106128)).
+    Four of those pitfalls transfer directly to our Lipper / Datastream fund
+    panel; this notebook screens and, where Decision documents it, repairs each
+    before export:
+
+    1. **Holiday padding.** By default Datastream often repeats the last close
+       across local non-trading weekdays, inserting artificial zero-return days
+       that dilute measured volatility. Best practice is not to treat those
+       dates as genuine observations.
+       → **Steps 2–3:** blank Price/TR level and % on S&P-flat US holidays and
+       recompute the next session’s return from the last trade; gap checks then
+       treat those dates as non-trading, not missing data.
+
+    2. **Stale prices after delisting / closure.** After a security stops
+       trading, Datastream commonly carries the final price and return index
+       forward indefinitely. Literature practice is to truncate or convert that
+       trailing flat path to missing.
+       → **Step 9:** blank frozen post-closure tails (and never-moving series)
+       after the last real print.
+
+    3. **Retroactive adjustments and rounding distortions.** Standard adjusted
+       prices are rewritten for splits and capital changes; with limited
+       decimal precision, heavily adjusted series can approach near-zero levels
+       and produce spurious percentage jumps. Screens for extreme lasting breaks
+       (and unadjusted prices when the traded level matters) are recommended.
+       → **Steps 1, 4–5, 7:** Yahoo Price+TR replace where Lipper level jumps
+       persist; diagnose scale shifts; rescale sticky corporate-action level
+       breaks; flag / repair extreme spike days when they are data errors.
+
+    4. **Return Index (RI) / dividend-adjustment errors.** Academic work finds
+       occasional RI mistakes around ordinary and special dividends and
+       spin-offs; compounded horizons then diverge from a correctly reinvested
+       path. Cross-checking RI against an alternative construction is advised.
+       → **Steps 6–7:** rebuild daily TR from price plus cash distributions
+       (Yahoo/FMP) and adopt when a Lipper 3y/5y/10y gate prefers it; repair
+       curated distribution-day TR errors that still disagree with Price and the
+       market.
+
+    Because this thesis measures fund performance from daily total returns and
+    regresses them on the S&P 500, the extract is treated as provisional until
+    those checks run.
+
+    **Pipeline structure:** Step 1 loads the workbook on open (auto-run) and
+    keeps only total returns, the primary `S&P 500 TR` / `TR %` (Lipper
+    `.SPXTR` — the series used for QA and for regressions), the US T-Bill,
+    paired Price series needed for repairs, and the Composite TR / `%` pair
+    (kept for information and minor side work, e.g. Lipper `.INX`). Later
+    steps are gated: each waits for its **Run step** button;
+    Result and Decision stay empty until that button has been pressed; the next
+    button stays disabled until the previous step has finished.
+
+    - **Repair steps** (rewrite cells when Decision documents it): 2 Holiday,
+      5 Level jump, 6 Rebuild TR, 7 Spike / distribution-day, 9 Frozen tails,
+      10 US T-Bill fill.
+    - **Diagnostic-only steps** (score flags; no rewrite): 3 Gap, 4 Scale
+      shift, 8 Far from index.
+    - **Export:** Step 11 is the sole workbook write.
+
+    **Excel export:** Step 11 writes a **separate** cleaned workbook
+    (`output-data/v2-funds-normalized-cleaned.xlsx`). The input
+    `v2-funds-normalized.xlsx` is left unchanged. Earlier steps keep corrections
+    in memory only. **Do not auto-write Excel on open.**
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md("""
-    ## 1. Load the workbook
-
-    Read the sheet with no header. Rows 1–6 stay labels (`id`, `name`, `category`, `fee (%/year)`, `Note`, and the short header). The observations start on the next row.
-    """)
+    mo.md(
+        """
+        ## 1. Load daily series
+        """
+    )
     return
 
 
@@ -51,12 +259,17 @@ def _():
 
     import pandas as pd
 
-    label_rows = 6
-    filename = "v2-funds-normalized.xlsx"
-    sheet_name = "D-Timeseries final"
+    from helpers.timeseries_functions.replace_yahoo_tr import (
+        YAHOO_TR_REPLACEMENTS,
+        replace_datastream_tr_with_yahoo,
+    )
 
-    def find_series_workbook() -> Path:
-        relative = Path("output-data") / filename
+    _label_rows = 6
+    _filename = "v2-funds-normalized.xlsx"
+    _sheet_name = "D-Timeseries final"
+
+    def _find_series_workbook() -> Path:
+        relative = Path("output-data") / _filename
         start = Path.cwd().resolve()
         for directory in [start, *start.parents]:
             candidate = directory / relative
@@ -64,1706 +277,2537 @@ def _():
                 return candidate.resolve()
         raise FileNotFoundError(f"Could not find {relative}, starting from {start}")
 
-    workbook = find_series_workbook()
-    with pd.ExcelFile(workbook, engine="openpyxl") as book:
-        raw = pd.read_excel(book, sheet_name=sheet_name, header=None)
-    if len(raw) <= label_rows or raw.shape[1] < 2:
+    _workbook = _find_series_workbook()
+    with pd.ExcelFile(_workbook, engine="openpyxl") as book:
+        _raw = pd.read_excel(book, sheet_name=_sheet_name, header=None)
+    if len(_raw) <= _label_rows or _raw.shape[1] < 2:
         raise ValueError("The daily series sheet has no observations")
-    return label_rows, pd, raw, sheet_name, workbook
 
-
-@app.cell
-def _(label_rows, pd, raw):
-    labels = raw.iloc[:label_rows, 1:]
-    catalog = pd.DataFrame(
+    _labels = _raw.iloc[:_label_rows, 1:]
+    _catalog_all = pd.DataFrame(
         {
-            "column": labels.columns.astype(int),
-            "id": labels.iloc[0].astype("string").str.strip().to_numpy(),
-            "name": labels.iloc[1].astype("string").str.strip().to_numpy(),
-            "category": labels.iloc[2].astype("string").str.strip().to_numpy(),
-            "fee": pd.to_numeric(labels.iloc[3], errors="coerce").to_numpy(),
-            "note": labels.iloc[4].astype("string").str.strip().to_numpy(),
-            "header": labels.iloc[5].astype("string").str.strip().to_numpy(),
+            "column": _labels.columns.astype(int),
+            "id": _labels.iloc[0].astype("string").str.strip().to_numpy(),
+            "name": _labels.iloc[1].astype("string").str.strip().to_numpy(),
+            "category": _labels.iloc[2].astype("string").str.strip().to_numpy(),
+            "fee": pd.to_numeric(_labels.iloc[3], errors="coerce").to_numpy(),
+            "note": _labels.iloc[4].astype("string").str.strip().to_numpy(),
+            "header": _labels.iloc[5].astype("string").str.strip().to_numpy(),
         }
     ).reset_index(drop=True)
 
-    dates = pd.to_datetime(raw.iloc[label_rows:, 0], errors="coerce")
-    observations = raw.iloc[label_rows:, 1:].apply(pd.to_numeric, errors="coerce")
-    observations.index = pd.Index(dates, name="date")
-    observations.columns = catalog["column"].to_numpy()
-
-    valid = observations.notna().to_numpy()
-    has_value = valid.any(axis=0)
-    first_idx = valid.argmax(axis=0)
-    last_idx = valid.shape[0] - 1 - valid[::-1].argmax(axis=0)
-    date_values = observations.index.to_numpy()
-    first_date = pd.Series(pd.NaT, index=observations.columns, dtype="datetime64[ns]")
-    last_date = pd.Series(pd.NaT, index=observations.columns, dtype="datetime64[ns]")
-    first_date.iloc[has_value] = date_values[first_idx[has_value]]
-    last_date.iloc[has_value] = date_values[last_idx[has_value]]
-    catalog = catalog.assign(
-        observations=valid.sum(axis=0),
-        first_date=first_date.to_numpy(),
-        last_date=last_date.to_numpy(),
+    # Working sample only: total returns, primary S&P 500 TR / TR % (.SPXTR —
+    # QA + regressions), US T-Bill, paired Price for repairs, and Composite TR
+    # / C % (info / side work, e.g. .INX). Skip TNA and the S&P 500 Composite
+    # Price *level* only.
+    _note = _catalog_all["note"].astype("string")
+    _header = _catalog_all["header"].astype("string")
+    _keep = (
+        _note.str.startswith("Total return")
+        | _note.eq("Price, daily")
+        | (
+            _note.str.startswith("Daily simple return")
+            & (
+                _header.str.contains(r" TR %", regex=False)
+                | _header.str.contains(r" Price %", regex=False)
+                | _header.eq("S&P 500 TR %")
+            )
+        )
+        | _header.eq("US T-Bill 3M")
+        | _header.eq("S&P 500 TR")
     )
-    return catalog, observations
+    _catalog = _catalog_all.loc[_keep].reset_index(drop=True)
+    _columns_on_sheet = int(len(_catalog_all))
+    _columns_loaded = int(len(_catalog))
+    _columns_skipped = _columns_on_sheet - _columns_loaded
+    _keep_cols = _catalog["column"].to_numpy()
+
+    _dates = pd.to_datetime(_raw.iloc[_label_rows:, 0], errors="coerce")
+    _observations = _raw.iloc[_label_rows:, _keep_cols].apply(
+        pd.to_numeric, errors="coerce"
+    )
+    _observations.index = pd.Index(_dates, name="date")
+    _observations.columns = _keep_cols
+
+    _valid = _observations.notna().to_numpy()
+    _has_value = _valid.any(axis=0)
+    _first_idx = _valid.argmax(axis=0)
+    _last_idx = _valid.shape[0] - 1 - _valid[::-1].argmax(axis=0)
+    _date_values = _observations.index.to_numpy()
+    _first_date = pd.Series(pd.NaT, index=_observations.columns, dtype="datetime64[ns]")
+    _last_date = pd.Series(pd.NaT, index=_observations.columns, dtype="datetime64[ns]")
+    _first_date.iloc[_has_value] = _date_values[_first_idx[_has_value]]
+    _last_date.iloc[_has_value] = _date_values[_last_idx[_has_value]]
+    _catalog = _catalog.assign(
+        observations=_valid.sum(axis=0),
+        first_date=_first_date.to_numpy(),
+        last_date=_last_date.to_numpy(),
+    )
+
+    # Drop the full sheet frame; export dumps catalog + cleaned observations
+    # into a separate workbook (input unchanged; skipped series are omitted).
+    del _raw
+
+    # Replace Datastream/Lipper Price + TR for funds where Yahoo is clean
+    # (level jumps on Lipper). CFIMX is not in YAHOO_TR_REPLACEMENTS — Yahoo
+    # still has a level jump there.
+    _catalog, _observations, _yahoo_tr_log = replace_datastream_tr_with_yahoo(
+        _catalog, _observations
+    )
+
+    label_rows = _label_rows
+    workbook = _workbook
+    sheet_name = _sheet_name
+    catalog = _catalog
+    observations = _observations
+    columns_on_sheet = _columns_on_sheet
+    columns_loaded = _columns_loaded
+    columns_skipped = _columns_skipped
+    yahoo_tr_log = _yahoo_tr_log
+    yahoo_tr_replacements = YAHOO_TR_REPLACEMENTS
+
+    return (
+        catalog,
+        columns_loaded,
+        columns_on_sheet,
+        columns_skipped,
+        label_rows,
+        observations,
+        pd,
+        sheet_name,
+        workbook,
+        yahoo_tr_log,
+        yahoo_tr_replacements,
+    )
 
 
 @app.cell
-def _(catalog, mo, observations, pd, sheet_name, workbook):
-    parsed_dates = observations.index.dropna()
-    missing_dates = int(observations.index.isna().sum())
-    category_counts = (
+def _(
+    catalog,
+    columns_loaded,
+    columns_on_sheet,
+    columns_skipped,
+    md,
+    mo,
+    observations,
+    review_table,
+    selection_stats,
+    sheet_name,
+    stack,
+    step_sections,
+    workbook,
+    yahoo_tr_log,
+    yahoo_tr_replacements,
+):
+    _n_ids = int(catalog["id"].nunique())
+    _n_cols = len(catalog)
+    _parsed_dates = observations.index.dropna()
+    _missing_dates = int(observations.index.isna().sum())
+    _note_counts = (
+        catalog.groupby("note", dropna=False)
+        .agg(columns=("column", "size"), ids=("id", "nunique"))
+        .reset_index()
+        .sort_values(["columns", "note"], ascending=[False, True])
+    )
+    _category_counts = (
         catalog.groupby("category", dropna=False)
         .agg(columns=("column", "size"), ids=("id", "nunique"))
         .reset_index()
         .sort_values(["columns", "category"], ascending=[False, True])
     )
-    summary = mo.md(
-        f"- **File:** `{workbook}`, sheet `{sheet_name}` \n"
-        f"- **{len(observations):,}** dates, from **{parsed_dates.min():%Y-%m-%d}** to **{parsed_dates.max():%Y-%m-%d}** \n"
-        f"- **{missing_dates:,}** rows have no date \n"
-        f"- **{len(catalog):,}** series columns, **{catalog['id'].nunique():,}** ids \n"
+    _yahoo_replaced = yahoo_tr_log.loc[yahoo_tr_log["status"].eq("replaced")]
+    _yahoo_lines = [
+        f"- `{row.isin}` → Yahoo `{row.ticker}`: "
+        f"TR **{int(row.tr_days_filled):,}** filled / "
+        f"**{int(row.tr_days_blank):,}** blank; "
+        f"Price **{int(row.price_days_filled):,}** filled / "
+        f"**{int(row.price_days_blank):,}** blank"
+        for row in yahoo_tr_log.itertuples(index=False)
+    ]
+    _yahoo_list_md = (
+        "\n".join(_yahoo_lines) if _yahoo_lines else "_No Yahoo Price+TR replacements._"
     )
-    counts = mo.ui.table(
-        category_counts,
-        label="Columns by category",
-        selection=None,
-        pagination=False,
+    _ticker_bullets = "\n".join(
+        f"- `{isin}` → `{ticker}`"
+        for isin, ticker in sorted(yahoo_tr_replacements.items())
     )
-    mo.vstack([summary, counts])
+    _step_view = step_sections(
+        documentation=stack(
+            selection_stats(_n_ids, _n_cols),
+            md("""
+            ### What and why
+
+            Empirical chapters use daily **total returns**, the **S&P 500 TR**
+            benchmark, and the **US T-Bill 3M** risk-free rate. The main S&P
+            series for QA and for regressions is **`S&P 500 TR` / `S&P 500 TR %`**
+            (Lipper `.SPXTR`). The workbook also carries an S&P **Composite** TR
+            / `%` pair and a Composite price *level*; we keep the Composite TR /
+            `%` columns for information and minor side work (e.g. funds whose
+            Lipper benchmark is `.INX` → `S&P 500 C Price %`), not as the
+            primary market reference. Holding every column in memory is
+            unnecessary: this step therefore loads only the series the notebook
+            and the study require (and skips TNA plus the Composite price
+            *level*).
+
+            For seven funds, Datastream/Lipper has lasting level jumps
+            (corporate-action scaling), while Yahoo is clean under the same
+            daily consistency checks. Those funds' primary `{ISIN} Price` /
+            `{ISIN} Price %` and `{ISIN} TR` / `{ISIN} TR %` columns are
+            **replaced with Yahoo** here so Price and TR stay a coherent pair
+            for later QA/repair steps. The fund Clipper (`US1888501012` / CFIMX) is not
+            replaced — both Datastream/Lipper and Yahoo have a level jump there and we will fix that series in a later step.
+            """),
+            md(
+                "Hardcoded ISIN→ticker map (funds whose Datastream/Lipper "
+                "Price + TR series were replaced with Yahoo Finance):"
+            ),
+            mo.md(_ticker_bullets),
+            md("""
+            ### How
+
+            1. **Source.** Read sheet `D-Timeseries final` of
+               `output-data/v2-funds-normalized.xlsx` with no header.
+            2. **Label rows.** Rows 1–6 store `id`, `name`, `category`,
+               `fee (%/year)`, `Note`, and the short header for each series
+               column.
+            3. **Column filter.** Keep:
+               - every series whose note starts with `Total return` (fund TR
+                 levels **and** `S&P 500 Composite TR`);
+               - `S&P 500 TR` / `S&P 500 TR %` — primary benchmark for later QA
+                 and for regressions (Lipper `.SPXTR`);
+               - daily simple returns whose header contains ` TR %` or
+                 ` Price %` (includes `S&P 500 C TR %` and `S&P 500 C Price %`);
+               - `US T-Bill 3M`;
+               - paired `Price` / `Price %` columns (inputs to distribution and
+                 level-break repairs only).
+               **Skip only:** total net assets (TNA) and the single
+               `S&P 500 Composite Price` *price-index level*
+               (`note = Price index, daily`). Skipped columns stay on the input
+               workbook and are omitted from the cleaned export. The Composite
+               **TR** level and Composite **%** returns stay loaded for
+               information / minor side work (e.g. `.INX` →
+               `S&P 500 C Price %`); they are **not** the QA or regression
+               benchmark — that is `S&P 500 TR %` (`.SPXTR`).
+            4. **Catalog and observations.** Turn the filtered sheet into two
+               working tables, then free the full Excel frame:
+               - **Catalog** — one row per kept series: id, name, category,
+                 fee, note, header, and Excel column index. Coverage is
+                 computed on the kept columns and stored on this same table
+                 (`observations` count, `first_date`, `last_date`).
+               - **Observations** — the daily numeric panel (date index × kept
+                 columns). Dates are parsed and values coerced to numbers;
+                 unreadable cells become blank (`NaN`).
+               - **Memory.** Drop the full-sheet frame (`_raw`) so later steps
+                 hold only catalog + observations. Export dumps those two
+                 tables into a cleaned workbook (kept columns only; skipped
+                 series are not written).
+            5. **Yahoo Price + TR replace.** For the seven ISINs above, fetch
+               Yahoo unadjusted Close (`auto_adjust=False`) into Price / Price %,
+               and adjusted Close (`auto_adjust=True`) into TR / TR %. Align both
+               to the panel dates; S&P-flat holidays are left NA (Step 2 also
+               normalises the full panel). Daily returns use session-to-session
+               `P(t)/P(last trade) - 1` after skipping closure rows
+               (avoids a second missing return on the next session). Other dates
+               without a Yahoo print stay blank. Headers stay the primary
+               `{ISIN} Price` / `{ISIN} TR` names.
+            """),
+        ),
+        result=stack(
+            mo.md(
+                f"- **File:** `{workbook}`, sheet `{sheet_name}` \n"
+                f"- **{len(observations):,}** dates, from "
+                f"**{_parsed_dates.min():%Y-%m-%d}** to "
+                f"**{_parsed_dates.max():%Y-%m-%d}** \n"
+                f"- **{_missing_dates:,}** rows have no date \n"
+                f"- **{columns_on_sheet:,}** series on the sheet → "
+                f"**{columns_loaded:,}** loaded, **{columns_skipped:,}** skipped "
+                f"(TNA + `S&P 500 Composite Price` level only; Composite TR / "
+                f"C % remain loaded for info / side work, not as `.SPXTR` "
+                f"benchmark) \n"
+                f"- **{_n_cols:,}** series columns in memory, **{_n_ids:,}** ids \n"
+                f"- **Yahoo Price+TR replace:** **{len(_yahoo_replaced):,}** of "
+                f"**{len(yahoo_tr_replacements):,}** funds replaced \n"
+            ),
+            md("### Yahoo Price + TR replacements"),
+            mo.md(_yahoo_list_md),
+            review_table(yahoo_tr_log, "Yahoo Price+TR replacement log"),
+            review_table(_note_counts, "Loaded columns by note"),
+            review_table(_category_counts, "Loaded columns by category"),
+            review_table(catalog, "Daily series catalog (loaded)"),
+        ),
+        decision=stack(
+            md("""
+            The working sample is the filtered panel: total returns, primary
+            **`S&P 500 TR` / `TR %`** (Lipper `.SPXTR` — the series used for QA
+            and for regressions), US T-Bill 3M, paired Price series for repairs,
+            and the Composite TR / `%` pair (kept for information and minor side
+            work such as `.INX` → `S&P 500 C Price %`). **Not loaded:** TNA and
+            the `S&P 500 Composite Price` price-index level only. Later
+            QA/repair steps and the main regressions compare funds to
+            **`S&P 500 TR %`**, not to the Composite series.
+
+            **Yahoo Price + TR:** replaced Datastream/Lipper Price and total
+            return with Yahoo for the funds below (unadjusted Close → Price;
+            adjusted Close → TR). Later level-break rescales skip these ISINs so
+            Datastream corporate-action factors are not applied to Yahoo history.
+            CFIMX is still Datastream (Yahoo not clean).
+            """),
+            mo.md(_yahoo_list_md),
+            selection_stats(_n_ids, _n_cols, when="end"),
+        ),
+    )
+    _step_view
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ## 2. Series catalog
-
-    One row per column. `observations` counts the dates with a value. Filter the table, then pick the same series below to plot it.
-    """)
-    return
+def _(mo, run_step_button, step_header):
+    run_holiday = run_step_button()
+    _header = step_header("## 2. Holiday calendar", run_holiday)
+    _header
+    return (run_holiday,)
 
 
 @app.cell
-def _(catalog, mo):
-    catalog_table = mo.ui.table(
-        catalog,
-        label="Daily series",
-        selection=None,
-        pagination=len(catalog) > 12,
-        page_size=12,
-        max_height=420,
-    )
-    catalog_table
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ## 3. Plot one series
-    """)
-    return
-
-
-@app.cell
-def _(catalog, mo):
-    options = {
-        f"{int(row.column):>4}  {row.header}  [{row.category}]": int(row.column)
-        for row in catalog.itertuples(index=False)
-    }
-    series_picker = mo.ui.dropdown(
-        options,
-        value=next(iter(options)),
-        label="Series",
-        full_width=True,
-    )
-    series_picker
-    return (series_picker,)
-
-
-@app.cell
-def _(catalog, mo, observations, pd, series_picker):
-    import altair as alt
-
-    column = int(series_picker.value)
-    chosen = catalog.loc[catalog["column"] == column].iloc[0]
-    series = observations[column].dropna().rename("value").reset_index()
-    fee = f", fee {chosen.fee:g}%/year" if pd.notna(chosen.fee) else ""
-    span = (
-        f", from **{series['date'].min():%Y-%m-%d}** to **{series['date'].max():%Y-%m-%d}**"
-        if len(series)
-        else ""
-    )
-    detail = mo.md(
-        f"- **{chosen.header}** \n"
-        f"- **{chosen.id}** — {chosen.name} \n"
-        f"- {chosen.category}{fee} \n"
-        f"- {chosen.note} \n"
-        f"- **{len(series):,}** observations{span} \n"
-    )
-    chart = (
-        alt.Chart(series)
-        .mark_line()
-        .encode(
-            x=alt.X("date:T", title="Date"),
-            y=alt.Y("value:Q", title=str(chosen.header)),
-            tooltip=[
-                alt.Tooltip("date:T", title="Date"),
-                alt.Tooltip("value:Q", title="Value", format=",.6g"),
-            ],
+def _(
+    catalog,
+    carry_holiday_placeholders,
+    observations,
+    run_holiday,
+    set_holiday,
+):
+    if run_holiday.value:
+        _corrected, _correction_log, _holiday_dates = carry_holiday_placeholders(
+            catalog, observations
         )
-        .properties(height=320)
-        if len(series)
-        else mo.md("This series has no observations.")
-    )
-    mo.vstack([detail, chart])
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ## 4. Check each total-return series
-
-    Same controls as `old/check-fund-timeseries.ipynb`, applied to each daily **price total return** (`TR %`) rather than to a monthly return or to the price-only return. Each series is judged on its own against the daily **S&P 500 TR** return.
-
-    A gap is a missing daily return inside the series, a skipped month, or more than 45 days between dates. A spike is a daily return of at least 10% that reverses the next day while the index does not, or that the index does not follow. A scale shift is a median absolute return that stays at least 5× higher or lower across 12 daily returns. A level jump is a move of at least 50% that does not come back. A day is far from the index when the absolute gap is at least 5%.
-    """)
-    return
-
-
-@app.cell
-def _(catalog, observations, pd):
-    import pathlib
-    import sys
-
-    start = pathlib.Path.cwd().resolve()
-    for directory in [start, *start.parents]:
-        if (directory / "helpers").is_dir():
-            root = str(directory)
-            if root not in sys.path:
-                sys.path.insert(0, root)
-            break
-    else:
-        raise FileNotFoundError(f"Could not find helpers/, starting from {start}")
-
-    from helpers.timeseries_functions.check_timeseries_consistency import (
-        DEFAULT_DATE_GAP_DAYS,
-        DEFAULT_INDEX_GAP,
-        DEFAULT_LEVEL_JUMP,
-        DEFAULT_REVERSAL_BAND,
-        DEFAULT_SCALE_FACTOR,
-        DEFAULT_SCALE_WINDOW,
-        DEFAULT_SPIKE_RETURN,
-        locate_series_issues,
-    )
-
-    def daily_frame(column_id, index_id):
-        series = observations[column_id].dropna()
-        if len(series) < 2:
-            return None
-        window = observations.loc[series.index[0] : series.index[-1]]
-        dates = pd.to_datetime(window.index)
-        fund = window[column_id]
-        market = window[index_id]
-        if isinstance(fund, pd.DataFrame):
-            fund = fund.iloc[:, 0]
-        if isinstance(market, pd.DataFrame):
-            market = market.iloc[:, 0]
-        return pd.DataFrame(
+        set_holiday(
             {
-                "Period": dates.strftime("%b %Y"),
-                "Date": dates,
-                "fund": fund.to_numpy(),
-                "S&P 500 TR": market.to_numpy(),
+                "observations": _corrected,
+                "correction_log": _correction_log,
+                "holiday_dates": _holiday_dates,
             }
         )
-
-    is_return = catalog["note"].astype("string").str.startswith("Daily simple return")
-    levels = catalog.loc[~is_return].copy()
-    level_by_header = {str(row.header): row for row in levels.itertuples(index=False)}
-    index_return = catalog.loc[
-        is_return & catalog["header"].eq("S&P 500 TR %")
-    ].iloc[0]
-    index_id = int(index_return.column)
-
-    checks = {}
-    rows = []
-    controls = {
-        "spike_return": DEFAULT_SPIKE_RETURN,
-        "reversal_band": DEFAULT_REVERSAL_BAND,
-        "scale_factor": DEFAULT_SCALE_FACTOR,
-        "scale_window": DEFAULT_SCALE_WINDOW,
-        "level_jump": DEFAULT_LEVEL_JUMP,
-        "index_gap": DEFAULT_INDEX_GAP,
-        "date_gap_days": DEFAULT_DATE_GAP_DAYS,
-    }
-    for return_row in catalog.loc[is_return].itertuples(index=False):
-        if int(return_row.column) == index_id:
-            continue
-        level = level_by_header.get(str(return_row.header).removesuffix(" %"))
-        if level is None or not str(level.note).startswith("Total return index"):
-            continue
-        series_days = daily_frame(int(return_row.column), index_id)
-        record = {
-            "column": int(return_row.column),
-            "id": return_row.id,
-            "header": return_row.header,
-            "category": return_row.category,
-            "kind": None if level is None else level.note,
-            "days": 0,
-            "gaps": 0,
-            "spikes": 0,
-            "level_jumps": 0,
-            "scale_shift": False,
-            "far_from_index": 0,
-        }
-        if series_days is not None:
-            series_check = locate_series_issues(
-                str(return_row.header),
-                "fund",
-                fund_timeseries=series_days,
-                index_column="S&P 500 TR",
-                **controls,
-            )
-            checks[int(return_row.column)] = series_check
-            checked_months = series_check.months
-            record["days"] = int(checked_months["return"].notna().sum())
-            record["gaps"] = int(checked_months["gap"].sum())
-            record["spikes"] = int(checked_months["spike"].sum())
-            record["level_jumps"] = int(checked_months["level_jump"].sum())
-            record["scale_shift"] = series_check.scale_at is not None
-            record["far_from_index"] = int(checked_months["wide"].sum())
-        rows.append(record)
-
-    issue_summary = pd.DataFrame(rows)
-    issue_summary["issues"] = (
-        issue_summary["gaps"]
-        + issue_summary["spikes"]
-        + issue_summary["level_jumps"]
-        + issue_summary["scale_shift"].astype(int)
-        + issue_summary["far_from_index"]
-    )
-    issue_summary = issue_summary.sort_values(
-        ["issues", "header"], ascending=[False, True]
-    ).reset_index(drop=True)
-    return checks, controls, issue_summary
-
-
-@app.cell
-def _(controls, issue_summary, mo):
-    flagged_series = int((issue_summary["issues"] > 0).sum())
-    check_summary = mo.md(
-        f"- **{len(issue_summary):,}** price total-return series checked against S&P 500 TR \n"
-        f"- **{flagged_series:,}** series have at least one gap, spike, scale shift, level jump, or day far from the index \n"
-        f"- Spike **{controls['spike_return']:.0%}**, reversal band **{controls['reversal_band']:.0%}**, "
-        f"scale factor **{controls['scale_factor']:g}** over **{controls['scale_window']}** daily returns, "
-        f"level jump **{controls['level_jump']:.0%}**, index gap **{controls['index_gap']:.0%}**, "
-        f"date gap **{controls['date_gap_days']}** days \n"
-    )
-    table = mo.ui.table(
-        issue_summary,
-        label="Total-return series checks",
-        selection=None,
-        pagination=len(issue_summary) > 12,
-        page_size=12,
-        max_height=420,
-    )
-    mo.vstack([check_summary, table])
-    return
-
-
-@app.cell
-def _(catalog, checks, issue_summary, mo, series_picker):
-    import importlib
-
-    from helpers.timeseries_functions import plot_timeseries_issues as plot_module
-
-    importlib.reload(plot_module)
-    plot_timeseries_issues = plot_module.plot_timeseries_issues
-
-    picked_column = int(series_picker.value)
-    picked = catalog.loc[catalog["column"] == picked_column].iloc[0]
-    tr_rows = catalog.loc[
-        catalog["id"].eq(picked.id)
-        & catalog["note"].astype("string").str.startswith("Daily simple return")
-        & catalog["header"].astype("string").str.endswith("TR %")
-        & catalog["column"].isin(checks)
-    ]
-    if tr_rows.empty:
-        checked_column = None
-        checked_note = f"**{picked.header}** has no checked price total-return series."
-    else:
-        checked_column = int(tr_rows.iloc[0]["column"])
-        checked_header = str(tr_rows.iloc[0]["header"])
-        checked_note = (
-            f"**{picked.header}** is the total-return series in the plot above."
-            if checked_column == picked_column
-            else f"**{picked.header}** is not the series being checked. Issues are read from its price total return, **{checked_header}**."
-        )
-
-    selected_check = checks.get(checked_column)
-    if selected_check is None:
-        report = mo.md(checked_note)
-    else:
-        months = selected_check.months
-        usable = months.loc[months["usable"]]
-        lines = [checked_note, ""]
-        if len(usable):
-            move = usable["return"].abs().idxmax()
-            distance = (usable["return"] - usable["index_return"]).abs()
-            gap_i = distance.idxmax()
-            lines.append(
-                f"- Largest move: **{months.at[move, 'Period']}**  {months.at[move, 'return']:+.2%}  "
-                f"S&P 500 TR {months.at[move, 'index_return']:+.2%}"
-            )
-            lines.append(
-                f"- Largest gap versus S&P 500 TR: **{months.at[gap_i, 'Period']}**  "
-                f"{(months.at[gap_i, 'return'] - months.at[gap_i, 'index_return']) * 1e4:+.1f} bp  "
-                f"fund {months.at[gap_i, 'return']:+.2%}  index {months.at[gap_i, 'index_return']:+.2%}"
-            )
-        issue_counts = issue_summary.loc[issue_summary["column"] == checked_column].iloc[0]
-        lines.append(
-            f"- **{int(issue_counts.gaps)}** gaps, **{int(issue_counts.spikes)}** abnormal spikes, "
-            f"**{int(issue_counts.level_jumps)}** level jumps, "
-            f"**{'a scale shift' if issue_counts.scale_shift else 'no scale shift'}**, "
-            f"**{int(issue_counts.far_from_index)}** days far from the S&P 500 TR"
-        )
-        flagged_months = months.loc[
-            months["gap"] | months["spike"] | months["level_jump"] | months["wide"]
-        ].copy()
-        flagged_months["flags"] = ""
-        flagged_months.loc[flagged_months["gap"], "flags"] = (
-            flagged_months.loc[flagged_months["gap"], "flags"] + "gap"
-        )
-        flagged_months.loc[flagged_months["spike"], "flags"] = flagged_months.loc[
-            flagged_months["spike"], "flags"
-        ].apply(lambda text: f"{text}, spike" if text else "spike")
-        flagged_months.loc[flagged_months["level_jump"], "flags"] = flagged_months.loc[
-            flagged_months["level_jump"], "flags"
-        ].apply(lambda text: f"{text}, level jump" if text else "level jump")
-        flagged_months.loc[flagged_months["wide"], "flags"] = flagged_months.loc[
-            flagged_months["wide"], "flags"
-        ].apply(lambda text: f"{text}, far from index" if text else "far from index")
-        view = flagged_months.loc[:, ["Date", "Period", "return", "index_return", "flags"]].rename(
-            columns={"return": "fund", "index_return": "S&P 500 TR"}
-        )
-        report = mo.vstack(
-            [
-                mo.md("\n".join(lines)),
-                mo.ui.table(
-                    view,
-                    label="Flagged days",
-                    selection=None,
-                    pagination=len(view) > 12,
-                    page_size=12,
-                    max_height=420,
-                )
-                if len(view)
-                else mo.md("No flagged days."),
-                plot_timeseries_issues(
-                    [selected_check],
-                    "S&P 500 TR",
-                    period_name="day",
-                    return_title="Daily return",
-                ),
-            ]
-        )
-    report
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ## 5. Carry prices across market holidays
-
-    A holiday is a date where the **S&P 500 TR** level equals the previous close. On those dates each price and total-return series should stay at its previous close, and its daily return should be 0. A series that prints another value is rewritten: the holiday level is carried forward, the holiday return is set to 0, and the next session's return is recomputed from the corrected level.
-    """)
-    return
-
-
-@app.cell
-def _(catalog, mo, observations, pd):
-    def values_match(left, right, tolerance):
-        left_missing = left != left
-        right_missing = right != right
-        if left_missing and right_missing:
-            return True
-        if left_missing or right_missing:
-            return False
-        return abs(left - right) <= tolerance
-
-    level_tolerance = 1e-6
-    return_tolerance = 1e-10
-    market = catalog.loc[
-        catalog["header"].eq("S&P 500 TR")
-        & catalog["note"].astype("string").str.startswith("Total return index")
-    ].iloc[0]
-    market_level = observations[int(market.column)]
-    previous_close = market_level.shift(1)
-    holiday_dates = market_level.index[
-        market_level.notna()
-        & previous_close.notna()
-        & (market_level - previous_close).abs().le(level_tolerance)
-    ]
-    holiday_positions = observations.index.get_indexer(holiday_dates)
-
-    return_ids = {
-        row.header: int(row.column)
-        for row in catalog.loc[
-            catalog["note"].astype("string").str.startswith("Daily simple return")
-        ].itertuples(index=False)
-    }
-    level_notes = ("Price, daily", "Total return index, daily", "Price index, daily")
-    corrected_observations = observations.copy()
-    correction_rows = []
-    for level_row in catalog.loc[catalog["note"].astype("string").isin(level_notes)].itertuples(
-        index=False
-    ):
-        return_id = return_ids.get(f"{level_row.header} %")
-        if return_id is None:
-            continue
-        level_id = int(level_row.column)
-        level_values = corrected_observations[level_id].to_numpy(dtype="float64", copy=True)
-        return_values = corrected_observations[return_id].to_numpy(dtype="float64", copy=True)
-        original_level = level_values.copy()
-        original_return = return_values.copy()
-        holidays_fixed = 0
-        for position in holiday_positions:
-            if position <= 0:
-                continue
-            previous = level_values[position - 1]
-            current = level_values[position]
-            if previous != previous or current != current:
-                continue
-            holiday_return = return_values[position]
-            price_moved = not values_match(current, previous, level_tolerance)
-            return_moved = not values_match(holiday_return, 0.0, return_tolerance)
-            if not price_moved and not return_moved:
-                continue
-            level_values[position] = previous
-            return_values[position] = 0.0
-            holidays_fixed += 1
-            following = position + 1
-            if (
-                price_moved
-                and following < len(level_values)
-                and level_values[following] == level_values[following]
-                and previous != 0
-            ):
-                return_values[following] = level_values[following] / previous - 1.0
-        if holidays_fixed == 0:
-            continue
-        corrected_observations[level_id] = level_values
-        corrected_observations[return_id] = return_values
-        cells_changed = 0
-        for before, after in zip(original_level, level_values, strict=True):
-            if not values_match(before, after, level_tolerance):
-                cells_changed += 1
-        for before, after in zip(original_return, return_values, strict=True):
-            if not values_match(before, after, return_tolerance):
-                cells_changed += 1
-        correction_rows.append(
-            {
-                "id": level_row.id,
-                "header": level_row.header,
-                "category": level_row.category,
-                "kind": level_row.note,
-                "holidays_fixed": holidays_fixed,
-                "cells_changed": cells_changed,
-            }
-        )
-
-    correction_log = pd.DataFrame(correction_rows)
-    if correction_log.empty:
-        correction_log = pd.DataFrame(
-            columns=["id", "header", "category", "kind", "holidays_fixed", "cells_changed"]
-        )
-    else:
-        correction_log = correction_log.sort_values(
-            ["cells_changed", "header"], ascending=[False, True]
-        ).reset_index(drop=True)
-    corrected_series = len(correction_log)
-    corrected_funds = int(correction_log["id"].nunique()) if corrected_series else 0
-    cells_changed = int(correction_log["cells_changed"].sum()) if corrected_series else 0
-    holiday_count = len(holiday_dates)
-    first_holiday = holiday_dates.min()
-    last_holiday = holiday_dates.max()
-    correction_summary = mo.md(
-        f"- **{holiday_count:,}** holidays, from **{first_holiday:%Y-%m-%d}** to **{last_holiday:%Y-%m-%d}**, where the S&P 500 TR level equals the previous close \n"
-        f"- **{corrected_series:,}** series corrected, across **{corrected_funds:,}** funds \n"
-        f"- **{cells_changed:,}** cells changed: holiday levels carried forward, holiday returns set to 0, and the next session's return recomputed when the level changed \n"
-    )
-    correction_table = mo.ui.table(
-        correction_log,
-        label="Corrected series",
-        selection=None,
-        pagination=len(correction_log) > 12,
-        page_size=12,
-        max_height=420,
-    )
-    mo.vstack([correction_summary, correction_table])
-    return corrected_observations, correction_log, holiday_dates
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ## 6. Rescale level breaks
-
-    A level break is a daily move of at least 50% that is still there over the next sessions, while the S&P 500 does not make a comparable move. The break is removed by rescaling the side that does not match the published NAV. The level in use today stays as published, and only the return on the join date is recomputed.
-
-    A price drop whose total return does not jump is a distribution. The total return already records that corporate action, so the price is left unchanged.
-    """)
-    return
-
-
-@app.cell
-def _(catalog, corrected_observations, mo, pd):
-    def lasting_breaks(source, catalog_frame):
-        is_return = catalog_frame["note"].astype("string").str.startswith("Daily simple return")
-        index_id = int(
-            catalog_frame.loc[is_return & catalog_frame["header"].eq("S&P 500 TR %"), "column"].iloc[0]
-        )
-        market_return = source[index_id]
-        found = []
-        for return_row in catalog_frame.loc[is_return].itertuples(index=False):
-            header = str(return_row.header)
-            if header.endswith("Price %"):
-                side = "Price"
-            elif header.endswith("TR %"):
-                side = "TR"
-            else:
-                continue
-            returns = source[int(return_row.column)]
-            gap = (returns - market_return).abs()
-            candidates = returns.index[
-                returns.notna()
-                & market_return.notna()
-                & returns.abs().ge(0.50)
-                & gap.ge(0.25)
-            ]
-            values = returns.to_numpy(dtype="float64")
-            for day in candidates:
-                position = source.index.get_loc(day)
-                follow = [value for value in values[position : position + 4] if value == value]
-                if len(follow) < 2:
-                    continue
-                stayed = 1.0
-                for value in follow:
-                    stayed *= 1.0 + value
-                stayed -= 1.0
-                jump = float(values[position])
-                if abs(stayed) < abs(jump) / 2:
-                    continue
-                found.append(
-                    {
-                        "isin": str(return_row.id),
-                        "date": pd.Timestamp(day),
-                        "side": side,
-                        "stored_return": jump,
-                    }
-                )
-        return found, market_return
-
-    def fund_label(catalog_frame, isin):
-        names = catalog_frame.loc[catalog_frame["id"].eq(isin), "name"].astype("string")
-        label = str(names.iloc[0]) if len(names) else isin
-        for suffix in (" - TOT RETURN IND", " - PRICE", " - TOTAL NET ASSETS"):
-            if label.endswith(suffix):
-                return label[: -len(suffix)]
-        return label
-
-    def column_id(catalog_frame, header):
-        match = catalog_frame.loc[catalog_frame["header"].eq(header), "column"]
-        if match.empty:
-            return None
-        return int(match.iloc[0])
-
-    def changed_cells(before, after, tolerance):
-        count = 0
-        for left, right in zip(before, after, strict=True):
-            left_missing = left != left
-            right_missing = right != right
-            if left_missing and right_missing:
-                continue
-            if left_missing or right_missing or abs(left - right) > tolerance:
-                count += 1
-        return count
-
-    def scale_series(frame, catalog_frame, isin, side, day, factor, mode):
-        level_id = column_id(catalog_frame, f"{isin} {side}")
-        return_id = column_id(catalog_frame, f"{isin} {side} %")
-        if level_id is None or return_id is None:
-            return 0, None, None
-        levels = frame[level_id].to_numpy(dtype="float64", copy=True)
-        returns = frame[return_id].to_numpy(dtype="float64", copy=True)
-        original_levels = levels.copy()
-        original_returns = returns.copy()
-        position = frame.index.get_loc(pd.Timestamp(day))
-        if mode == "history":
-            levels[:position] *= factor
-        else:
-            levels[position:] *= factor
-        previous = levels[position - 1]
-        current = levels[position]
-        if previous == previous and current == current and previous != 0:
-            returns[position] = current / previous - 1.0
-        frame[level_id] = levels
-        frame[return_id] = returns
-        edited = changed_cells(original_levels, levels, 1e-8) + changed_cells(
-            original_returns, returns, 1e-12
-        )
-        return edited, float(original_returns[position]), float(returns[position])
-
-    def history_factor(frame, catalog_frame, isin, day, market_return):
-        level_id = column_id(catalog_frame, f"{isin} Price")
-        levels = frame[level_id]
-        position = frame.index.get_loc(pd.Timestamp(day))
-        previous = float(levels.iloc[position - 1])
-        current = float(levels.iloc[position])
-        session = float(market_return.iloc[position])
-        return current / (previous * (1.0 + session))
-
-    def forward_factor(frame, catalog_frame, isin, day, market_return, anchor):
-        price_id = column_id(catalog_frame, f"{isin} Price")
-        tr_id = column_id(catalog_frame, f"{isin} TR")
-        position = frame.index.get_loc(pd.Timestamp(day))
-        tr_level = frame[tr_id]
-        if anchor == "price":
-            price_level = frame[price_id]
-            carried = float(tr_level.iloc[position - 1]) / float(price_level.iloc[position - 1])
-            target = float(price_level.iloc[position]) * carried
-        else:
-            target = float(tr_level.iloc[position - 1]) * (1.0 + float(market_return.iloc[position]))
-        return target / float(tr_level.iloc[position])
-
-    # History is multiplied by `factor`. A split that was applied twice is 1/ratio².
-    # `anchor` "market" stitches an index fund to that day's S&P return.
-    # `anchor` "price" puts the total-return index back on the price scale.
-    level_actions = [
-        {
-            "isin": "US2562191062",
-            "date": "2025-10-27",
-            "sides": ("Price", "TR"),
-            "mode": "history",
-            "factor": 1 / 256,
-            "why": "16-for-1 split on 27 Oct 2025. Stored history is already 16× the published NAV, so the level has to be divided by 16² = 256.",
-        },
-        {
-            "isin": "US1888501012",
-            "date": "2025-05-12",
-            "sides": ("Price", "TR"),
-            "mode": "history",
-            "factor": 1 / 100,
-            "why": "10-for-1 split effective 12 May 2025. The 9 May print is 1,394.60, exactly 10× the fund's published $139.46, so history is divided by 10² = 100.",
-        },
-        {
-            "isin": "US8085098551",
-            "date": "2025-08-15",
-            "sides": ("Price", "TR"),
-            "mode": "history",
-            "factor": 1 / 36,
-            "why": "6-for-1 split effective 15 Aug 2025, with the same double scaling. History is divided by 6² = 36.",
-        },
-        {
-            "isin": "US78472P1093",
-            "date": "2020-04-20",
-            "sides": ("Price", "TR"),
-            "mode": "history",
-            "factor": 6,
-            "why": "1-for-6 reverse split effective 17 Apr 2020, first priced on the 20th because the 17th was Good Friday. Price and total return were both multiplied by 6. History is multiplied by 6 so the split is not a return.",
-        },
-        {
-            "isin": "US2571321007",
-            "date": "2016-07-12",
-            "sides": ("Price", "TR"),
-            "mode": "history",
-            "factor": 2,
-            "why": "Price and total return both double on 12 Jul 2016. The fund's published split is a different date and is already smooth here. Today's NAV matches the later scale, so earlier history is doubled.",
-        },
-        {
-            "isin": "US85749T7569",
-            "date": "2020-04-20",
-            "sides": ("Price", "TR"),
-            "mode": "history",
-            "anchor": "market",
-            "why": "Master-portfolio history is quoted near $0.60 until 20 Apr 2020, then switches to the published NAV. History is rescaled so that day's return equals the S&P 500.",
-        },
-        {
-            "isin": "US00774Q8740",
-            "date": "2022-12-29",
-            "sides": ("TR",),
-            "mode": "forward",
-            "anchor": "price",
-            "why": "The price is a normal NAV. Only the total-return index is rebased, from about 167 to about 277,000. Later total-return levels are divided back onto the price scale.",
-        },
-        {
-            "isin": "US3161841008",
-            "date": "2017-12-01",
-            "sides": ("TR",),
-            "mode": "forward",
-            "anchor": "market",
-            "why": "The price drop fits a December distribution. The total-return index jumps +77% on a base near 10¹⁰. Later total-return levels are rescaled so that day's return equals the S&P 500.",
-        },
-    ]
-    kept_distributions = [
-        {
-            "isin": "US00791R7807",
-            "date": "2025-12-18",
-            "sides": ("Price",),
-            "why": "Long-term capital gain of $15.1441 on 18 Dec 2025. The price falls from 18.75 to 3.76 and the total return stays near 246, so the price is the ex-distribution NAV and is not rescaled.",
-        },
-        {
-            "isin": "US3624014086",
-            "date": "2026-10-28",
-            "sides": ("Price",),
-            "why": "The price falls from 14.51 to 6.10 and stays there. That level matches the fund's published NAV, and the 25 Apr 2025 price matches the published $12.92. The total return does not fall. The fund's liquidation was announced on 14 Oct 2026.",
-        },
-    ]
-
-    def describe_factor(factor, when):
-        if factor >= 1:
-            rounded = round(factor)
-            if abs(factor - rounded) < 1e-6:
-                return f"× {rounded:.0f} {when}"
-            return f"× {factor:.4f} {when}"
-        inverse = 1.0 / factor
-        rounded = round(inverse)
-        if abs(inverse - rounded) < 1e-4:
-            return f"÷ {rounded:.0f} {when}"
-        if inverse >= 100:
-            return f"÷ {inverse:,.1f} {when}"
-        return f"÷ {inverse:.4f} {when}"
-
-    breaks, market_return = lasting_breaks(corrected_observations, catalog)
-    break_keys = {(item["isin"], item["date"].strftime("%Y-%m-%d"), item["side"]) for item in breaks}
-    stored_returns = {
-        (item["isin"], item["date"].strftime("%Y-%m-%d"), item["side"]): item["stored_return"]
-        for item in breaks
-    }
-    adjusted_observations = corrected_observations.copy()
-    action_rows = []
-    for action in level_actions:
-        mode = action["mode"]
-        # No pre-correction copy is kept. Rescale a side only while the break
-        # is still in the series, so a later run does not scale it again.
-        pending = [
-            side
-            for side in action["sides"]
-            if (action["isin"], action["date"], side) in break_keys
-        ]
-        for side in action["sides"]:
-            if side in pending:
-                continue
-            action_rows.append(
-                {
-                    "isin": action["isin"],
-                    "fund": fund_label(catalog, action["isin"]),
-                    "date": action["date"],
-                    "series": side,
-                    "decision": "already rescaled",
-                    "detected": False,
-                    "adjustment": "left unchanged",
-                    "return_before": None,
-                    "return_after": None,
-                    "cells": 0,
-                    "why": action["why"],
-                }
-            )
-        if not pending:
-            continue
-        if "factor" in action:
-            factor = action["factor"]
-        elif mode == "history":
-            factor = history_factor(
-                adjusted_observations, catalog, action["isin"], action["date"], market_return
-            )
-        else:
-            factor = forward_factor(
-                adjusted_observations,
-                catalog,
-                action["isin"],
-                action["date"],
-                market_return,
-                action["anchor"],
-            )
-        when = "from the break forward" if mode == "forward" else "before the break"
-        adjustment = describe_factor(factor, when)
-        for side in pending:
-            edited, return_before, return_after = scale_series(
-                adjusted_observations,
-                catalog,
-                action["isin"],
-                side,
-                action["date"],
-                factor,
-                mode,
-            )
-            action_rows.append(
-                {
-                    "isin": action["isin"],
-                    "fund": fund_label(catalog, action["isin"]),
-                    "date": action["date"],
-                    "series": side,
-                    "decision": "rescaled",
-                    "detected": True,
-                    "adjustment": adjustment,
-                    "return_before": return_before,
-                    "return_after": return_after,
-                    "cells": edited,
-                    "why": action["why"],
-                }
-            )
-    for action in kept_distributions:
-        for side in action["sides"]:
-            key = (action["isin"], action["date"], side)
-            action_rows.append(
-                {
-                    "isin": action["isin"],
-                    "fund": fund_label(catalog, action["isin"]),
-                    "date": action["date"],
-                    "series": side,
-                    "decision": "kept",
-                    "detected": key in break_keys,
-                    "adjustment": "price left unchanged",
-                    "return_before": stored_returns.get(key),
-                    "return_after": stored_returns.get(key),
-                    "cells": 0,
-                    "why": action["why"],
-                }
-            )
-    covered = {
-        (action["isin"], action["date"], side)
-        for action in [*level_actions, *kept_distributions]
-        for side in action["sides"]
-    }
-    for item in breaks:
-        key = (item["isin"], item["date"].strftime("%Y-%m-%d"), item["side"])
-        if key in covered:
-            continue
-        action_rows.append(
-            {
-                "isin": item["isin"],
-                "fund": fund_label(catalog, item["isin"]),
-                "date": key[1],
-                "series": item["side"],
-                "decision": "not adjusted",
-                "detected": True,
-                "adjustment": "",
-                "return_before": item["stored_return"],
-                "return_after": item["stored_return"],
-                "cells": 0,
-                "why": "Level break with no corporate-action rule.",
-            }
-        )
-
-    action_log = pd.DataFrame(action_rows)
-    if action_log.empty:
-        action_log = pd.DataFrame(
-            columns=[
-                "isin",
-                "fund",
-                "date",
-                "series",
-                "decision",
-                "detected",
-                "adjustment",
-                "return_before",
-                "return_after",
-                "cells",
-                "why",
-            ]
-        )
-    rescaled = action_log.loc[action_log["decision"].eq("rescaled")]
-    already_rescaled = action_log.loc[action_log["decision"].eq("already rescaled")]
-    kept = action_log.loc[action_log["decision"].eq("kept")]
-    action_summary = mo.md(
-        f"- **{len(breaks):,}** level breaks detected, across **{action_log['isin'].nunique():,}** funds \n"
-        f"- **{len(rescaled):,}** series rescaled, **{int(rescaled['cells'].sum()):,}** cells changed \n"
-        f"- **{len(already_rescaled):,}** series already on the corrected scale \n"
-        f"- **{len(kept):,}** price series kept, because the total return already accounts for the distribution \n"
-    )
-    action_table = mo.ui.table(
-        action_log,
-        label="Level breaks",
-        selection=None,
-        pagination=False,
-        page_size=20,
-    )
-    mo.vstack([action_summary, action_table])
-    return action_log, adjusted_observations
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ## 6b. Rebuild total return from distributions
-
-    After splits and level breaks, each fund's daily **total return** is rebuilt from the published **price** and cash **distributions** (Yahoo, then FMP cache). On ex-dates the return reinvests the cash amount on the prior NAV. The series is kept only when 3y, 5y or 10y cumulative return moves closer to Lipper's horizon performance (10y rules). Index funds without a dividend history still get the December miss heuristic (that day's return set to the S&P).
-
-    Run the button once to refresh the total-return series before step 7. Results are logged in the table below.
-    """)
-    return
-
-
-@app.cell
-def _(mo):
-    rebuild_tr_button = mo.ui.run_button(
-        label="Rebuild total return from distributions (Lipper gate)"
-    )
-    mo.vstack([rebuild_tr_button])
-    return (rebuild_tr_button,)
-
-
-@app.cell
-def _(adjusted_observations, catalog, mo, pd, rebuild_tr_button, workbook):
-    def _code_root():
-        from pathlib import Path
-
-        start = Path.cwd().resolve()
-        for directory in [start, *start.parents]:
-            if (directory / "helpers").is_dir():
-                return directory
-        raise FileNotFoundError(f"Could not find helpers/, starting from {start}")
-
-    def _openfigi_tickers() -> dict[str, str]:
-        import json
-
-        cache_path = _code_root() / "cache" / "cache-isin-openfigi.json"
-        payload = json.loads(cache_path.read_text())
-        return {
-            str(isin).strip(): str(ticker).strip()
-            for isin, ticker in payload.items()
-            if isinstance(isin, str) and isinstance(ticker, str) and ticker
-        }
-
-    from helpers.timeseries_functions.rebuild_tr_from_distributions import (
-        load_distributions_cache,
-        rebuild_tr_panel,
-    )
-    from helpers.timeseries_functions.regress_daily_to_benchmark import (
-        FUNDS_SHEET,
-        load_funds_reference,
-    )
-
-    funds = load_funds_reference(workbook, sheet_name=FUNDS_SHEET)
-    funds_by_isin = {
-        str(row["ISIN"]).strip(): row for _, row in funds.iterrows() if pd.notna(row.get("ISIN"))
-    }
-    isin_to_ticker = _openfigi_tickers()
-
-    if rebuild_tr_button.value:
-        tr_ready_observations, rebuild_log = rebuild_tr_panel(
-            adjusted_observations,
-            catalog,
-            funds_by_isin,
-            isin_to_ticker,
-            distributions_cache=load_distributions_cache(),
-        )
-    else:
-        tr_ready_observations = adjusted_observations
-        rebuild_log = pd.DataFrame(
-            columns=[
-                "isin",
-                "fund",
-                "ticker",
-                "decision",
-                "source",
-                "n_ex_dates",
-                "n_days_changed",
-                "gap_10y_before",
-                "gap_10y_after",
-            ]
-        )
-
-    adopted = int(rebuild_log["decision"].eq("adopted").sum()) if len(rebuild_log) else 0
-    rebuild_summary = mo.md(
-        f"- **{len(rebuild_log):,}** funds evaluated \n"
-        f"- **{adopted:,}** adopted the distribution rebuild \n"
-        f"- **{len(rebuild_log) - adopted:,}** kept the Datastream total return \n"
-    )
-    _sorted = rebuild_log
-    if len(rebuild_log) and "gap_10y_before" in rebuild_log.columns:
-        _sorted = rebuild_log.assign(
-            _abs_gap=rebuild_log["gap_10y_before"].abs()
-        ).sort_values("_abs_gap", ascending=False).drop(columns="_abs_gap")
-    rebuild_table = mo.ui.table(
-        _sorted,
-        label="Distribution rebuild",
-        selection=None,
-        pagination=len(rebuild_log) > 15,
-        page_size=15,
-        max_height=420,
-    )
-    mo.vstack([rebuild_summary, rebuild_table])
-    return rebuild_log, tr_ready_observations
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ## 7. Repair distribution-day total returns
-
-    A spike is repaired when the total return disagrees with the price. On a distribution day the price falls by the payout and the total return should stay near that day's investment return. The total-return level from that day forward is rescaled so the day's return matches the S&P 500, and every later daily return stays as it was. The price is left as published.
-
-    One spike, American Growth on 1 Dec 2025, is a single bad total-return print. Only that level is replaced, using the day's price return, and the next session's return is recomputed from the level already stored.
-
-    Where the price and the total return make the same move, the NAV itself moved and the series is left unchanged.
-    """)
-    return
-
-
-@app.cell
-def _(catalog, mo, pd, tr_ready_observations):
-    def repair_distribution_spikes(source, catalog_frame):
-        def column_id(header):
-            match = catalog_frame.loc[catalog_frame["header"].eq(header), "column"]
-            return None if match.empty else int(match.iloc[0])
-
-        def fund_label(isin):
-            names = catalog_frame.loc[catalog_frame["id"].eq(isin), "name"].astype("string")
-            label = str(names.iloc[0]) if len(names) else isin
-            for suffix in (" - TOT RETURN IND", " - PRICE", " - TOTAL NET ASSETS"):
-                if label.endswith(suffix):
-                    return label[: -len(suffix)]
-            return label
-
-        def changed_cells(before, after, tolerance):
-            count = 0
-            for left, right in zip(before, after, strict=True):
-                left_missing = left != left
-                right_missing = right != right
-                if left_missing and right_missing:
-                    continue
-                if left_missing or right_missing or abs(left - right) > tolerance:
-                    count += 1
-            return count
-
-        market_id = column_id("S&P 500 TR %")
-        # Forward: the bad return stays in every later total-return level.
-        # One-day: only that print is wrong; the next level is already right.
-        repairs = [
-            ("US3161841008", "2015-12-04", "forward", "Distributions of $0.392. The price falls 2.1% and the total return jumps +36%. The repaired return is the S&P return."),
-            ("US3161841008", "2016-12-02", "forward", "Distributions of $0.186. The price falls 2.1% and the total return jumps +18%."),
-            ("US3161841008", "2017-05-12", "forward", "Distributions of $0.555. The price falls 5.5% and the total return jumps +50%."),
-            ("US3161841008", "2018-05-11", "forward", "Distributions of $0.507. The price falls 4.5% and the total return jumps +39%."),
-            ("US78472P1093", "2019-12-20", "forward", "S&P index fund. The price falls 4.1% and the total return jumps +24% on a day the S&P rose 0.5%."),
-            ("US85749T7569", "2019-12-20", "forward", "S&P index portfolio. The price falls 1.8% and the total return jumps +45% on a day the S&P rose 0.5%."),
-            ("US38141W6205", "2021-12-14", "forward", "The price falls 22% and the total return only 14%, so the distribution was partly omitted. The day's total return is set to the S&P return."),
-            ("US38141W6205", "2024-12-12", "forward", "The price falls 14% and the total return 12%. Same partial distribution add-back."),
-            ("US63872T4893", "2021-12-23", "forward", "The price falls 27% and the total return 13% while the S&P rose 0.6%."),
-            ("US0263933063", "2025-12-01", "one-day", "The total return jumps +14.6% and reverses the next day. The price does not jump. Only that total-return print is replaced."),
-        ]
-        kept_spikes = [
-            ("US46090A7054", "2020-03-16", "Price and total return both rise 11.5% while the S&P falls 12%. The hedge paid off."),
-            ("US00777X6452", "2020-03-18", "Price and total return both fall 10.9% in the March 2020 crash. The next day does not restore a different path."),
-            ("US66538H5919", "2020-03-23", "Price and total return both fall 13% and rebound 16% the next day. Both series match."),
-            ("US62827L4923", "2026-02-02", "Price and total return both rise 12% after a 9% drop, and the new level stays."),
-            ("US15136Y4070", "2018-01-02", "Price and total return both rise 14.5%, and the new level stays."),
-            ("US77926Y8232", "2026-10-22", "Price and total return both fall 10% against an S&P decline of 1.2%."),
-            ("US77926Y8232", "2026-10-30", "Price and total return both fall 12% against an S&P decline of 1.8%. This is the last print in the file."),
-        ]
-
-        repaired = source.copy()
-        market = repaired[market_id]
-        rows = []
-        for isin, day, mode, why in repairs:
-            level_id = column_id(f"{isin} TR")
-            return_id = column_id(f"{isin} TR %")
-            price_return_id = column_id(f"{isin} Price %")
-            position = repaired.index.get_loc(pd.Timestamp(day))
-            levels = repaired[level_id].to_numpy(dtype="float64", copy=True)
-            returns = repaired[return_id].to_numpy(dtype="float64", copy=True)
-            original_levels = levels.copy()
-            original_returns = returns.copy()
-            previous = levels[position - 1]
-            current = levels[position]
-            target = float(market.iloc[position] if mode == "forward" else repaired[price_return_id].iloc[position])
-            # Already repaired. Scaling again would multiply every later level by a rounding error.
-            if (
-                previous == previous
-                and current == current
-                and previous != 0
-                and abs(current / previous - 1.0 - target) <= 1e-8
-            ):
-                next_return = (
-                    float(original_returns[position + 1])
-                    if position + 1 < len(original_returns)
-                    else None
-                )
-                rows.append(
-                    {
-                        "isin": isin,
-                        "fund": fund_label(isin),
-                        "date": day,
-                        "decision": "repaired",
-                        "adjustment": "already matches",
-                        "return_before": float(original_returns[position]),
-                        "return_after": float(original_returns[position]),
-                        "next_return_before": next_return,
-                        "next_return_after": next_return,
-                        "cells": 0,
-                        "why": why,
-                    }
-                )
-                continue
-            if mode == "forward":
-                levels[position:] *= (previous * (1.0 + target)) / levels[position]
-                returns[position] = levels[position] / previous - 1.0
-                adjustment = "total return set to the S&P return; later levels rescaled"
-            else:
-                levels[position] = previous * (1.0 + target)
-                returns[position] = target
-                following = position + 1
-                if (
-                    following < len(levels)
-                    and levels[following] == levels[following]
-                    and levels[position] != 0
-                ):
-                    returns[following] = levels[following] / levels[position] - 1.0
-                adjustment = "spike-day level replaced with the price return; next return recomputed"
-            repaired[level_id] = levels
-            repaired[return_id] = returns
-            rows.append(
-                {
-                    "isin": isin,
-                    "fund": fund_label(isin),
-                    "date": day,
-                    "decision": "repaired",
-                    "adjustment": adjustment,
-                    "return_before": float(original_returns[position]),
-                    "return_after": float(returns[position]),
-                    "next_return_before": float(original_returns[position + 1]),
-                    "next_return_after": float(returns[position + 1]),
-                    "cells": changed_cells(original_levels, levels, 1e-8)
-                    + changed_cells(original_returns, returns, 1e-12),
-                    "why": why,
-                }
-            )
-        for isin, day, why in kept_spikes:
-            return_id = column_id(f"{isin} TR %")
-            position = repaired.index.get_loc(pd.Timestamp(day))
-            stored = float(repaired[return_id].iloc[position])
-            rows.append(
-                {
-                    "isin": isin,
-                    "fund": fund_label(isin),
-                    "date": day,
-                    "decision": "kept",
-                    "adjustment": "left unchanged",
-                    "return_before": stored,
-                    "return_after": stored,
-                    "next_return_before": None,
-                    "next_return_after": None,
-                    "cells": 0,
-                    "why": why,
-                }
-            )
-        log = pd.DataFrame(rows)
-        return repaired, log
-
-    repaired_observations, distribution_log = repair_distribution_spikes(
-        tr_ready_observations, catalog
-    )
-    repaired_rows = distribution_log.loc[distribution_log["decision"].eq("repaired")]
-    kept_rows = distribution_log.loc[distribution_log["decision"].eq("kept")]
-    distribution_summary = mo.md(
-        f"- **{len(repaired_rows):,}** distribution days repaired, on **{repaired_rows['isin'].nunique():,}** total-return series \n"
-        f"- **{int(repaired_rows['cells'].sum()):,}** cells changed \n"
-        f"- **{len(kept_rows):,}** spikes left unchanged, because the price and the total return agree \n"
-    )
-    distribution_table = mo.ui.table(
-        distribution_log,
-        label="Distribution-day spikes",
-        selection=None,
-        pagination=False,
-        page_size=20,
-    )
-    mo.vstack([distribution_summary, distribution_table])
-    return distribution_log, repaired_observations
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ## 8. Blank frozen series
-
-    When a fund closes or merges, Datastream keeps repeating its last price and total return on every later date. Those repeated values are not returns. They would add a 0% return on every day and push volatility and beta down.
-
-    A total-return series is frozen when its level stops changing and stays flat for at least 5 sessions where the S&P 500 moved, up to the last date of the series. The price must be flat over the same sessions. If the price still moves, the fund is still pricing (for example a fund moving to cash before liquidation), and the series is left as it is. The last real print is kept. Every later level and daily return is blanked, for both the total return and the price. A series that never moves is blanked entirely. Total net assets are monthly values repeated daily, so they are left unchanged.
-    """)
-    return
-
-
-@app.cell
-def _(catalog, mo, pd, repaired_observations):
-    def blank_frozen_tails(source, catalog_frame, min_sessions=5):
-        def column_id(header):
-            match = catalog_frame.loc[catalog_frame["header"].eq(header), "column"]
-            return None if match.empty else int(match.iloc[0])
-
-        def fund_label(isin):
-            names = catalog_frame.loc[catalog_frame["id"].eq(isin), "name"].astype("string")
-            label = str(names.iloc[0]) if len(names) else isin
-            for suffix in (" - TOT RETURN IND", " - PRICE", " - TOTAL NET ASSETS"):
-                if label.endswith(suffix):
-                    return label[: -len(suffix)]
-            return label
-
-        def last_change(levels):
-            # Position of the last level that differs from the one before it,
-            # or None when the series never moves.
-            values = levels.dropna()
-            moved = values.diff().fillna(0).ne(0)
-            if not moved.any():
-                return None
-            return source.index.get_loc(values.index[moved.to_numpy()][-1])
-
-        market_return = source[column_id("S&P 500 TR %")]
-        is_level = catalog_frame["note"].astype("string").eq("Total return index, daily")
-        cleaned = source.copy()
-        rows = []
-        for tr_row in catalog_frame.loc[is_level].itertuples(index=False):
-            isin = str(tr_row.id)
-            if str(tr_row.category) == "Index":
-                continue
-            tr_id = int(tr_row.column)
-            tr_levels = cleaned[tr_id]
-            present = tr_levels.notna().to_numpy()
-            if present.sum() < 2:
-                continue
-            first = int(present.argmax())
-            last = len(present) - 1 - int(present[::-1].argmax())
-            tr_cut = last_change(tr_levels)
-            price_id = column_id(f"{isin} Price")
-            price_cut = None if price_id is None else last_change(cleaned[price_id])
-            cuts = [cut for cut in (tr_cut, price_cut) if cut is not None]
-            never_moves = not cuts
-            # Keep the last real print: blank from the session after it.
-            # A series that never moves is blanked from its first value.
-            start = first if never_moves else max(cuts) + 1
-            if start > last:
-                continue
-            tail = market_return.iloc[start : last + 1]
-            moved_sessions = int(tail.fillna(0).ne(0).sum())
-            if not never_moves and moved_sessions < min_sessions:
-                continue
-            blanked = 0
-            for header in (f"{isin} TR", f"{isin} TR %", f"{isin} Price", f"{isin} Price %"):
-                target = column_id(header)
-                if target is None:
-                    continue
-                values = cleaned[target].to_numpy(dtype="float64", copy=True)
-                blanked += int((values[start:] == values[start:]).sum())
-                values[start:] = float("nan")
-                cleaned[target] = values
-            rows.append(
-                {
-                    "isin": isin,
-                    "fund": fund_label(isin),
-                    "pattern": "never moves" if never_moves else "frozen tail",
-                    "last_real_print": None if never_moves else source.index[start - 1].strftime("%Y-%m-%d"),
-                    "frozen_from": source.index[start].strftime("%Y-%m-%d"),
-                    "frozen_to": source.index[last].strftime("%Y-%m-%d"),
-                    "frozen_sessions": last - start + 1,
-                    "sessions_where_sp500_moved": moved_sessions,
-                    "frozen_level": float(source[tr_id].iloc[last]),
-                    "cells": blanked,
-                }
-            )
-        log = pd.DataFrame(
-            rows,
-            columns=[
-                "isin",
-                "fund",
-                "pattern",
-                "last_real_print",
-                "frozen_from",
-                "frozen_to",
-                "frozen_sessions",
-                "sessions_where_sp500_moved",
-                "frozen_level",
-                "cells",
-            ],
-        )
-        if len(log):
-            log = log.sort_values("frozen_sessions", ascending=False).reset_index(drop=True)
-        return cleaned, log
-
-    cleaned_observations, frozen_log = blank_frozen_tails(repaired_observations, catalog)
-    never_moving = frozen_log.loc[frozen_log["pattern"].eq("never moves")]
-    frozen_tails = frozen_log.loc[frozen_log["pattern"].eq("frozen tail")]
-    frozen_summary = mo.md(
-        f"- **{len(never_moving):,}** funds never move and are blanked entirely \n"
-        f"- **{len(frozen_tails):,}** funds have a frozen tail, blanked after their last real print \n"
-        f"- **{int(frozen_log['cells'].sum()):,}** cells blanked across total return, price, and their daily returns \n"
-    )
-    frozen_table = mo.ui.table(
-        frozen_log,
-        label="Frozen series",
-        selection=None,
-        pagination=False,
-    )
-    mo.vstack([frozen_summary, frozen_table])
-    return cleaned_observations, frozen_log
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ## 9. Fill the 3-month T-bill
-
-    The Datastream column `US T-Bill 3M` is empty. The Sharpe ratio uses the last annualised percent in each month. Yahoo `^IRX` is the 13-week Treasury bill yield, already in percent. Each sheet date that Yahoo printed receives that close. Dates Yahoo skips, including US holidays, stay blank. The next step writes this column with the rest of the cleaned sheet.
-    """)
-    return
-
-
-@app.cell
-def _(catalog, cleaned_observations, mo, pd):
-    import yfinance as yf
-
-    _matches = catalog.loc[catalog["header"].eq("US T-Bill 3M"), "column"]
-    if len(_matches) != 1:
-        raise ValueError("Expected one US T-Bill 3M column")
-    _rate_column = int(_matches.iloc[0])
-    _start = pd.Timestamp(cleaned_observations.index.min())
-    _end = pd.Timestamp(cleaned_observations.index.max()) + pd.Timedelta(days=1)
-    _history = yf.Ticker("^IRX").history(
-        start=_start,
-        end=_end,
-        interval="1d",
-        auto_adjust=False,
-        repair=False,
-    )
-    if _history.empty:
-        raise ValueError("Yahoo returned no ^IRX history")
-    _history.index = _history.index.tz_localize(None).normalize()
-    _close = _history["Close"].astype(float)
-    _dates = pd.DatetimeIndex(pd.to_datetime(cleaned_observations.index)).normalize()
-    _aligned = _close.reindex(_dates)
-    rated_observations = cleaned_observations.copy()
-    rated_observations[_rate_column] = _aligned.to_numpy()
-    _filled = int(_aligned.notna().sum())
-    _blank = int(_aligned.isna().sum())
-    _present = _aligned.dropna()
-    irx_summary = mo.md(
-        f"- **{_filled:,}** sessions filled from Yahoo `^IRX` \n"
-        f"- **{_blank:,}** sessions left blank \n"
-        f"- First print {_present.index[0].strftime('%Y-%m-%d')}: **{float(_present.iloc[0]):.2f}%** \n"
-        f"- Last print {_present.index[-1].strftime('%Y-%m-%d')}: **{float(_present.iloc[-1]):.2f}%** \n"
-    )
-    irx_summary
-    return (rated_observations,)
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ## 10. Drop four closed funds
-
-    Four funds have a Datastream column and no usable return in this sample. Lipper already marked each one absent and left it unselected. The column is non-null, so the earlier keep step still held them. Step 8 blanks a frozen tail and keeps the last real print. That is the wrong cut for these four: the print is not a series this study can use. This step blanks every column, including net assets, sets the fund to Drop, and removes it from the fund set.
-    """)
     return
 
 
 @app.cell
 def _(
     catalog,
-    rated_observations,
-    label_rows,
+    get_holiday,
+    md,
     mo,
-    observations,
-    pd,
-    raw,
-    sheet_name,
-    workbook,
+    review_table,
+    selection_stats,
+    stack,
+    step_sections,
 ):
-    closed_funds = pd.DataFrame(
-        [
-            {
-                "isin": "US31678R6760",
-                "fund": "Fifth Third Equity Index Fund;A",
-                "why": (
-                    "Liquidated on 27 July 2012, before the sample. "
-                    "Price 24.61 and total return 301.87 are repeated from November 2015 through October 2026. Net assets are empty."
-                ),
-            },
-            {
-                "isin": "US31678R6273",
-                "fund": "Fifth Third Structured Large Cap Plus Fund;A",
-                "why": (
-                    "Same liquidation on 27 July 2012. Datastream still says Large Cap Core, the name until 2 July 2007. "
-                    "Price 12.99 and total return 149.19 never move. Net assets are empty."
-                ),
-            },
-            {
-                "isin": "US3167865654",
-                "fund": "Fifth Third Dividend Growth Fund;A",
-                "why": (
-                    "Liquidated on 27 July 2012. "
-                    "Price 23.64 and total return 89.04 never move. Net assets are empty."
-                ),
-            },
-            {
-                "isin": "US31617F8178",
-                "fund": "Fidelity Advisor Series Growth & Income Fund",
-                "why": (
-                    "Feeder FMALX, sold only to other Fidelity funds. Renamed from Advisor Series Mega Cap on 1 August 2013, which is the Datastream name. "
-                    "Reorganized in September 2018 into Fidelity Series Large Cap Stock Fund (US31617F8335), which stays. "
-                    "Last real print is 21 September 2018. The later flat prices, and the history before the merger, are blanked."
-                ),
-            },
-        ]
+    _n_ids = int(catalog["id"].nunique())
+    _n_cols = len(catalog)
+    _documentation = stack(
+        selection_stats(_n_ids, _n_cols),
+        md("""
+        ### What and why
+
+        Exchange closures still leave a date row in the panel. Datastream padding
+        often repeats levels with a **zero** return; Yahoo may omit the print.
+        For **every** index and fund Price/TR pair in the working panel, Step 2
+        sets **level and daily % to NA** on US exchange holidays so non-trading
+        days are not treated as observations. The **next session’s %** is
+        recomputed from the last trade (`level_t / level_{last trade} - 1`).
+        Later gap checks exempt those dates via the S&P-flat holiday calendar.
+
+        ### Holiday rule
+
+        A date is an exchange holiday when the S&P 500 TR level equals the prior
+        close (within tolerance). On that date, for every paired level / % column:
+        set level = NA and return = NA; on the following session with a valid
+        level, set return from the prior **trading** close. Series already NA on
+        a holiday (e.g. Yahoo) are still walked; `cells_changed` only counts
+        values that actually differed.
+        """),
     )
-    drop_isins = set(closed_funds["isin"])
-    excluded_observations = rated_observations.copy()
-    blanked_cells = 0
-    for _isin in closed_funds["isin"]:
-        for _column in catalog.loc[catalog["id"].eq(_isin), "column"]:
-            _values = excluded_observations[int(_column)]
-            blanked_cells += int(_values.notna().sum())
-            excluded_observations[int(_column)] = float("nan")
-
-    def save_closed_funds():
-        import os
-        import shutil
-        import tempfile
-
-        from openpyxl import load_workbook
-
-        if not excluded_observations.columns.equals(observations.columns):
-            raise ValueError("Corrected columns do not match the loaded sheet")
-        if not excluded_observations.index.equals(observations.index):
-            raise ValueError("Corrected dates do not match the loaded sheet")
-        difference = observations.sub(excluded_observations).abs()
-        changed = difference.gt(1e-12) | (
-            observations.isna() ^ excluded_observations.isna()
+    _holiday = get_holiday()
+    if _holiday is None:
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=mo.md(
+                "_Click **Run step** to identify S&P-flat holidays and blank "
+                "level/% on those dates for all paired series._"
+            ),
+            decision=stack(
+                mo.md("_Decision pending until this step has run._"),
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
         )
-        series = raw.copy()
-        _bill_columns = series.iloc[5].eq("US T-Bill 3M")
-        series.loc[1, _bill_columns] = "CBOE 13-week Treasury bill (^IRX)"
-        series.loc[4, _bill_columns] = (
-            "Yahoo ^IRX close, annualised rate in %. Blank when Yahoo has no print."
+    else:
+        _correction_log = _holiday["correction_log"]
+        _holiday_dates = _holiday["holiday_dates"]
+        _holiday_count = len(_holiday_dates)
+        _n_series_blanked = len(_correction_log)
+        _n_ids_blanked = (
+            int(_correction_log["id"].nunique()) if len(_correction_log) else 0
         )
-        # An all-text column is dtype str in pandas 3, and that dtype rejects the numeric fill.
-        _string_columns = series.columns[series.dtypes.astype(str).eq("str")]
-        series[_string_columns] = series[_string_columns].astype("object")
-        block = series.iloc[label_rows:, 1:].to_numpy(copy=True)
-        changed_positions = changed.to_numpy()
-        block[changed_positions] = excluded_observations.to_numpy()[changed_positions]
-        series.iloc[label_rows:, 1:] = block
-        temporary_handle = tempfile.NamedTemporaryFile(
-            prefix="v2-funds-normalized-",
-            suffix=".xlsx",
-            delete=False,
+        _n_cells = (
+            int(_correction_log["cells_changed"].sum()) if len(_correction_log) else 0
         )
-        temporary_path = temporary_handle.name
-        temporary_handle.close()
-        try:
-            shutil.copyfile(workbook, temporary_path)
-            with pd.ExcelWriter(
-                temporary_path,
-                engine="openpyxl",
-                mode="a",
-                if_sheet_exists="replace",
-            ) as writer:
-                removed_raw_sheet = "D-Timeseries raw" in writer.book.sheetnames
-                if removed_raw_sheet:
-                    del writer.book["D-Timeseries raw"]
-                series.to_excel(
-                    writer, sheet_name=sheet_name, index=False, header=False
-                )
-            book = load_workbook(temporary_path)
-            funds = book["Funds"]
-            funds_header = {
-                cell.value: cell.column
-                for cell in next(funds.iter_rows(min_row=1, max_row=1))
-                if cell.value is not None
-            }
-            isin_column = funds_header["ds.isin"]
-            keep_column = funds_header.get("timeseries.keep_or_drop")
-            note_column = funds_header.get("edgar.match_note")
-            has_column = funds_header.get("timeseries.has_daily_total_return")
-            observations_column = funds_header.get("timeseries.daily_tr_observations")
-            reasons = dict(zip(closed_funds["isin"], closed_funds["why"]))
-            marked = 0
-            for row in range(2, funds.max_row + 1):
-                isin = funds.cell(row, isin_column).value
-                if isin not in drop_isins:
-                    continue
-                if keep_column is not None:
-                    funds.cell(row, keep_column).value = "Drop"
-                if note_column is not None:
-                    funds.cell(row, note_column).value = reasons[isin]
-                if has_column is not None:
-                    funds.cell(row, has_column).value = False
-                if observations_column is not None:
-                    funds.cell(row, observations_column).value = 0
-                marked += 1
-            removed = {}
-            for fund_sheet in ("Funds with daily TR", "Funds final"):
-                worksheet = book[fund_sheet]
-                header = {
-                    cell.value: cell.column
-                    for cell in next(worksheet.iter_rows(min_row=1, max_row=1))
-                    if cell.value is not None
-                }
-                rows = [
-                    row
-                    for row in range(2, worksheet.max_row + 1)
-                    if worksheet.cell(row, header["ISIN"]).value in drop_isins
-                ]
-                for row in reversed(rows):
-                    worksheet.delete_rows(row)
-                removed[fund_sheet] = len(rows)
-            book.save(temporary_path)
-            book.close()
-            try:
-                os.replace(temporary_path, workbook)
-            except OSError:
-                shutil.move(temporary_path, workbook)
-        finally:
-            if os.path.exists(temporary_path):
-                os.remove(temporary_path)
-        return int(changed_positions.sum()), marked, removed, removed_raw_sheet
-
-    corrected_cells, marked_funds, removed_rows, _removed_raw_sheet = save_closed_funds()
-    closed_summary = mo.md(
-        f"- **{len(closed_funds)}** funds dropped \n"
-        f"- **{blanked_cells:,}** cells blanked on this step, across total return, price, daily returns, and net assets \n"
-        f"- **{marked_funds}** rows set to Drop on `Funds` \n"
-        f"- **{removed_rows['Funds with daily TR']}** rows removed from `Funds with daily TR` \n"
-        f"- **{removed_rows['Funds final']}** rows removed from `Funds final` \n"
-        f"- Wrote `{sheet_name}` in `{workbook}`, with **{corrected_cells:,}** cells different from the loaded sheet \n"
-        + ("- Removed `D-Timeseries raw` \n" if _removed_raw_sheet else "")
-        + "- Fidelity Series Large Cap Stock Fund (US31617F8335) stays \n"
-    )
-    closed_table = mo.ui.table(
-        closed_funds,
-        label="Closed funds dropped from the sample",
-        selection=None,
-        pagination=False,
-    )
-    mo.vstack([closed_summary, closed_table])
-    return (excluded_observations,)
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ## 11. Conclusion
-
-    The total-return series are usable for performance measurement and for a regression against the S&P 500.
-
-    Rescored on this repaired file, the 307 price total-return series have no gaps and no level jumps. The holiday placeholders, the split and unit breaks, and the distribution days where the total return disagreed with the price are corrected above.
-
-    Fifty series are flagged only because a day differs from the S&P 500 by 5% or more. Thirty-four of those have a single such day in eleven years. That is active risk. Seven spikes remain because the price and the total return make the same move: Invesco Downside Hedged on 16 Mar 2020, Patient Opportunity Trust C on 18 Mar 2020, Main Sector Rotation on 23 Mar 2020, Copley on 2 Jan 2018, Catalyst Insider Buying A on 2 Feb 2026, and Roundhill S&P 500 Target 10000 2030 on 22 Oct 2026 and 30 Oct 2026.
-
-    Three scale flags are explained and left as published. Principal Value ETF printed a flat NAV on most days from 2016 through 2018. Allspring Core Builder is flat for its first fortnight. Johnson Enhanced Return goes to cash after 18 Oct 2026 because the fund liquidates around 30 Nov 2026. The price drop on 26 Oct is the published $1.53 distribution, and the total return already includes it.
-
-    Frozen series are blanked in step 8. Step 9 fills `US T-Bill 3M` with the Yahoo `^IRX` close. Step 10 then drops four closed funds. Fifth Third Equity Index A (US31678R6760), Structured Large Cap Plus A (US31678R6273) and Dividend Growth A (US3167865654) were liquidated on 27 July 2012. Their price and total return are one number from November 2015 through October 2026. Structured Large Cap Plus is still labelled Large Cap Core in Datastream; that was its name until 2 July 2007. Fidelity Advisor Series Growth & Income (US31617F8178, FMALX) was renamed from Advisor Series Mega Cap on 1 August 2013 and reorganized in September 2018 into Fidelity Series Large Cap Stock (US31617F8335), which stays. Sequoia Fund and US00791R7807 freeze over their last sessions in October 2026. Principal Value ETF can be used from 2019, once the NAV is marked daily.
-
-    On the Goldman, Natixis, SEI and Schwab distribution days where the dollar amount could not be confirmed, that single day's total return was set equal to the S&P 500. Across roughly 2,800 days this does not move a Sharpe ratio, an alpha, or a tracking error.
-
-    Use the total-return column for the study. The price column still falls by the distribution, which is the published NAV.
-
-    Step 10 writes the workbook, including the `^IRX` series from step 9. The cleaned series replace `D-Timeseries final` of `output-data/v2-funds-normalized.xlsx`. The six label rows and the columns stay as they are. `D-Timeseries raw` is not kept; if that sheet is still in the workbook, this step removes it. The four funds are set to Drop on `Funds` and removed from `Funds with daily TR` and `Funds final`. A level break or distribution day that already matches the repaired series is left unchanged, so writing the sheet again does not scale it a second time. The button below writes the cleaned series again.
-    """)
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=stack(
+                mo.md(
+                    f"- **{_holiday_count:,}** S&P-flat exchange holidays identified \n"
+                    f"- **{_n_series_blanked:,}** level series blanked on those dates "
+                    f"(**{_n_ids_blanked:,}** ids; each row is one Price or TR level, "
+                    f"with its paired %) \n"
+                    f"- **{_n_cells:,}** cells whose values changed (holiday level/% "
+                    f"set to NA, and/or next-session % recomputed; already-NA cells "
+                    f"do not increment this count) \n"
+                ),
+                review_table(_correction_log, "Series with holiday NA applied"),
+            ),
+            decision=stack(
+                md("""
+                **Decision:** keep every series column. Blank **all** paired
+                Price/TR levels and daily % on every S&P-flat holiday; recompute
+                the next session’s % from the last trading close. No ids are
+                dropped. The post-holiday observations frame is retained for the
+                gap check and later consistency steps.
+                """),
+                mo.md(
+                    f"- **{_holiday_count:,}** holidays blanked across the panel \n"
+                    f"- **{_n_series_blanked:,}** level series / **{_n_ids_blanked:,}** "
+                    f"ids touched; **{_n_cells:,}** cells changed \n"
+                ),
+                review_table(_correction_log, "Holiday blanking log"),
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
+        )
+    _step_view
     return
 
 
-@app.cell
-def _(mo, sheet_name, workbook):
-    save_corrected_button = mo.ui.run_button(label="Replace the sheet again")
-    corrected_status = mo.md(
-        f"- Workbook: `{workbook}` \n"
-        f"- Sheet to replace: `{sheet_name}` \n"
-    )
-    mo.vstack([corrected_status, save_corrected_button])
-    return (save_corrected_button,)
+@app.cell(hide_code=True)
+def _(get_holiday, mo, run_step_button, step_header):
+    _ready = get_holiday() is not None
+    run_gap = run_step_button(ready=_ready, tooltip=None if _ready else "Run step 2 first")
+    _header = step_header("## 3. Gap", run_gap)
+    _header
+    return (run_gap,)
 
 
 @app.cell
 def _(
-    label_rows,
+    catalog,
+    get_holiday,
+    run_gap,
+    set_gap,
+    summarize_tr_consistency,
+):
+    if run_gap.value:
+        _holiday = get_holiday()
+        if _holiday is None:
+            raise ValueError("Gap step requires holiday output")
+        _observations = _holiday["observations"]
+        _controls, _issue_summary, _checks = summarize_tr_consistency(
+            catalog,
+            _observations,
+            flags=("gaps",),
+            exchange_holidays=_holiday["holiday_dates"],
+        )
+        set_gap(
+            {
+                "observations": _observations,
+                "controls": _controls,
+                "issue_summary": _issue_summary,
+                "checks": _checks,
+            }
+        )
+    return
+
+
+@app.cell
+def _(
+    catalog,
+    get_gap,
+    get_holiday,
+    md,
     mo,
+    review_table,
+    selection_stats,
+    stack,
+    step_sections,
+    flag_summary_table,
+):
+    mo.stop(
+        get_holiday() is None,
+        mo.md("Run step 2 first."),
+    )
+    _n_ids = int(catalog["id"].nunique())
+    _n_cols = len(catalog)
+    _documentation = stack(
+        selection_stats(_n_ids, _n_cols),
+        md("""
+        ### What and why
+
+        This step scores **gaps** on the **post-holiday** panel: missing returns,
+        skipped months, or long holes between dates. Step 2 already set exchange
+        holidays to NA (exempt from the gap screen), so Gap focuses on remaining
+        calendar holes.
+
+        Gap scoring uses the shared helper
+        `helpers.timeseries_functions.check_timeseries_consistency.locate_series_issues`
+        with ``flags=("gaps",)`` so only the gap predicates run. Later steps
+        request their own flags (and any prerequisites) on the evolving panel.
+        No series are rewritten here.
+
+        ### Universe
+
+        Daily **TR %** columns whose matching level is a total-return index,
+        excluding `S&P 500 TR %` (benchmark).
+
+        ### Gap rule
+
+        A row is a **gap** if any of the following holds (the first row is never
+        treated as missing): (i) the fund return is missing (except S&P-flat
+        exchange holidays); (ii) the calendar month label in `Period` jumps by
+        more than one month; (iii) consecutive `Date` values are more than **45
+        calendar days** apart.
+        """),
+    )
+    _gap = get_gap()
+    if _gap is None:
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=mo.md("_Click **Run step** to score gaps on the post-holiday panel._"),
+            decision=stack(
+                mo.md("_Decision pending until this step has run._"),
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
+        )
+    else:
+        _issue_summary = _gap["issue_summary"]
+        _gap_table = flag_summary_table(_issue_summary, "gaps")
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=stack(
+                mo.md(
+                    f"- **{len(_issue_summary):,}** series checked \n"
+                    f"- **{len(_gap_table):,}** series with at least one gap \n"
+                ),
+                review_table(_gap_table, "Series with gaps"),
+            ),
+            decision=stack(
+                md("""
+                Keep all series. Gap counts are diagnostic; no levels or returns
+                are rewritten at this step. The post-holiday observations frame
+                is retained for later consistency checks.
+                """),
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
+        )
+    _step_view
+    return
+
+
+@app.cell(hide_code=True)
+def _(get_gap, mo, run_step_button, step_header):
+    _ready = get_gap() is not None
+    run_scale = run_step_button(ready=_ready, tooltip=None if _ready else "Run step 3 first")
+    _header = step_header("## 4. Scale shift", run_scale)
+    _header
+    return (run_scale,)
+
+
+@app.cell
+def _(catalog, get_gap, run_scale, set_scale, summarize_tr_consistency):
+    if run_scale.value:
+        _gap = get_gap()
+        if _gap is None:
+            raise ValueError("Scale step requires gap output")
+        _observations = _gap["observations"]
+        _controls, _issue_summary, _checks = summarize_tr_consistency(
+            catalog, _observations, flags=("scale",)
+        )
+        set_scale(
+            {
+                "observations": _observations,
+                "controls": _controls,
+                "issue_summary": _issue_summary,
+                "checks": _checks,
+            }
+        )
+    return
+
+
+@app.cell
+def _(
+    catalog,
+    get_gap,
+    get_scale,
+    md,
+    mo,
+    review_table,
+    selection_stats,
+    stack,
+    step_sections,
+    flag_summary_table,
+):
+    mo.stop(
+        get_gap() is None,
+        mo.md("Run step 3 first."),
+    )
+    _n_ids = int(catalog["id"].nunique())
+    _n_cols = len(catalog)
+    _mermaid_init = (
+        "%%{init: "
+        '{"flowchart": {"padding": 8, "nodeSpacing": 12, "rankSpacing": 20}, '
+        '"themeVariables": {"fontSize": "13px"}}'
+        "}%%\n"
+    )
+    _documentation = stack(
+        selection_stats(_n_ids, _n_cols),
+        md("""
+        ### What and why
+
+        **Question asked:** did the fund's *usual* daily move size permanently
+        change (wrong units, or a lasting new volatility scale)? Re-check on the
+        post-holiday panel. No series is rewritten here.
+
+        This step’s Result is diagnostic. Later level-jump and spike screens do
+        **not** read a stored split date from this payload. When those steps call
+        `summarize_tr_consistency`, scale is **re-detected as a prerequisite** on
+        the current panel (`_FLAG_REQUIRES`), and that fresh split suppresses
+        post-split level jumps / spikes for that scoring pass only.
+
+        **Idea:** compare median `|return|` locally (126 days before vs after a
+        candidate split) and globally (prefix vs suffix medians). Flag only when
+        both local and global folds are ≥ 5× or both ≤ 1/5.
+        """),
+        mo.mermaid(
+            _mermaid_init
+            + """
+flowchart TB
+  subgraph local["Local test at candidate split S"]
+    direction LR
+    B["126 days before S<br/>median |r| e.g. 0.5%"] --> S["split S"]
+    S --> A["126 days after S<br/>median |r| e.g. 3%"]
+  end
+  subgraph global["Global test at the same S"]
+    direction LR
+    P["All days before S<br/>median |r|"] --> S2["split S"]
+    S2 --> Q["All days after S<br/>median |r|"]
+  end
+  local --> rule["Flag only if BOTH local and global<br/>are ≥ 5× or both ≤ 1/5"]
+  global --> rule
+"""
+        ),
+    )
+    _scale = get_scale()
+    if _scale is None:
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=mo.md("_Click **Run step** to re-score scale shifts._"),
+            decision=stack(
+                mo.md("_Decision pending until this step has run._"),
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
+        )
+    else:
+        _controls = _scale["controls"]
+        _issue_summary = _scale["issue_summary"]
+        _scale_table = flag_summary_table(_issue_summary, "scale_shift")
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=stack(
+                mo.md(
+                    f"- **{len(_issue_summary):,}** series re-checked \n"
+                    f"- **{len(_scale_table):,}** series with a scale shift \n"
+                    f"- Scale factor {_controls['scale_factor']:g} over "
+                    f"{_controls['scale_window']} days \n"
+                ),
+                review_table(_scale_table, "Series with scale shifts"),
+            ),
+            decision=stack(
+                md("""
+                Diagnostic only. No levels or returns are rescaled at this step.
+                The scale flags shown here are not persisted into later steps as
+                a stored state. When Steps 5 and 7 score level jumps / spikes,
+                they re-detect scale on the current panel as a prerequisite and
+                use that fresh split to suppress post-split regimes for that
+                pass only.
+                """),
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
+        )
+    _step_view
+    return
+
+
+@app.cell(hide_code=True)
+def _(get_scale, mo, run_step_button, step_header):
+    _ready = get_scale() is not None
+    run_level_jump = run_step_button(ready=_ready, tooltip=None if _ready else "Run step 4 first")
+    _header = step_header("## 5. Level jump", run_level_jump)
+    _header
+    return (run_level_jump,)
+
+
+@app.cell
+def _(
+    catalog,
+    get_scale,
+    rescale_level_breaks,
+    run_level_jump,
+    set_level_jump,
+    summarize_tr_consistency,
+):
+    if run_level_jump.value:
+        _scale = get_scale()
+        if _scale is None:
+            raise ValueError("Level jump step requires scale output")
+        _observations = _scale["observations"]
+        _controls, _issue_summary, _checks = summarize_tr_consistency(
+            catalog, _observations, flags=("level_jump",)
+        )
+        _adjusted, _action_log = rescale_level_breaks(catalog, _observations)
+        set_level_jump(
+            {
+                "observations": _adjusted,
+                "controls": _controls,
+                "issue_summary": _issue_summary,
+                "checks": _checks,
+                "action_log": _action_log,
+            }
+        )
+    return
+
+
+@app.cell
+def _(
+    catalog,
+    get_scale,
+    get_level_jump,
+    md,
+    mo,
+    review_table,
+    selection_stats,
+    stack,
+    step_sections,
+    flag_summary_table,
+):
+    mo.stop(
+        get_scale() is None,
+        mo.md("Run step 4 first."),
+    )
+    _n_ids = int(catalog["id"].nunique())
+    _n_cols = len(catalog)
+    _mermaid_init = (
+        "%%{init: "
+        '{"flowchart": {"padding": 8, "nodeSpacing": 12, "rankSpacing": 20}, '
+        '"themeVariables": {"fontSize": "13px"}}'
+        "}%%\n"
+    )
+    _documentation = stack(
+        selection_stats(_n_ids, _n_cols),
+        md("""
+        ### What and why
+
+        **Question asked:** is there a day so large that the series looks
+        *permanently* relocated — a broken level, unadjusted split/rebase, or
+        master-portfolio switch — rather than a one-day spike that reverses?
+
+        Spikes (≥10%, often with a give-back) and “far from index” (≥5%) are
+        handled in later steps. Level jump is reserved for sticky, market-odd
+        breaks that would corrupt every later cumulative return if left alone.
+
+        ### Dual detectors (Result vs repair)
+
+        This step uses **two** related detectors on purpose. They share the same
+        economic thresholds but differ in universe and side-effects:
+
+        1. **Detector A — Result** (`summarize_tr_consistency` →
+           `locate_series_issues` with ``flags=("level_jump",)``). Scores every
+           fund **TR %** series versus S&P 500 TR % (including Yahoo
+           replacements from Step 1). Scale is pulled in as a prerequisite so
+           days on or after a detected scale-shift split are **not** re-flagged
+           as level jumps. Result tables come only from Detector A.
+
+        2. **Detector B — repair scan** (`lasting_breaks` inside
+           `rescale_level_breaks`). Scans both **Price %** and **TR %** for the
+           same sticky break shape (`|return| ≥ 50%`, `|return − S&P| ≥ 25%`,
+           compounded follow-through ≥ half the jump). It does **not** suppress
+           post-scale regimes. Hand-coded corporate-action rules fire only when
+           Detector B still sees the break on the current panel.
+
+        **Decision reconciliation:** keep every series; list only funds that
+        **Detector A flagged** (same ISIN set as Result). For those funds, apply
+        the matching `level_actions` / `kept_distributions` rule when Detector B
+        still sees the break (rescale / keep), or note that no rule applied
+        (`not adjusted`). Yahoo-replaced ISINs have no Datastream
+        corporate-action entries in `level_actions` (Step 1 already swapped
+        those series). Pure **Price-only** Detector B hits that never appear in
+        Detector A (distribution NAV drops without a TR level jump) stay out of
+        both Result and Decision by design.
+
+        ### Detection rule (shared thresholds)
+
+        A day is a **level jump** when all of the following hold:
+
+        1. fund `|return| ≥ 50%`;
+        2. `|fund − S&P 500 TR %| ≥ 25%`;
+        3. the move **sticks**: compounded return over the next sessions stays
+           at least half as large as the initial jump;
+        4. **Detector A only:** the day is **not** on or after a detected
+           scale-shift split.
+
+        The 50% / 25% bar is intentionally high: it targets corporate-action
+        mis-scaling (often near ±50% or larger), not ordinary crash volatility.
+        """),
+        mo.mermaid(
+            _mermaid_init
+            + """
+flowchart LR
+  subgraph jump["Level jump — move sticks"]
+    direction LR
+    j1["… +1%"] --> j2["+60% vs S&P"] --> j3["+2%"] --> j4["+1%"]
+  end
+  subgraph notjump["Not a level jump — reverses"]
+    direction LR
+    n1["… +1%"] --> n2["+60%"] --> n3["−55%"] --> n4["+1%"]
+  end
+"""
+        ),
+    )
+    _level_jump = get_level_jump()
+    if _level_jump is None:
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=mo.md("_Click **Run step** to score level jumps and rescale breaks._"),
+            decision=stack(
+                mo.md("_Decision pending until this step has run._"),
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
+        )
+    else:
+        _issue_summary = _level_jump["issue_summary"]
+        _jump_table = flag_summary_table(_issue_summary, "level_jumps")
+        _action_log = _level_jump["action_log"]
+        # Decision mirrors Result (Detector A): same ISIN set as the level-jump table.
+        _jump_isins = set(_jump_table["id"].astype("string").str.strip())
+        _decision_log = _action_log.loc[
+            _action_log["isin"].astype("string").str.strip().isin(_jump_isins)
+            & ~_action_log["decision"].eq("already rescaled")
+        ].reset_index(drop=True)
+        _rescaled = _decision_log.loc[_decision_log["decision"].eq("rescaled")]
+        _kept = _decision_log.loc[_decision_log["decision"].eq("kept")]
+        _not_adjusted = _decision_log.loc[_decision_log["decision"].eq("not adjusted")]
+        _rescaled_funds = int(_rescaled["isin"].nunique()) if len(_rescaled) else 0
+        _kept_funds = int(_kept["isin"].nunique()) if len(_kept) else 0
+        _not_adjusted_funds = (
+            int(_not_adjusted["isin"].nunique()) if len(_not_adjusted) else 0
+        )
+        # Detector B hits on this run (lasting_breaks → action_log.detected).
+        _detected_log = _action_log.loc[_action_log["detected"].astype(bool)].copy()
+        _detector_b_isins = (
+            set(_detected_log["isin"].astype("string").str.strip())
+            if len(_detected_log)
+            else set()
+        )
+        _price_only_b = sorted(_detector_b_isins - _jump_isins)
+        _covered_isins = set(_decision_log["isin"].astype("string").str.strip())
+        _context_lines = []
+        for _row in (
+            _decision_log.sort_values(["date", "isin", "series"])
+            .drop_duplicates(subset=["isin", "date"], keep="first")
+            .itertuples(index=False)
+        ):
+            _context_lines.append(
+                f"- **{_row.fund}** (`{_row.isin}`), {_row.date} — "
+                f"{_row.decision}: {_row.why}"
+            )
+        for _isin in sorted(_jump_isins - _covered_isins):
+            _fund_rows = catalog.loc[
+                catalog["id"].astype("string").str.strip().eq(_isin), "name"
+            ]
+            _fund = (
+                str(_fund_rows.iloc[0]) if len(_fund_rows) else _isin
+            )
+            _context_lines.append(
+                f"- **{_fund}** (`{_isin}`) — flagged in Result (Detector A); "
+                f"no corporate-action rule applied this run"
+            )
+        _context_md = (
+            "### Corporate-action context (by fund)\n\n" + "\n".join(_context_lines)
+            if _context_lines
+            else "_No level-jump flags in Result — nothing to decide._"
+        )
+        _decision_bullets = [
+            f"- **Detector A (Result):** **{len(_jump_table):,}** TR % series "
+            f"with a level-jump flag",
+            f"- **Detector B (repair scan):** **{len(_detector_b_isins):,}** "
+            f"ISINs with a lasting Price/TR break still detected this run",
+            f"- **Decision set:** Result ISINs only "
+            f"(**{len(_jump_isins):,}** funds); "
+            f"**{len(_price_only_b):,}** Detector-B-only "
+            f"(Price-side) ISINs excluded from Decision",
+        ]
+        if _rescaled_funds:
+            _decision_bullets.append(
+                f"- **{_rescaled_funds:,}** funds rescaled "
+                f"(**{len(_rescaled):,}** Price/TR columns), "
+                f"**{int(_rescaled['cells'].sum()) if len(_rescaled) else 0:,}** "
+                f"cells changed"
+            )
+        if _kept_funds:
+            _decision_bullets.append(
+                f"- **{_kept_funds:,}** funds with distribution / liquidation "
+                f"price drops kept unchanged"
+            )
+        if _not_adjusted_funds:
+            _decision_bullets.append(
+                f"- **{_not_adjusted_funds:,}** funds with a lasting break and "
+                f"no corporate-action rule (left unchanged)"
+            )
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=stack(
+                mo.md(
+                    f"- **Detector A** (`locate_series_issues` on TR %): "
+                    f"**{len(_jump_table):,}** series with level-jump flags "
+                    f"(includes Yahoo replacements) \n"
+                    f"- **{int(_issue_summary['level_jumps'].sum()):,}** flagged "
+                    f"days (sum) \n"
+                    f"- **Detector B** (`lasting_breaks` on Price % and TR %) "
+                    f"drives which corporate-action rules still fire; Decision "
+                    f"keeps only Detector A ISINs (see Decision) \n"
+                ),
+                review_table(_jump_table, "Series with level jumps (Detector A)"),
+            ),
+            decision=stack(
+                md("""
+                Keep all series. **Decision = Detector A ISINs** (Result). For
+                each, apply the matching corporate-action rule when Detector B
+                still sees the break (rescale), or leave unchanged when the rule
+                says keep / no rule (`not adjusted`). Yahoo-replaced funds are
+                not in `level_actions`.
+
+                Price-only Detector B hits that never flag as TR level jumps in
+                Result do not appear here.
+                """),
+                mo.md("\n".join(_decision_bullets) + "\n"),
+                md(_context_md),
+                review_table(_decision_log, "Level break actions (Result funds)"),
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
+        )
+    _step_view
+    return
+
+
+@app.cell(hide_code=True)
+def _(get_level_jump, mo, run_step_button, step_header):
+    _ready = get_level_jump() is not None
+    run_rebuild = run_step_button(ready=_ready, tooltip=None if _ready else "Run step 5 first")
+    _header = step_header("## 6. Rebuild TR from distributions (Lipper gate)", run_rebuild)
+    _header
+    return (run_rebuild,)
+
+
+@app.cell
+def _(catalog, get_level_jump, pd, run_rebuild, set_rebuild, workbook):
+    if run_rebuild.value:
+        _level_jump = get_level_jump()
+        if _level_jump is None:
+            raise ValueError("Rebuild step requires level jump output")
+        _adjusted_observations = _level_jump["observations"]
+
+        from pathlib import Path as _Path
+
+        def _code_root():
+            _start = _Path.cwd().resolve()
+            for _directory in [_start, *_start.parents]:
+                if (_directory / "helpers").is_dir():
+                    return _directory
+            raise FileNotFoundError(f"Could not find helpers/, starting from {_start}")
+
+        def _openfigi_tickers() -> dict[str, str]:
+            import json
+
+            _cache_path = _code_root() / "cache" / "cache-isin-openfigi.json"
+            _payload = json.loads(_cache_path.read_text())
+            return {
+                str(_isin).strip(): str(_ticker).strip()
+                for _isin, _ticker in _payload.items()
+                if isinstance(_isin, str) and isinstance(_ticker, str) and _ticker
+            }
+
+        from helpers.timeseries_functions.rebuild_tr_from_distributions import (
+            load_distributions_cache,
+            rebuild_tr_panel,
+        )
+        from helpers.timeseries_functions.regress_daily_to_benchmark import (
+            FUNDS_SHEET,
+            load_funds_reference,
+        )
+
+        _funds = load_funds_reference(workbook, sheet_name=FUNDS_SHEET)
+        _funds_by_isin = {
+            str(row["ISIN"]).strip(): row for _, row in _funds.iterrows() if pd.notna(row.get("ISIN"))
+        }
+        _isin_to_ticker = _openfigi_tickers()
+
+        _tr_ready_observations, _rebuild_log = rebuild_tr_panel(
+            _adjusted_observations,
+            catalog,
+            _funds_by_isin,
+            _isin_to_ticker,
+            distributions_cache=load_distributions_cache(),
+        )
+
+        set_rebuild(
+            {
+                "observations": _tr_ready_observations,
+                "rebuild_log": _rebuild_log,
+            }
+        )
+    return
+
+
+@app.cell
+def _(
+    catalog,
+    get_level_jump,
+    get_rebuild,
+    md,
+    mo,
+    pd,
+    review_table,
+    selection_stats,
+    stack,
+    step_sections,
+):
+    mo.stop(
+        get_level_jump() is None,
+        mo.md("Run step 5 first."),
+    )
+    _n_ids = int(catalog["id"].nunique())
+    _n_cols = len(catalog)
+    _documentation = stack(
+        selection_stats(_n_ids, _n_cols),
+        md("""
+        ### What and why
+
+        **Question asked:** for each fund, do the **3-year, 5-year, and 10-year
+        cumulative total returns** implied by our daily TR series match the
+        **Lipper published** 3y / 5y / 10y total returns for that same fund?
+
+        Lipper is the external reference. The gap on each horizon is:
+
+        `gap = (return from our daily TR series) − (Lipper published return)`
+        in percentage points. Both sides are measured through
+        **`LIPPER_AS_OF = 2026-09-30`** (the Funds-sheet Lipper month-end used by
+        `regress_daily_to_benchmark.py`); daily TR is clipped to that date before
+        compounding to months.
+
+        Some Datastream TR paths are wrong on distribution reinvestment days.
+        For every fund we therefore also build a **candidate** daily TR from
+        Datastream price/NAV plus cash distributions (Yahoo first, then FMP
+        cache) via `r_t = (P_t + D_t) / P_{t-1} − 1`, and score that candidate
+        the same way against Lipper.
+
+        ### Pass / fail rule (Result)
+
+        Tolerance is **0.5 pp** (`LIPPER_CLOSE_PP`). All three horizons are
+        measured; scoring uses the **longest available** gap:
+
+        1. **10y** when Lipper 10y exists and the series has ≥120 months
+        2. else **5y** when that window is available
+        3. else **3y**
+        4. else **unscored** (no Lipper figure and/or too little history)
+
+        - **Pass** — `|gap| ≤ 0.5` pp on the chosen horizon
+        - **Fail** — `|gap| > 0.5` pp on the chosen horizon
+        - **Unscored** — none of 10y / 5y / 3y can be scored
+
+        Result reports how Datastream TR and the rebuild candidate each score
+        on that test. It does **not** choose which series to keep.
+
+        ### Decision policy (production)
+
+        Keep every fund in the panel. Replace Datastream TR with the
+        distribution rebuild when the Lipper gate says the candidate is already
+        within 0.5 pp on its primary available horizon (10y → 5y → 3y), or
+        improves that shared gap (shorter horizons break ties). Otherwise keep
+        Datastream TR. See
+        `helpers/timeseries_functions/rebuild_tr_from_distributions.py`.
+
+        **Hard no-distribution veto.** If neither Yahoo nor the FMP cache
+        supplies any cash distribution for the fund (`dist_source == "none"`)
+        **and** the fund is not treated as index-like, adoption is **forced
+        off** — Datastream TR is kept even when the Lipper close-or-improve
+        comparison would otherwise prefer the candidate. Index-like names with
+        no distributions may still fill missed ex-days from S&P before the gate.
+
+        **Post-adopt transparency.** After the production gate runs, Decision
+        reports how many *adopted* rebuild paths still **fail** Lipper
+        (`|gap| > 0.5` pp on the primary horizon). Those are improvements that
+        remain outside tolerance — not passes.
+
+        **Sensitivity (not applied).** An adopt-only-if-pass counterfactual
+        would adopt only when the rebuild already passes. Decision reports how
+        many production adopts that stricter rule would refuse. The panel keeps
+        the production (close-or-improve) rule; the sensitivity is diagnostic.
+        """),
+    )
+    _rebuild = get_rebuild()
+    if _rebuild is None:
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=mo.md(
+                "_Click **Run step** to score Datastream and rebuilt TR "
+                "against Lipper 3y / 5y / 10y._"
+            ),
+            decision=stack(
+                mo.md("_Decision pending until this step has run._"),
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
+        )
+    else:
+        from helpers.timeseries_functions.rebuild_tr_from_distributions import (
+            LIPPER_CLOSE_PP as _LIPPER_CLOSE_PP,
+            LIPPER_TEST_HORIZONS as _LIPPER_TEST_HORIZONS,
+            lipper_test_status as _lipper_test_status,
+            summarize_rebuild_gate_transparency as _summarize_rebuild_gate,
+        )
+
+        _rebuild_log = _rebuild["rebuild_log"].copy()
+        _adopted = (
+            int(_rebuild_log["decision"].eq("adopted").sum()) if len(_rebuild_log) else 0
+        )
+        _kept = len(_rebuild_log) - _adopted
+
+        def _gaps_from_row(row: "pd.Series", *, side: str) -> dict[str, float]:
+            return {
+                horizon: row.get(f"gap_{horizon}_{side}")
+                for horizon in _LIPPER_TEST_HORIZONS
+            }
+
+        if len(_rebuild_log) and "gap_10y_before" in _rebuild_log.columns:
+            _ds_status = []
+            _ds_horizon = []
+            _rb_status = []
+            _rb_horizon = []
+            _sort_gap = []
+            for _row in _rebuild_log.itertuples(index=False):
+                _row_s = pd.Series(_row._asdict())
+                _ds_s, _ds_h = _lipper_test_status(_gaps_from_row(_row_s, side="before"))
+                _rb_s, _rb_h = _lipper_test_status(_gaps_from_row(_row_s, side="after"))
+                _ds_status.append(_ds_s)
+                _ds_horizon.append(_ds_h if _ds_h is not None else pd.NA)
+                _rb_status.append(_rb_s)
+                _rb_horizon.append(_rb_h if _rb_h is not None else pd.NA)
+                if _ds_h is not None:
+                    _sort_gap.append(abs(float(_row_s[f"gap_{_ds_h}_before"])))
+                else:
+                    _sort_gap.append(float("nan"))
+            _rebuild_log = _rebuild_log.assign(
+                datastream_vs_lipper=pd.Series(_ds_status, dtype="string"),
+                datastream_lipper_horizon=pd.Series(_ds_horizon, dtype="string"),
+                rebuild_vs_lipper=pd.Series(_rb_status, dtype="string"),
+                rebuild_lipper_horizon=pd.Series(_rb_horizon, dtype="string"),
+            )
+            _ds_pass = int((_rebuild_log["datastream_vs_lipper"] == "pass").sum())
+            _ds_fail = int((_rebuild_log["datastream_vs_lipper"] == "fail").sum())
+            _ds_unscored = int(
+                (_rebuild_log["datastream_vs_lipper"] == "unscored").sum()
+            )
+            _rb_pass = int((_rebuild_log["rebuild_vs_lipper"] == "pass").sum())
+            _rb_fail = int((_rebuild_log["rebuild_vs_lipper"] == "fail").sum())
+            _rb_unscored = int((_rebuild_log["rebuild_vs_lipper"] == "unscored").sum())
+            _sorted = _rebuild_log.assign(_abs_gap=_sort_gap).sort_values(
+                "_abs_gap", ascending=False
+            ).drop(columns="_abs_gap")
+        else:
+            _ds_pass = _ds_fail = _ds_unscored = 0
+            _rb_pass = _rb_fail = _rb_unscored = 0
+            _sorted = _rebuild_log
+
+        _gate_summary, _adopted_still_fail = _summarize_rebuild_gate(
+            _rebuild_log, close_pp=_LIPPER_CLOSE_PP
+        )
+        _decision_parts = [
+            md("""
+            Keep all series. Where the Lipper gate prefers the distribution
+            rebuild over Datastream, replace that fund’s TR % / TR level with
+            the rebuilt path; otherwise leave Datastream TR unchanged. Horizons
+            are evaluated through **`LIPPER_AS_OF = 2026-09-30`**. Funds with
+            **no Yahoo/FMP distributions** and not index-like never adopt
+            (hard veto), regardless of the close-or-improve comparison.
+
+            Production rule remains **close-or-improve** subject to that veto.
+            The counts below disclose residual Lipper fails among adopts and the
+            adopt-only-if-pass counterfactual (not applied to the panel).
+            """),
+            mo.md(
+                f"- **{_adopted:,}** adopted the distribution rebuild \n"
+                f"- **{_kept:,}** kept Datastream TR \n"
+                f"- **Post-adopt Lipper status (among adopted):** "
+                f"**{_gate_summary['adopted_pass']:,}** pass, "
+                f"**{_gate_summary['adopted_fail']:,}** fail, "
+                f"**{_gate_summary['adopted_unscored']:,}** unscored "
+                f"(tolerance **{_LIPPER_CLOSE_PP:g} pp**) \n"
+                f"- **Sensitivity — adopt-only-if-pass (not applied):** "
+                f"would adopt **{_gate_summary['strict_would_adopt']:,}**, "
+                f"keep **{_gate_summary['strict_would_keep']:,}**; "
+                f"**{_gate_summary['adopted_under_both']:,}** overlap with "
+                f"production; **{_gate_summary['adopted_only_under_production']:,}** "
+                f"production adopts the stricter rule would refuse \n"
+            ),
+        ]
+        if len(_adopted_still_fail):
+            _decision_parts.extend(
+                [
+                    md(
+                        "### Adopted rebuilds that still fail Lipper\n\n"
+                        "These funds were adopted because the rebuild **improved** "
+                        "the gap (or tied through shorter horizons) but the "
+                        "candidate remains outside **0.5 pp**. Under "
+                        "adopt-only-if-pass they would keep Datastream TR."
+                    ),
+                    review_table(
+                        _adopted_still_fail,
+                        "Production adopts still failing Lipper",
+                    ),
+                ]
+            )
+        else:
+            _decision_parts.append(
+                md(
+                    "_No production adopts still fail Lipper on the primary "
+                    "horizon — every adopted rebuild is a pass or unscored._"
+                )
+            )
+        _decision_parts.append(selection_stats(_n_ids, _n_cols, when="end"))
+
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=stack(
+                mo.md(
+                    f"- **{len(_rebuild_log):,}** funds scored vs Lipper "
+                    f"(pass/fail on longest available of **10y → 5y → 3y**, "
+                    f"tolerance **{_LIPPER_CLOSE_PP:g} pp**) \n"
+                    f"- **Datastream TR:** **{_ds_pass:,}** pass, "
+                    f"**{_ds_fail:,}** fail, **{_ds_unscored:,}** unscored \n"
+                    f"- **Rebuild candidate** (NAV + distributions): "
+                    f"**{_rb_pass:,}** pass, **{_rb_fail:,}** fail, "
+                    f"**{_rb_unscored:,}** unscored \n"
+                    f"- **Unscored** means none of 10y / 5y / 3y could be "
+                    f"tested — almost always because Lipper has **no published "
+                    f"performance** on those horizons for the fund (fallback "
+                    f"cannot help when every Lipper figure is missing); rarely "
+                    f"because the daily series is shorter than 3 years \n"
+                ),
+                review_table(_sorted, "Lipper horizon test (Datastream vs rebuild)"),
+            ),
+            decision=stack(*_decision_parts),
+        )
+    _step_view
+    return
+
+
+@app.cell(hide_code=True)
+def _(get_rebuild, mo, run_step_button, step_header):
+    _ready = get_rebuild() is not None
+    run_spike = run_step_button(ready=_ready, tooltip=None if _ready else "Run step 6 first")
+    _header = step_header("## 7. Spike", run_spike)
+    _header
+    return (run_spike,)
+
+
+@app.cell
+def _(
+    catalog,
+    get_rebuild,
+    repair_distribution_day_tr,
+    run_spike,
+    set_spike,
+    summarize_tr_consistency,
+):
+    if run_spike.value:
+        _rebuild = get_rebuild()
+        if _rebuild is None:
+            raise ValueError("Spike step requires rebuild output")
+        _observations = _rebuild["observations"]
+        _controls, _issue_summary, _checks = summarize_tr_consistency(
+            catalog, _observations, flags=("spikes",)
+        )
+        _repaired, _distribution_log = repair_distribution_day_tr(catalog, _observations)
+        set_spike(
+            {
+                "observations": _repaired,
+                "controls": _controls,
+                "issue_summary": _issue_summary,
+                "checks": _checks,
+                "distribution_log": _distribution_log,
+            }
+        )
+    return
+
+
+@app.cell
+def _(
+    catalog,
+    get_rebuild,
+    get_spike,
+    md,
+    mo,
+    pd,
+    review_table,
+    selection_stats,
+    stack,
+    step_sections,
+    flag_summary_table,
+):
+    mo.stop(
+        get_rebuild() is None,
+        mo.md("Run step 6 first."),
+    )
+    _n_ids = int(catalog["id"].nunique())
+    _n_cols = len(catalog)
+    _mermaid_init = (
+        "%%{init: "
+        '{"flowchart": {"padding": 8, "nodeSpacing": 12, "rankSpacing": 20}, '
+        '"themeVariables": {"fontSize": "13px"}}'
+        "}%%\n"
+    )
+    _documentation = stack(
+        selection_stats(_n_ids, _n_cols),
+        md("""
+        ### What and why
+
+        **Question asked:** is there an abnormal large day that reverses the
+        next day or is largely not shared with the S&P? **Reversal:** `|r| ≥ 10%`,
+        opposite sign next day, two-day compound inside ±15%, S&P does not show
+        the same reversal (`|m| ≥ 5%` with give-back). **Isolated:** `|r| ≥ 10%`
+        and `|fund − S&P| ≥ |fund| / 2`.
+
+        **Suppressions (automated screen).** A day is **not** flagged as a spike
+        when it falls on/after a re-detected scale-shift split (`~on_new_scale`)
+        or on a day already flagged as a level jump (`~level_shift`), or when it
+        is the second day of a reversal pair. Scale and level-jump are pulled in
+        as prerequisites of `flags=("spikes",)` and recomputed on this panel.
+
+        ### Result vs Decision (two complementary views)
+
+        Result and Decision are **not** the same filter. They must be read
+        together via the crosswalk table after Run:
+
+        1. **Result — automated spike screen, scored pre-repair.** Every fund
+           TR % is scored with the shared helper (`flags=("spikes",)`) **before**
+           `repair_distribution_day_tr` runs. Ordinary spike flags are
+           **diagnostic**: they are not auto-rewritten, and Result does **not**
+           re-score after curated repairs.
+        2. **Decision — curated distribution-day list + kept genuine spikes.**
+           A hand-reviewed repair list (and a kept list) is applied only when
+           the eligibility gate still fails on the **current** panel. A Decision
+           day may therefore be **Result-only**, **Decision-only**, or **both**.
+
+        Typical **Decision-only** cases: distribution-day TR errors that fail
+        the Price/TR + market-residual gate screen used for repair eligibility
+        but do not meet the automated spike predicates (or no longer do after
+        Yahoo / rebuild). Typical **Result-only** cases: genuine large days
+        left untouched because they are not on the curated repair list.
+        """),
+        mo.mermaid(
+            _mermaid_init
+            + """
+flowchart TB
+  subgraph rev["Reversal spike"]
+    direction LR
+    r1["Day t: fund +12%"] --> r2["Day t+1: fund −11%"]
+  end
+  subgraph iso["Isolated spike"]
+    direction LR
+    i1["Day t: fund +12%"] --> i2["S&P only +1%"]
+  end
+"""
+        ),
+    )
+    _decision_policy = md("""
+        Keep all series. Curated distribution-day TR errors are rewritten only
+        when still defective; ordinary Result spike flags without a curated
+        rule are left alone.
+
+        **Eligibility gate (required for rewrite).** A curated day is rewritten
+        only if both hold on the **current** panel (after Yahoo replace /
+        rebuild): `|TR% − Price%| ≥ 1%` **and** `|TR% − S&P 500 TR %| ≥ 1%`.
+        Correct ex-distribution days (Price down, TR ≈ market) fail the
+        market-residual gate and are logged as `skipped — already clean`. Days
+        that left the panel are skipped silently.
+
+        **Why defective days look wrong.** On an ex-distribution day the
+        published NAV (price) falls by roughly the cash amount. A correct
+        total-return series should add that cash back, so TR moves with the
+        market. Defective prints disagree: either the distribution was never
+        added (TR too low while price crashed), or it was added at the wrong
+        scale (TR spikes while price falls a few percent).
+
+        **How the repair works (when the gate passes).**
+
+        1. **Forward (most cases).** Set that day’s TR % to the S&P 500 TR %
+           and rescale every later TR level so the bad day does not stay in
+           the path forever. Use this when the error is baked into subsequent
+           levels (typical omitted / mis-scaled distribution add-back).
+        2. **One-day.** Replace only that day’s TR level / return with the
+           fund’s own price return, then recompute the next return. Use this
+           when the spike reverses the next day and later levels are already
+           right (American Growth, Dec 2025).
+
+        **Why the S&P return is the proxy.** For the forward cases we do not
+        have a confirmed cash amount that would rebuild TR from NAV +
+        distribution on that single day. Index-like and broad equity funds
+        should track the market within a few percent on a distribution day;
+        substituting the S&P TR for that one session is the least-assuming
+        fix on days that still fail the eligibility gate.
+
+        **What we keep.** Spikes where price and TR move together (March 2020
+        crash days, hedge payoffs, lasting NAV jumps) are genuine moves —
+        logged as kept, not rewritten. The Result↔Decision crosswalk marks
+        these as overlapping when the same ISIN also carries a Result spike
+        flag.
+        """)
+    _spike = get_spike()
+    if _spike is None:
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=mo.md(
+                "_Click **Run step** to score the pre-repair spike screen "
+                "(scale / level-jump days suppressed), apply gated distribution "
+                "repairs, and build the Result↔Decision crosswalk._"
+            ),
+            decision=stack(
+                mo.md("_Decision pending until this step has run._"),
+                _decision_policy,
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
+        )
+    else:
+        _controls = _spike["controls"]
+        _spike_table = flag_summary_table(_spike["issue_summary"], "spikes")
+        _distribution_log = _spike["distribution_log"].copy()
+        _result_isins = set(_spike_table["id"].astype("string").str.strip())
+        _distribution_log["in_result_spikes"] = (
+            _distribution_log["isin"].astype("string").str.strip().isin(_result_isins)
+        )
+        _repaired_rows = _distribution_log.loc[_distribution_log["decision"].eq("repaired")]
+        _skipped_clean = _distribution_log.loc[
+            _distribution_log["decision"].eq("skipped — already clean")
+        ]
+        _kept_rows = _distribution_log.loc[_distribution_log["decision"].eq("kept")]
+        _adj = _repaired_rows["adjustment"].astype("string")
+        _n_forward = int(_adj.str.contains("S&P return", regex=False, na=False).sum())
+        _n_one_day = int(_adj.str.contains("price return", regex=False, na=False).sum())
+        _n_already = int(_adj.eq("already matches").sum())
+
+        # Crosswalk: Result spike ISINs ∪ Decision log ISINs.
+        _decision_isins = set(_distribution_log["isin"].astype("string").str.strip())
+        _cross_rows = []
+        for _isin in sorted(_result_isins | _decision_isins):
+            _in_result = _isin in _result_isins
+            _in_decision = _isin in _decision_isins
+            if _in_result and _in_decision:
+                _overlap = "both"
+            elif _in_result:
+                _overlap = "result_only"
+            else:
+                _overlap = "decision_only"
+            _fund_rows = catalog.loc[
+                catalog["id"].astype("string").str.strip().eq(_isin), "name"
+            ]
+            _fund = str(_fund_rows.iloc[0]) if len(_fund_rows) else _isin
+            for _suffix in (
+                " - TOT RETURN IND",
+                " - PRICE",
+                " - TOTAL NET ASSETS",
+            ):
+                if _fund.endswith(_suffix):
+                    _fund = _fund[: -len(_suffix)]
+                    break
+            _spike_count = 0
+            if _in_result:
+                _spike_count = int(
+                    _spike_table.loc[
+                        _spike_table["id"].astype("string").str.strip().eq(_isin),
+                        "spikes",
+                    ].sum()
+                )
+            _dec_part = _distribution_log.loc[
+                _distribution_log["isin"].astype("string").str.strip().eq(_isin)
+            ]
+            _n_rep = int(_dec_part["decision"].eq("repaired").sum()) if len(_dec_part) else 0
+            _n_skip = (
+                int(_dec_part["decision"].eq("skipped — already clean").sum())
+                if len(_dec_part)
+                else 0
+            )
+            _n_kept = int(_dec_part["decision"].eq("kept").sum()) if len(_dec_part) else 0
+            _cross_rows.append(
+                {
+                    "isin": _isin,
+                    "fund": _fund,
+                    "overlap": _overlap,
+                    "result_spikes": _spike_count,
+                    "decision_repaired": _n_rep,
+                    "decision_skipped_clean": _n_skip,
+                    "decision_kept": _n_kept,
+                }
+            )
+        _crosswalk = pd.DataFrame(_cross_rows)
+        if len(_crosswalk):
+            _overlap_order = {"both": 0, "result_only": 1, "decision_only": 2}
+            _crosswalk = _crosswalk.assign(
+                _ord=_crosswalk["overlap"].map(_overlap_order)
+            ).sort_values(["_ord", "isin"]).drop(columns="_ord").reset_index(drop=True)
+        _n_both = int((_crosswalk["overlap"] == "both").sum()) if len(_crosswalk) else 0
+        _n_result_only = (
+            int((_crosswalk["overlap"] == "result_only").sum()) if len(_crosswalk) else 0
+        )
+        _n_decision_only = (
+            int((_crosswalk["overlap"] == "decision_only").sum()) if len(_crosswalk) else 0
+        )
+
+        _context_lines = []
+        for _row in (
+            _distribution_log.sort_values(["date", "isin"])
+            .itertuples(index=False)
+        ):
+            _flag = "also in Result" if _row.in_result_spikes else "Decision only"
+            _context_lines.append(
+                f"- **{_row.fund}** (`{_row.isin}`), {_row.date} — "
+                f"{_row.decision} ({_row.adjustment}) [{_flag}]: {_row.why}"
+            )
+        _context_md = (
+            "### Reviewed days (by fund)\n\n" + "\n".join(_context_lines)
+            if _context_lines
+            else "_No documented distribution days matched this panel._"
+        )
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=stack(
+                mo.md(
+                    f"- **{len(_spike_table):,}** series with automated spike "
+                    f"flags (**pre-repair** Result screen; scale / level-jump "
+                    f"days suppressed) \n"
+                    f"- Controls: spike {_controls['spike_return']:.0%}, "
+                    f"reversal band {_controls['reversal_band']:.0%} \n"
+                    f"- **Result↔Decision crosswalk:** **{_n_both:,}** both, "
+                    f"**{_n_result_only:,}** Result only, "
+                    f"**{_n_decision_only:,}** Decision only \n"
+                ),
+                review_table(
+                    _spike_table,
+                    "Series with spikes (pre-repair Result screen)",
+                ),
+                review_table(
+                    _crosswalk,
+                    "Result↔Decision crosswalk (by ISIN)",
+                ),
+            ),
+            decision=stack(
+                _decision_policy,
+                mo.md(
+                    f"- **{len(_repaired_rows):,}** distribution days rewritten "
+                    f"(**{_n_forward:,}** forward / S&P proxy, "
+                    f"**{_n_one_day:,}** one-day"
+                    + (
+                        f", **{_n_already:,}** already matching"
+                        if _n_already
+                        else ""
+                    )
+                    + ") \n"
+                    f"- **{len(_skipped_clean):,}** curated days skipped — "
+                    f"already clean (TR≈market or Price≈TR) \n"
+                    f"- **{int(_repaired_rows['cells'].sum()) if len(_repaired_rows) else 0:,}** "
+                    f"cells changed \n"
+                    f"- **{len(_kept_rows):,}** agreeing price+TR spikes left "
+                    f"unchanged \n"
+                    f"- **Crosswalk:** **{_n_both:,}** ISINs in both Result and "
+                    f"Decision, **{_n_result_only:,}** Result only (no curated "
+                    f"action), **{_n_decision_only:,}** Decision only "
+                    f"(curated day without a current Result spike flag) \n"
+                ),
+                md(_context_md),
+                review_table(
+                    _crosswalk,
+                    "Result↔Decision crosswalk (by ISIN)",
+                ),
+                review_table(
+                    _distribution_log,
+                    "Distribution-day repair log (in_result_spikes marks Result overlap)",
+                ),
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
+        )
+    _step_view
+    return
+
+
+@app.cell(hide_code=True)
+def _(get_spike, mo, run_step_button, step_header):
+    _ready = get_spike() is not None
+    run_wide = run_step_button(ready=_ready, tooltip=None if _ready else "Run step 7 first")
+    _header = step_header("## 8. Far from index", run_wide)
+    _header
+    return (run_wide,)
+
+
+@app.cell
+def _(catalog, get_spike, run_wide, set_wide, summarize_tr_consistency):
+    if run_wide.value:
+        _spike = get_spike()
+        if _spike is None:
+            raise ValueError("Wide step requires spike output")
+        _observations = _spike["observations"]
+        _controls, _issue_summary, _checks = summarize_tr_consistency(
+            catalog, _observations, flags=("wide",)
+        )
+        set_wide(
+            {
+                "observations": _observations,
+                "controls": _controls,
+                "issue_summary": _issue_summary,
+                "checks": _checks,
+            }
+        )
+    return
+
+
+@app.cell
+def _(
+    catalog,
+    get_spike,
+    get_wide,
+    md,
+    mo,
+    review_table,
+    selection_stats,
+    stack,
+    step_sections,
+    flag_summary_table,
+):
+    mo.stop(
+        get_spike() is None,
+        mo.md("Run step 7 first."),
+    )
+    _n_ids = int(catalog["id"].nunique())
+    _n_cols = len(catalog)
+    _mermaid_init = (
+        "%%{init: "
+        '{"flowchart": {"padding": 8, "nodeSpacing": 12, "rankSpacing": 20}, '
+        '"themeVariables": {"fontSize": "13px"}}'
+        "}%%\n"
+    )
+    _documentation = stack(
+        selection_stats(_n_ids, _n_cols),
+        md("""
+        ### What and why
+
+        **Question asked:** on this day, did the fund simply disagree with the
+        S&P by a lot? Flag `|fund − S&P| ≥ 5%` whenever both returns exist. On
+        daily data this is a rare notable-day screen (Result reports the
+        fund-day rate for this run), not a routine tracking-error band.
+
+        After spike and distribution repairs, remaining wide days are treated as
+        **active risk** or residual tracking — no automatic rewrite.
+        """),
+        mo.mermaid(
+            _mermaid_init
+            + """
+flowchart LR
+  f["Fund day: +6%"] --> gap["|6% − 0.5%| = 5.5%"]
+  s["S&P day: +0.5%"] --> gap
+  gap --> wide["≥ 5% → flag wide"]
+"""
+        ),
+    )
+    _wide = get_wide()
+    if _wide is None:
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=mo.md("_Click **Run step** to re-score days far from the index._"),
+            decision=stack(
+                mo.md("_Decision pending until this step has run._"),
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
+        )
+    else:
+        _controls = _wide["controls"]
+        _issue_summary = _wide["issue_summary"]
+        _wide_table = flag_summary_table(_issue_summary, "wide")
+        _total_fund_days = int(_issue_summary["days"].sum()) if len(_issue_summary) else 0
+        _total_wide_days = (
+            int(_issue_summary["far_from_index"].sum()) if len(_issue_summary) else 0
+        )
+        _wide_rate_pct = (
+            100.0 * _total_wide_days / _total_fund_days if _total_fund_days else float("nan")
+        )
+        _wide_rate_text = (
+            f"**{_wide_rate_pct:.3f}%** of fund-days "
+            f"({_total_wide_days:,} / {_total_fund_days:,})"
+            if _total_fund_days
+            else "_no fund-days scored_"
+        )
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=stack(
+                mo.md(
+                    f"- **{len(_wide_table):,}** series with at least one wide day \n"
+                    f"- Index gap threshold {_controls['index_gap']:.0%} \n"
+                    f"- Wide-day rate this run: {_wide_rate_text} \n"
+                ),
+                review_table(_wide_table, "Series far from index"),
+            ),
+            decision=stack(
+                md("""
+                Diagnostic only. Sparse wide flags over the panel window are
+                interpreted as active risk rather than data errors; no series are
+                dropped or rewritten here. The Result rate above is the
+                quantitative support for “sparse” on this run.
+                """),
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
+        )
+    _step_view
+    return
+
+
+@app.cell(hide_code=True)
+def _(get_wide, mo, run_step_button, step_header):
+    _ready_frozen = get_wide() is not None
+    run_frozen = run_step_button(
+        ready=_ready_frozen, tooltip=None if _ready_frozen else "Run step 8 first"
+    )
+    _header = step_header("## 9. Blank frozen tails", run_frozen)
+    _header
+    return (run_frozen,)
+
+
+@app.cell
+def _(catalog, get_wide, pd, run_frozen, set_frozen):
+    if run_frozen.value:
+        _wide = get_wide()
+        if _wide is None:
+            raise ValueError("Frozen step requires wide output")
+        _repaired_observations = _wide["observations"]
+
+        def _blank_frozen_tails(source, catalog_frame, min_sessions=5):
+            def _column_id(header):
+                _match = catalog_frame.loc[catalog_frame["header"].eq(header), "column"]
+                return None if _match.empty else int(_match.iloc[0])
+
+            def _fund_label(isin):
+                _names = catalog_frame.loc[catalog_frame["id"].eq(isin), "name"].astype("string")
+                _label = str(_names.iloc[0]) if len(_names) else isin
+                for _suffix in (" - TOT RETURN IND", " - PRICE", " - TOTAL NET ASSETS"):
+                    if _label.endswith(_suffix):
+                        return _label[: -len(_suffix)]
+                return _label
+
+            def _last_change(levels):
+                _values = levels.dropna()
+                _moved = _values.diff().fillna(0).ne(0)
+                if not _moved.any():
+                    return None
+                return source.index.get_loc(_values.index[_moved.to_numpy()][-1])
+
+            _market_return = source[_column_id("S&P 500 TR %")]
+            _is_level = catalog_frame["note"].astype("string").eq("Total return index, daily")
+            _cleaned = source.copy()
+            _rows = []
+            for _tr_row in catalog_frame.loc[_is_level].itertuples(index=False):
+                _isin = str(_tr_row.id)
+                if str(_tr_row.category) == "Index":
+                    continue
+                _tr_id = int(_tr_row.column)
+                _tr_levels = _cleaned[_tr_id]
+                _present = _tr_levels.notna().to_numpy()
+                if _present.sum() < 2:
+                    continue
+                _first = int(_present.argmax())
+                _last = len(_present) - 1 - int(_present[::-1].argmax())
+                _tr_cut = _last_change(_tr_levels)
+                _price_id = _column_id(f"{_isin} Price")
+                _price_cut = None if _price_id is None else _last_change(_cleaned[_price_id])
+                _cuts = [_cut for _cut in (_tr_cut, _price_cut) if _cut is not None]
+                _never_moves = not _cuts
+                _start = _first if _never_moves else max(_cuts) + 1
+                if _start > _last:
+                    continue
+                _tail = _market_return.iloc[_start : _last + 1]
+                _moved_sessions = int(_tail.fillna(0).ne(0).sum())
+                if not _never_moves and _moved_sessions < min_sessions:
+                    continue
+                _blanked = 0
+                for _header in (f"{_isin} TR", f"{_isin} TR %", f"{_isin} Price", f"{_isin} Price %"):
+                    _target = _column_id(_header)
+                    if _target is None:
+                        continue
+                    _values = _cleaned[_target].to_numpy(dtype="float64", copy=True)
+                    _blanked += int((_values[_start:] == _values[_start:]).sum())
+                    _values[_start:] = float("nan")
+                    _cleaned[_target] = _values
+                _rows.append(
+                    {
+                        "isin": _isin,
+                        "fund": _fund_label(_isin),
+                        "pattern": "never moves" if _never_moves else "frozen tail",
+                        "last_real_print": None if _never_moves else source.index[_start - 1].strftime("%Y-%m-%d"),
+                        "frozen_from": source.index[_start].strftime("%Y-%m-%d"),
+                        "frozen_to": source.index[_last].strftime("%Y-%m-%d"),
+                        "frozen_sessions": _last - _start + 1,
+                        "sessions_where_sp500_moved": _moved_sessions,
+                        "frozen_level": float(source[_tr_id].iloc[_last]),
+                        "cells": _blanked,
+                    }
+                )
+            _log = pd.DataFrame(
+                _rows,
+                columns=[
+                    "isin",
+                    "fund",
+                    "pattern",
+                    "last_real_print",
+                    "frozen_from",
+                    "frozen_to",
+                    "frozen_sessions",
+                    "sessions_where_sp500_moved",
+                    "frozen_level",
+                    "cells",
+                ],
+            )
+            if len(_log):
+                _log = _log.sort_values("frozen_sessions", ascending=False).reset_index(drop=True)
+            return _cleaned, _log
+
+        _cleaned_observations, _frozen_log = _blank_frozen_tails(_repaired_observations, catalog)
+
+        set_frozen(
+            {
+                "cleaned_observations": _cleaned_observations,
+                "frozen_log": _frozen_log,
+            }
+        )
+    return
+
+
+@app.cell
+def _(
+    catalog,
+    get_wide,
+    get_frozen,
+    md,
+    mo,
+    review_table,
+    selection_stats,
+    stack,
+    step_sections,
+):
+    mo.stop(
+        get_wide() is None,
+        mo.md("Run step 8 first. This step reads the wide-step observations."),
+    )
+    _n_ids = int(catalog["id"].nunique())
+    _n_cols = len(catalog)
+    _documentation = stack(
+        selection_stats(_n_ids, _n_cols),
+        md("""
+        ### What and why
+
+        After closure or merger, Datastream often repeats the last price and
+        total-return level on every later calendar date. Those repeats are not
+        economic returns: they insert a mechanical 0% daily return and bias
+        volatility and beta downward. Blanking the frozen tail (while keeping
+        the last real print) removes that artefact without inventing returns.
+
+        ### How
+
+        1. **Detect.** A total-return series is frozen when its level is flat for
+           at least five sessions on which the S&P 500 moved, through the last
+           date of the series, and the paired price is flat over the same
+           window. If the price still moves (for example a fund shifting to cash
+           before liquidation), the path is left unchanged.
+        2. **Blank tail.** Keep the last real print; blank every later
+           total-return and price level and their daily returns.
+        3. **Never moves.** A series that never changes is blanked entirely.
+           Total net assets are monthly values repeated daily and are left
+           untouched.
+        """),
+    )
+    _frozen = get_frozen()
+    if _frozen is None:
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=mo.md(
+                "_Click **Run step** to blank frozen post-closure tails._"
+            ),
+            decision=stack(
+                mo.md("_Decision pending until this step has run._"),
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
+        )
+    else:
+        _frozen_log = _frozen["frozen_log"]
+        _never_moving = _frozen_log.loc[_frozen_log["pattern"].eq("never moves")]
+        _frozen_tails = _frozen_log.loc[_frozen_log["pattern"].eq("frozen tail")]
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=stack(
+                mo.md(
+                    f"- **{len(_frozen_log):,}** frozen series identified \n"
+                    f"- **{len(_never_moving):,}** funds never move and are "
+                    f"blanked entirely \n"
+                    f"- **{len(_frozen_tails):,}** funds have a frozen tail, "
+                    f"blanked after their last real print \n"
+                    f"- **{int(_frozen_log['cells'].sum()) if len(_frozen_log) else 0:,}** "
+                    f"cells blanked across total return, price, and daily returns \n"
+                ),
+                review_table(_frozen_log, "Frozen series"),
+            ),
+            decision=stack(
+                md("""
+                Keep all series columns. Frozen tails are blanked so they do not
+                contribute mechanical 0% returns. The cleaned observations frame
+                stays in memory.
+                """),
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
+        )
+    _step_view
+    return
+
+
+@app.cell(hide_code=True)
+def _(get_frozen, mo, run_step_button, step_header):
+    _ready_tbill = get_frozen() is not None
+    run_tbill = run_step_button(ready=_ready_tbill, tooltip=None if _ready_tbill else "Run step 9 first")
+    _header = step_header("## 10. Fill US T-Bill 3M (^IRX)", run_tbill)
+    _header
+    return (run_tbill,)
+
+
+@app.cell
+def _(catalog, get_frozen, pd, run_tbill, set_tbill):
+    if run_tbill.value:
+        _frozen = get_frozen()
+        if _frozen is None:
+            raise ValueError("T-Bill step requires frozen output")
+        _cleaned_observations = _frozen["cleaned_observations"]
+
+        import yfinance as yf
+
+        _matches = catalog.loc[catalog["header"].eq("US T-Bill 3M"), "column"]
+        if len(_matches) != 1:
+            raise ValueError("Expected one US T-Bill 3M column")
+        _rate_column = int(_matches.iloc[0])
+        _start = pd.Timestamp(_cleaned_observations.index.min())
+        _end = pd.Timestamp(_cleaned_observations.index.max()) + pd.Timedelta(days=1)
+        _history = yf.Ticker("^IRX").history(
+            start=_start,
+            end=_end,
+            interval="1d",
+            auto_adjust=False,
+            repair=False,
+        )
+        if _history.empty:
+            raise ValueError("Yahoo returned no ^IRX history")
+        _history.index = _history.index.tz_localize(None).normalize()
+        _close = _history["Close"].astype(float)
+        _dates = pd.DatetimeIndex(pd.to_datetime(_cleaned_observations.index)).normalize()
+        _aligned = _close.reindex(_dates)
+        _rated_observations = _cleaned_observations.copy()
+        _rated_observations[_rate_column] = _aligned.to_numpy()
+        _filled = int(_aligned.notna().sum())
+        _blank = int(_aligned.isna().sum())
+        _present = _aligned.dropna()
+
+        set_tbill(
+            {
+                "rated_observations": _rated_observations,
+                "filled": _filled,
+                "blank": _blank,
+                "first_print": _present.index[0] if len(_present) else None,
+                "first_value": float(_present.iloc[0]) if len(_present) else None,
+                "last_print": _present.index[-1] if len(_present) else None,
+                "last_value": float(_present.iloc[-1]) if len(_present) else None,
+            }
+        )
+    return
+
+
+@app.cell
+def _(
+    catalog,
+    get_frozen,
+    get_tbill,
+    md,
+    mo,
+    selection_stats,
+    stack,
+    step_sections,
+):
+    mo.stop(
+        get_frozen() is None,
+        mo.md("Run step 9 first. This step reads the frozen-tail observations frame."),
+    )
+    _n_ids = int(catalog["id"].nunique())
+    _n_cols = len(catalog)
+    _documentation = stack(
+        selection_stats(_n_ids, _n_cols),
+        md("""
+        ### What and why
+
+        Risk-adjusted performance in the thesis uses a short-rate proxy. The
+        Datastream column `US T-Bill 3M` arrives empty. Yahoo `^IRX` (CBOE
+        13-week Treasury bill yield) is already quoted as an annualised percent
+        and matches the Sharpe convention of taking the last print in each month.
+
+        ### How
+
+        1. **Fetch.** Download daily `^IRX` history with yfinance over the panel
+           date span (`auto_adjust=False`).
+        2. **Align.** Normalise Yahoo timestamps to calendar dates and reindex
+           to the sheet's date index.
+        3. **Fill.** Write the aligned close into the `US T-Bill 3M` column.
+           Dates Yahoo skips (including US holidays) remain blank; no
+           carry-forward is applied.
+        """),
+    )
+    _tbill = get_tbill()
+    if _tbill is None:
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=mo.md(
+                "_Click **Run step** to fill `US T-Bill 3M` from Yahoo `^IRX`._"
+            ),
+            decision=stack(
+                mo.md("_Decision pending until this step has run._"),
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
+        )
+    else:
+        _filled = _tbill["filled"]
+        _blank = _tbill["blank"]
+        _first_print = _tbill["first_print"]
+        _first_value = _tbill["first_value"]
+        _last_print = _tbill["last_print"]
+        _last_value = _tbill["last_value"]
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=mo.md(
+                f"- **{_filled:,}** sessions filled from Yahoo `^IRX` \n"
+                f"- **{_blank:,}** sessions left blank \n"
+                + (
+                    f"- First print {_first_print:%Y-%m-%d}: "
+                    f"**{_first_value:.2f}%** \n"
+                    if _first_print is not None
+                    else ""
+                )
+                + (
+                    f"- Last print {_last_print:%Y-%m-%d}: "
+                    f"**{_last_value:.2f}%** \n"
+                    if _last_print is not None
+                    else ""
+                )
+            ),
+            decision=stack(
+                md("""
+                Keep all series. The `US T-Bill 3M` column now holds Yahoo `^IRX`
+                closes where available. The rated observations frame stays in
+                memory; labels for this column are updated only when the workbook
+                is exported.
+                """),
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
+        )
+    _step_view
+    return
+
+
+@app.cell(hide_code=True)
+def _(get_tbill, mo, run_step_button, step_header):
+    _ready_export = get_tbill() is not None
+    run_export = run_step_button(
+        ready=_ready_export,
+        tooltip=None if _ready_export else "Run step 10 first",
+    )
+    _header = step_header("## 11. Export cleaned workbook", run_export)
+    _header
+    return (run_export,)
+
+
+@app.cell
+def _(
+    catalog,
+    flag_summary_table,
+    get_frozen,
+    get_gap,
+    get_holiday,
+    get_level_jump,
+    get_rebuild,
+    get_scale,
+    get_spike,
+    get_tbill,
+    get_wide,
+    label_rows,
     observations,
     pd,
-    raw,
-    excluded_observations,
-    save_corrected_button,
+    run_export,
+    set_export,
     sheet_name,
     workbook,
 ):
-    def export_corrected_series():
-        import os
-        import shutil
-        import tempfile
+    if run_export.value:
+        _tbill = get_tbill()
+        if _tbill is None:
+            raise ValueError("Export step requires T-Bill output")
+        _holiday = get_holiday()
+        _gap = get_gap()
+        _scale = get_scale()
+        _level_jump = get_level_jump()
+        _rebuild = get_rebuild()
+        _spike = get_spike()
+        _wide = get_wide()
+        _frozen = get_frozen()
+        if None in (
+            _holiday,
+            _gap,
+            _scale,
+            _level_jump,
+            _rebuild,
+            _spike,
+            _wide,
+            _frozen,
+            _tbill,
+        ):
+            raise ValueError("Export step requires Steps 2–10 payloads")
+        _cleaned_observations = _tbill["rated_observations"]
 
-        if not excluded_observations.columns.equals(observations.columns):
-            raise ValueError("Corrected columns do not match the loaded sheet")
-        if not excluded_observations.index.equals(observations.index):
-            raise ValueError("Corrected dates do not match the loaded sheet")
-        difference = observations.sub(excluded_observations).abs()
-        changed = difference.gt(1e-12) | (
-            observations.isna() ^ excluded_observations.isna()
-        )
-        sheet = raw.copy()
-        _bill_columns = sheet.iloc[5].eq("US T-Bill 3M")
-        sheet.loc[1, _bill_columns] = "CBOE 13-week Treasury bill (^IRX)"
-        sheet.loc[4, _bill_columns] = (
-            "Yahoo ^IRX close, annualised rate in %. Blank when Yahoo has no print."
-        )
-        # An all-text column is dtype str in pandas 3, and that dtype rejects the numeric fill.
-        _string_columns = sheet.columns[sheet.dtypes.astype(str).eq("str")]
-        sheet[_string_columns] = sheet[_string_columns].astype("object")
-        block = sheet.iloc[label_rows:, 1:].to_numpy(copy=True)
-        changed_positions = changed.to_numpy()
-        block[changed_positions] = excluded_observations.to_numpy()[changed_positions]
-        sheet.iloc[label_rows:, 1:] = block
-        temporary_handle = tempfile.NamedTemporaryFile(
-            prefix="v2-funds-normalized-",
-            suffix=".xlsx",
-            delete=False,
-        )
-        temporary_path = temporary_handle.name
-        temporary_handle.close()
-        try:
-            # Work on a local copy: writing the zip straight into this folder times out.
-            shutil.copyfile(workbook, temporary_path)
-            with pd.ExcelWriter(
-                temporary_path,
-                engine="openpyxl",
-                mode="a",
-                if_sheet_exists="replace",
-            ) as writer:
-                removed_raw_sheet = "D-Timeseries raw" in writer.book.sheetnames
-                if removed_raw_sheet:
-                    del writer.book["D-Timeseries raw"]
-                sheet.to_excel(
-                    writer, sheet_name=sheet_name, index=False, header=False
-                )
+        def _build_run_summary():
+            from helpers.timeseries_functions.rebuild_tr_from_distributions import (
+                LIPPER_CLOSE_PP,
+                LIPPER_TEST_HORIZONS,
+                lipper_test_status,
+            )
+
+            holiday_log = _holiday["correction_log"]
+            gap_table = flag_summary_table(_gap["issue_summary"], "gaps")
+            scale_table = flag_summary_table(_scale["issue_summary"], "scale_shift")
+            jump_table = flag_summary_table(_level_jump["issue_summary"], "level_jumps")
+            jump_isins = set(jump_table["id"].astype("string").str.strip())
+            action_log = _level_jump["action_log"]
+            decision_log = action_log.loc[
+                action_log["isin"].astype("string").str.strip().isin(jump_isins)
+                & ~action_log["decision"].eq("already rescaled")
+            ]
+            rescaled = decision_log.loc[decision_log["decision"].eq("rescaled")]
+
+            rebuild_log = _rebuild["rebuild_log"].copy()
+            adopted_mask = rebuild_log["decision"].eq("adopted") if len(rebuild_log) else None
+            n_adopted = int(adopted_mask.sum()) if adopted_mask is not None else 0
+            n_kept_ds = int(len(rebuild_log) - n_adopted) if len(rebuild_log) else 0
+
+            def _gaps_from_row(row, *, side: str):
+                return {
+                    horizon: row.get(f"gap_{horizon}_{side}")
+                    for horizon in LIPPER_TEST_HORIZONS
+                }
+
+            ds_pass = ds_fail = ds_un = rb_pass = rb_fail = rb_un = 0
+            post_pass = post_fail = post_un = 0
+            if len(rebuild_log) and "gap_10y_before" in rebuild_log.columns:
+                for row in rebuild_log.itertuples(index=False):
+                    row_s = pd.Series(row._asdict())
+                    ds_s, _ = lipper_test_status(_gaps_from_row(row_s, side="before"))
+                    rb_s, _ = lipper_test_status(_gaps_from_row(row_s, side="after"))
+                    ds_pass += ds_s == "pass"
+                    ds_fail += ds_s == "fail"
+                    ds_un += ds_s == "unscored"
+                    rb_pass += rb_s == "pass"
+                    rb_fail += rb_s == "fail"
+                    rb_un += rb_s == "unscored"
+                for row in rebuild_log.loc[adopted_mask].itertuples(index=False):
+                    row_s = pd.Series(row._asdict())
+                    status, _ = lipper_test_status(_gaps_from_row(row_s, side="after"))
+                    post_pass += status == "pass"
+                    post_fail += status == "fail"
+                    post_un += status == "unscored"
+
+            spike_table = flag_summary_table(_spike["issue_summary"], "spikes")
+            dist_log = _spike["distribution_log"]
+            repaired = dist_log.loc[dist_log["decision"].eq("repaired")]
+            kept_spikes = dist_log.loc[dist_log["decision"].eq("kept")]
+            adj = repaired["adjustment"].astype("string")
+            n_forward = int(adj.str.contains("S&P return", regex=False, na=False).sum())
+            n_one_day = int(adj.str.contains("price return", regex=False, na=False).sum())
+
+            wide_table = flag_summary_table(_wide["issue_summary"], "wide")
+            issue_w = _wide["issue_summary"]
+            total_days = int(issue_w["days"].sum()) if len(issue_w) else 0
+            total_wide = int(issue_w["far_from_index"].sum()) if len(issue_w) else 0
+            wide_rate = (total_wide / total_days) if total_days else float("nan")
+
+            frozen_log = _frozen["frozen_log"]
+            never_moves = (
+                frozen_log.loc[frozen_log["pattern"].eq("never moves")]
+                if len(frozen_log)
+                else frozen_log
+            )
+            frozen_tails = (
+                frozen_log.loc[frozen_log["pattern"].eq("frozen tail")]
+                if len(frozen_log)
+                else frozen_log
+            )
+
+            return {
+                "holidays": int(len(_holiday["holiday_dates"])),
+                "holiday_series_corrected": int(len(holiday_log)),
+                "holiday_cells": int(holiday_log["cells_changed"].sum())
+                if len(holiday_log)
+                else 0,
+                "series_checked": int(len(_gap["issue_summary"])),
+                "gap_series": int(len(gap_table)),
+                "scale_series": int(len(scale_table)),
+                "scale_factor": _scale["controls"]["scale_factor"],
+                "scale_window": _scale["controls"]["scale_window"],
+                "level_jump_series": int(len(jump_table)),
+                "level_jump_days": int(_level_jump["issue_summary"]["level_jumps"].sum()),
+                "level_jump_funds_rescaled": int(rescaled["isin"].nunique())
+                if len(rescaled)
+                else 0,
+                "level_jump_cells": int(rescaled["cells"].sum()) if len(rescaled) else 0,
+                "rebuild_funds": int(len(rebuild_log)),
+                "lipper_close_pp": float(LIPPER_CLOSE_PP),
+                "datastream_pass": ds_pass,
+                "datastream_fail": ds_fail,
+                "datastream_unscored": ds_un,
+                "rebuild_pass": rb_pass,
+                "rebuild_fail": rb_fail,
+                "rebuild_unscored": rb_un,
+                "rebuild_adopted": n_adopted,
+                "rebuild_kept_datastream": n_kept_ds,
+                "post_adopt_pass": post_pass,
+                "post_adopt_fail": post_fail,
+                "post_adopt_unscored": post_un,
+                "spike_series": int(len(spike_table)),
+                "spike_return": _spike["controls"]["spike_return"],
+                "reversal_band": _spike["controls"]["reversal_band"],
+                "spike_repaired_days": int(len(repaired)),
+                "spike_forward": n_forward,
+                "spike_one_day": n_one_day,
+                "spike_kept_days": int(len(kept_spikes)),
+                "spike_cells": int(repaired["cells"].sum()) if len(repaired) else 0,
+                "wide_series": int(len(wide_table)),
+                "index_gap": _wide["controls"]["index_gap"],
+                "wide_days": total_wide,
+                "fund_days": total_days,
+                "wide_day_rate": wide_rate,
+                "frozen_series": int(len(frozen_log)),
+                "frozen_never_moves": int(len(never_moves)),
+                "frozen_tails": int(len(frozen_tails)),
+                "frozen_cells": int(frozen_log["cells"].sum()) if len(frozen_log) else 0,
+                "tbill_filled": int(_tbill["filled"]),
+                "tbill_blank": int(_tbill["blank"]),
+            }
+
+        def _save_cleaned_workbook():
+            import os
+            import shutil
+            import tempfile
+            from pathlib import Path as _Path
+
+            if not _cleaned_observations.columns.equals(observations.columns):
+                raise ValueError("Corrected columns do not match the loaded sheet")
+            if not _cleaned_observations.index.equals(observations.index):
+                raise ValueError("Corrected dates do not match the loaded sheet")
+
+            _source = _Path(workbook).resolve()
+            # Immutable input: write a sibling cleaned workbook, never replace
+            # v2-funds-normalized.xlsx.
+            _output = _source.with_name("v2-funds-normalized-cleaned.xlsx")
+
+            # Dump catalog + cleaned panel only (kept series). Skipped input
+            # columns are not written. Other workbook sheets stay via the copy.
+            _meta = catalog.set_index("column").loc[_cleaned_observations.columns].copy()
+            _bill = _meta["header"].eq("US T-Bill 3M")
+            _meta.loc[_bill, "name"] = "CBOE 13-week Treasury bill (^IRX)"
+            _meta.loc[_bill, "note"] = (
+                "Yahoo ^IRX close, annualised rate in %. Blank when Yahoo has no print."
+            )
+            _n_series = len(_cleaned_observations.columns)
+            _series = pd.DataFrame(
+                index=range(label_rows + len(_cleaned_observations)),
+                columns=range(1 + _n_series),
+                dtype=object,
+            )
+            for _row, _field in enumerate(
+                ("id", "name", "category", "fee", "note", "header")
+            ):
+                _series.iloc[_row, 1:] = _meta[_field].to_numpy()
+            _series.iloc[label_rows:, 0] = _cleaned_observations.index.to_numpy()
+            _series.iloc[label_rows:, 1:] = _cleaned_observations.to_numpy()
+
+            _difference = observations.sub(_cleaned_observations).abs()
+            _changed = _difference.gt(1e-12) | (
+                observations.isna() ^ _cleaned_observations.isna()
+            )
+            _corrected_cells = int(_changed.to_numpy().sum())
+
+            _temporary_handle = tempfile.NamedTemporaryFile(
+                prefix="v2-funds-normalized-cleaned-",
+                suffix=".xlsx",
+                delete=False,
+                dir=_output.parent,
+            )
+            _temporary_path = _temporary_handle.name
+            _temporary_handle.close()
             try:
-                os.replace(temporary_path, workbook)
-            except OSError:
-                shutil.move(temporary_path, workbook)
-        finally:
-            if os.path.exists(temporary_path):
-                os.remove(temporary_path)
-        return int(changed_positions.sum()), removed_raw_sheet
+                shutil.copyfile(_source, _temporary_path)
+                with pd.ExcelWriter(
+                    _temporary_path,
+                    engine="openpyxl",
+                    mode="a",
+                    if_sheet_exists="replace",
+                ) as writer:
+                    _removed_raw_sheet = "D-Timeseries raw" in writer.book.sheetnames
+                    if _removed_raw_sheet:
+                        del writer.book["D-Timeseries raw"]
+                    _series.to_excel(
+                        writer, sheet_name=sheet_name, index=False, header=False
+                    )
+                try:
+                    os.replace(_temporary_path, _output)
+                except OSError:
+                    shutil.move(_temporary_path, _output)
+            finally:
+                if os.path.exists(_temporary_path):
+                    os.remove(_temporary_path)
+            return _corrected_cells, _removed_raw_sheet, _output
 
-    corrected_export_note = None
-    if save_corrected_button.value:
-        corrected_cell_count, _removed_raw_sheet = export_corrected_series()
-        corrected_export_note = mo.md(
-            f"- Replaced `{sheet_name}` in `{workbook}`, with **{corrected_cell_count:,}** corrected cells \n"
-            + ("- Removed `D-Timeseries raw` \n" if _removed_raw_sheet else "")
+        _corrected_cells, _removed_raw_sheet, _output_path = _save_cleaned_workbook()
+        _run_summary = _build_run_summary()
+
+        set_export(
+            {
+                "corrected_cells": _corrected_cells,
+                "removed_raw_sheet": _removed_raw_sheet,
+                "workbook": str(_output_path),
+                "source_workbook": str(workbook),
+                "sheet_name": sheet_name,
+                "run_summary": _run_summary,
+            }
         )
-    corrected_export_note
+    return
+
+
+@app.cell
+def _(
+    catalog,
+    get_tbill,
+    get_export,
+    md,
+    mo,
+    selection_stats,
+    stack,
+    step_sections,
+    workbook,
+):
+    mo.stop(
+        get_tbill() is None,
+        mo.md("Run step 10 first. This step writes the cleaned in-memory panel."),
+    )
+    _n_ids = int(catalog["id"].nunique())
+    _n_cols = len(catalog)
+    _cleaned_name = "v2-funds-normalized-cleaned.xlsx"
+    _cleaned_path = workbook.with_name(_cleaned_name)
+    _documentation = stack(
+        selection_stats(_n_ids, _n_cols),
+        md(f"""
+        ### What and why
+
+        Earlier repairs lived only in memory. This step is the sole workbook
+        write: it dumps the in-memory catalog and cleaned daily panel to a
+        **separate** file, `{_cleaned_name}`, beside the immutable input
+        `{workbook.name}`. Only kept series are written — columns skipped at
+        load (e.g. TNA) are omitted. Other sheets (e.g. `Funds final`) are
+        carried over from the input copy. Closed / unusable funds are already
+        excluded upstream in the funds notebook. Idempotent re-runs overwrite
+        only the cleaned sibling.
+
+        ### How
+
+        1. **Copy input → temp.** Copy `{workbook.name}` to a temporary file in
+           the same folder (input path is never opened for write).
+        2. **`D-Timeseries final`.** Rebuild the sheet from catalog labels +
+           cleaned observations (kept columns only). Update `US T-Bill 3M`
+           label rows to document the Yahoo `^IRX` source.
+        3. **Cleanup + atomic publish.** Remove `D-Timeseries raw` when present;
+           atomically replace `{_cleaned_name}` only. The input workbook stays
+           unchanged.
+        """),
+    )
+    _export = get_export()
+    if _export is None:
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=mo.md(
+                f"_Click **Run step** to dump the cleaned panel to "
+                f"`{_cleaned_path}` (input `{workbook}` is left unchanged)._"
+            ),
+            decision=stack(
+                mo.md("_Decision pending until this step has run._"),
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
+        )
+    else:
+        _corrected_cells = _export["corrected_cells"]
+        _removed_raw_sheet = _export["removed_raw_sheet"]
+        _sheet = _export.get("sheet_name", "D-Timeseries final")
+        _path = _export.get("workbook", str(_cleaned_path))
+        _source = _export.get("source_workbook", str(workbook))
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=mo.md(
+                f"- Wrote `{_sheet}` in `{_path}` "
+                f"(**{_n_cols:,}** kept series; "
+                f"**{_corrected_cells:,}** cells different from the loaded panel) \n"
+                f"- Input left unchanged: `{_source}` \n"
+                + (
+                    "- Removed `D-Timeseries raw` from the cleaned copy \n"
+                    if _removed_raw_sheet
+                    else ""
+                )
+            ),
+            decision=stack(
+                md(f"""
+                Cleaned workbook exported to `{_cleaned_name}`. `D-Timeseries
+                final` is a dump of the in-memory catalog and cleaned panel
+                (kept columns only; skipped series omitted). Other sheets such
+                as `Funds final` come from the input copy. The input
+                `{workbook.name}` was not overwritten.
+                """),
+                selection_stats(_n_ids, _n_cols, when="end"),
+            ),
+        )
+    _step_view
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        """
+        ## Conclusion
+        """
+    )
+    return
+
+
+@app.cell
+def _(get_export, md, mo):
+    mo.stop(
+        get_export() is None,
+        mo.md("_Run step 11 first to export the cleaned workbook and unlock the conclusion._"),
+    )
+    _export = get_export()
+    _s = _export.get("run_summary") or {}
+    _wide_rate = _s.get("wide_day_rate")
+    _wide_rate_txt = (
+        f"{_wide_rate:.3%}"
+        if isinstance(_wide_rate, (int, float)) and _wide_rate == _wide_rate
+        else "n/a"
+    )
+    md(f"""
+    ### Purpose and contribution
+
+    This notebook turns the funds-notebook timeseries panel into a regression-ready
+    daily total-return sample. Starting from `D-Timeseries final`, it diagnoses
+    inconsistencies versus the S&P 500 total-return index, blanks exchange
+    holidays (level and %), repairs corporate-action level breaks, and
+    distribution-day spikes,
+    optionally rebuilds total returns from cash distributions under a Lipper
+    horizon gate, blanks frozen post-closure tails, and fills the three-month
+    T-bill from Yahoo `^IRX`. Closed funds without a usable series are already
+    excluded upstream in the funds notebook.
+
+    ### This run (from Steps 2–11 payloads)
+
+    - **Holiday:** **{_s.get("holidays", 0):,}** S&P-flat dates; **{_s.get("holiday_series_corrected", 0):,}**
+      level series blanked (level/% → NA; **{_s.get("holiday_cells", 0):,}** cells changed)
+    - **Gap / scale:** **{_s.get("series_checked", 0):,}** TR % series checked;
+      **{_s.get("gap_series", 0):,}** with gaps; **{_s.get("scale_series", 0):,}** with a
+      scale shift (factor {_s.get("scale_factor", "n/a")}, window {_s.get("scale_window", "n/a")})
+    - **Level jump:** **{_s.get("level_jump_series", 0):,}** TR % series flagged;
+      **{_s.get("level_jump_funds_rescaled", 0):,}** funds rescaled
+      (**{_s.get("level_jump_cells", 0):,}** cells)
+    - **Rebuild (Lipper {_s.get("lipper_close_pp", 0.5):g} pp):** Datastream
+      **{_s.get("datastream_pass", 0):,}** pass / **{_s.get("datastream_fail", 0):,}** fail /
+      **{_s.get("datastream_unscored", 0):,}** unscored; rebuild candidate
+      **{_s.get("rebuild_pass", 0):,}** / **{_s.get("rebuild_fail", 0):,}** /
+      **{_s.get("rebuild_unscored", 0):,}**; **{_s.get("rebuild_adopted", 0):,}** adopted,
+      **{_s.get("rebuild_kept_datastream", 0):,}** kept Datastream; post-adopt among
+      adopted **{_s.get("post_adopt_pass", 0):,}** pass /
+      **{_s.get("post_adopt_fail", 0):,}** fail /
+      **{_s.get("post_adopt_unscored", 0):,}** unscored
+    - **Spike:** **{_s.get("spike_series", 0):,}** series with Result flags
+      (spike {_s.get("spike_return", 0):.0%}, reversal {_s.get("reversal_band", 0):.0%});
+      **{_s.get("spike_repaired_days", 0):,}** distribution days rewritten
+      (**{_s.get("spike_forward", 0):,}** forward / S&P,
+      **{_s.get("spike_one_day", 0):,}** one-day; **{_s.get("spike_cells", 0):,}** cells);
+      **{_s.get("spike_kept_days", 0):,}** agreeing price+TR spikes kept
+    - **Wide:** **{_s.get("wide_series", 0):,}** series;
+      **{_wide_rate_txt}** of fund-days
+      (**{_s.get("wide_days", 0):,}** / **{_s.get("fund_days", 0):,}**;
+      threshold {_s.get("index_gap", 0):.0%})
+    - **Frozen tails:** **{_s.get("frozen_series", 0):,}** series
+      (**{_s.get("frozen_never_moves", 0):,}** never-move,
+      **{_s.get("frozen_tails", 0):,}** tails; **{_s.get("frozen_cells", 0):,}** cells blanked)
+    - **T-Bill:** **{_s.get("tbill_filled", 0):,}** sessions filled from `^IRX`,
+      **{_s.get("tbill_blank", 0):,}** left blank
+    - **Export:** dumped kept series to the cleaned workbook;
+      **{_export.get("corrected_cells", 0):,}** cells different from the loaded
+      panel
+      {"(removed `D-Timeseries raw`)" if _export.get("removed_raw_sheet") else ""}
+
+    ### Construction protocol
+
+    Repair steps rewrite cells when Decision documents it: **2** exchange-holiday
+    NA, **5** level-jump rescales, **6** Lipper-gated TR rebuild,
+    **7** curated distribution-day spikes, **9** frozen post-closure tails,
+    **10** US T-Bill fill. Diagnostic-only steps score flags and never rewrite:
+    **3** gap, **4** scale shift, **8** far from index. Each gated step reads
+    only the prior step’s output and does not reopen earlier drops. Step **11**
+    is the sole workbook write: it dumps catalog + cleaned observations into
+    `D-Timeseries final` (kept columns only; updated T-bill labels;
+    `D-Timeseries raw` removed when present) and leaves the input workbook
+    unchanged. Counts above are taken only from this run’s gated payloads.
+
+    ### Residual flags and interpretation
+
+    After repair, remaining “far from index” flags are treated as active risk
+    rather than data errors when Step 8’s Result shows a sparse fund-day rate
+    (this run: **{_wide_rate_txt}**). Spikes where price and total return move
+    together are kept as genuine NAV moves. Explained scale episodes (thin early
+    NAV marking, pre-liquidation cash) are left as published. Distribution-day TR
+    repairs run only when the Step 7 eligibility gate still finds Price/TR
+    disagreement and a material market residual on the current panel; forward
+    cases without a confirmed cash amount use that day’s S&P 500 TR % as the proxy.
+
+    ### Artefact
+
+    Use the **total-return** column for performance and S&P 500 regressions. The
+    price column remains the published NAV and still falls on distribution days.
+    The cleaned panel lives in `{_export.get("workbook", "output-data/v2-funds-normalized-cleaned.xlsx")}`
+    (input: `{_export.get("source_workbook", "output-data/v2-funds-normalized.xlsx")}`).
+    """)
     return
 
 

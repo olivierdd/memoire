@@ -128,28 +128,27 @@ def spx_flat_holiday_mask(
     )
 
 
-def carry_yahoo_levels_on_holidays(
+def levels_and_returns_with_holiday_na(
     levels: pd.Series,
-    holiday_mask: pd.Series,
-) -> pd.Series:
-    """Fill blank Yahoo levels on S&P-flat days by carrying the prior close.
-
-    Naive ``pct_change`` on a holiday hole NaNs both the holiday return and the
-    next session's return. Carrying before ``pct_change`` keeps holiday returns
-    at zero and preserves the next trading day's return.
-    """
-    values = levels.astype("float64").to_numpy(dtype="float64", copy=True)
-    holidays = holiday_mask.reindex(levels.index).fillna(False).to_numpy(dtype=bool)
-    for index in range(1, len(values)):
-        if not holidays[index]:
+    holiday_mask: pd.Series | None,
+) -> tuple[pd.Series, pd.Series]:
+    """Align Yahoo levels; blank S&P-flat holidays; recompute the next session %."""
+    filled = levels.astype("float64").copy()
+    returns = filled.pct_change()
+    if holiday_mask is None:
+        return filled, returns
+    mask = holiday_mask.reindex(filled.index).fillna(False)
+    for index in range(len(filled)):
+        if not bool(mask.iloc[index]):
             continue
-        current = values[index]
-        if current == current:
-            continue
-        previous = values[index - 1]
-        if previous == previous:
-            values[index] = previous
-    return pd.Series(values, index=levels.index, dtype="float64", name=levels.name)
+        prior = filled.iloc[index - 1] if index > 0 else float("nan")
+        filled.iloc[index] = float("nan")
+        returns.iloc[index] = float("nan")
+        if index + 1 < len(filled):
+            nxt = filled.iloc[index + 1]
+            if pd.notna(prior) and pd.notna(nxt) and float(prior) != 0.0:
+                returns.iloc[index + 1] = float(nxt) / float(prior) - 1.0
+    return filled, returns
 
 
 def daily_sheet_observation_dates(daily: pd.DataFrame) -> pd.DatetimeIndex:
@@ -194,12 +193,7 @@ def _append_level_return_pair(
     aligned: pd.Series,
     holiday_mask: pd.Series | None,
 ) -> pd.DataFrame:
-    filled = (
-        carry_yahoo_levels_on_holidays(aligned, holiday_mask)
-        if holiday_mask is not None
-        else aligned.astype("float64")
-    )
-    returns = filled.pct_change()
+    filled, returns = levels_and_returns_with_holiday_na(aligned, holiday_mask)
     level_meta = [isin, level_name, category, fee, level_note, level_header]
     return_meta = [
         isin,
@@ -239,8 +233,8 @@ def append_yahoo_price_and_tr_columns(
     - Price / Price % ← unadjusted Close (``auto_adjust=False``)
     - TR / TR % ← adjusted Close (``auto_adjust=True``)
     - Align to sheet dates; missing Yahoo prints stay blank
-    - On S&P-flat holidays (when ``holiday_mask`` is provided), carry the prior
-      Yahoo close before ``pct_change``
+    - On S&P-flat holidays (when ``holiday_mask`` is provided), level and % are
+      left NA and the next session’s return is recomputed from the prior close
     - Headers are primary ``{ISIN} Price`` / ``{ISIN} TR`` (and ``%`` companions)
 
     Returns the wider frame and the count of non-null TR observations.

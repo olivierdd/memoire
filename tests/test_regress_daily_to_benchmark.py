@@ -37,6 +37,31 @@ class RegressDailyToBenchmarkTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             daily_series_sheets(["D-Timeseries raw"])
 
+    def test_holiday_na_and_zero_compound_to_same_monthly_return(self):
+        dates = pd.to_datetime(["2020-01-02", "2020-01-03", "2020-01-06", "2020-01-07"])
+        bench_zero = pd.Series([0.01, 0.0, 0.02, 0.01], index=dates)
+        bench_na = pd.Series([0.01, float("nan"), 0.02, 0.01], index=dates)
+        fund = pd.Series([0.005, 0.0, 0.015, 0.008], index=dates)
+        daily_zero = pd.DataFrame({"S&P 500 TR %": bench_zero, "US0000000001 TR %": fund})
+        daily_na = pd.DataFrame(
+            {
+                "S&P 500 TR %": bench_na,
+                "US0000000001 TR %": fund.copy(),
+            }
+        )
+        daily_na.loc[dates[1], "US0000000001 TR %"] = float("nan")
+        counts_zero = bench_zero.groupby(daily_zero.index.to_period("M")).count()
+        counts_na = bench_na.notna().groupby(daily_na.index.to_period("M")).count()
+        monthly_zero = compound_daily_to_monthly(daily_zero, counts_zero, min_bench_days=2)
+        monthly_na = compound_daily_to_monthly(daily_na, counts_na, min_bench_days=2)
+        self.assertEqual(len(monthly_zero), len(monthly_na))
+        for col in monthly_zero.columns:
+            self.assertAlmostEqual(
+                float(monthly_zero[col].iloc[0]),
+                float(monthly_na[col].iloc[0]),
+                places=10,
+            )
+
     def test_compound_drops_thin_benchmark_month(self):
         dates = pd.date_range("2020-01-01", periods=20, freq="B")
         daily = pd.DataFrame(

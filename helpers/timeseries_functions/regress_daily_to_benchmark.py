@@ -14,7 +14,10 @@ from helpers.timeseries_functions.compare_regression_to_lipper_funds import (
 )
 
 LABEL_ROWS = 6
-DEFAULT_WORKBOOK_FILENAME = "v2-funds-normalized.xlsx"
+# Cleaned sibling written by load-series-v2 step 11 (input left immutable).
+DEFAULT_WORKBOOK_FILENAME = "v2-funds-normalized-cleaned.xlsx"
+# Pre-repair workbook from load-funds-v2 (Funds final + raw daily panel).
+SOURCE_WORKBOOK_FILENAME = "v2-funds-normalized.xlsx"
 FUNDS_SHEET = "Funds final"
 # Cleaned daily series written by the series notebook.
 CORRECTED_SHEET = "D-Timeseries final"
@@ -51,7 +54,15 @@ def find_output_data_file(filename: str) -> Path:
         candidate = directory / relative
         if candidate.is_file():
             return candidate.resolve()
-    raise FileNotFoundError(f"Could not find {relative}, starting from {start}")
+    hint = ""
+    if filename == DEFAULT_WORKBOOK_FILENAME:
+        hint = (
+            f" Run step 11 of notebooks/marimo-series-check/load-series-v2.py "
+            f"to write {relative} from {SOURCE_WORKBOOK_FILENAME}."
+        )
+    raise FileNotFoundError(
+        f"Could not find {relative}, starting from {start}.{hint}"
+    )
 
 
 def load_daily_timeseries_raw(
@@ -770,8 +781,9 @@ def compare_daily_sheets_to_lipper(
     *,
     funds: pd.DataFrame | None = None,
 ) -> tuple[pd.DataFrame, dict[str, pd.DataFrame], dict[str, str], pd.DataFrame]:
-    """Regress the cleaned daily series of the normalized workbook on its benchmark.
+    """Regress the cleaned daily series workbook on its Lipper benchmark.
 
+    Defaults to ``v2-funds-normalized-cleaned.xlsx`` (series-check export).
     Returns the long comparison, the monthly panel, the sheet it was read from,
     and the level-versus-compounded check for each fund and horizon.
     """

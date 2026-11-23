@@ -7,7 +7,9 @@ import pandas as pd
 
 from helpers.timeseries_functions.check_timeseries_consistency import (
     check_timeseries_consistency,
+    locate_series_issues,
     locate_timeseries_issues,
+    resolve_series_issue_flags,
 )
 from helpers.timeseries_functions.plot_timeseries_issues import (
     ISSUE_INDEX,
@@ -63,6 +65,38 @@ class LocateTimeseriesIssuesTest(unittest.TestCase):
         lipper, yahoo = _checks(frame)
         self.assertFalse(lipper.months["gap"].any())
         self.assertFalse(yahoo.months["gap"].any())
+
+    def test_exchange_holiday_na_is_not_scored_as_gap(self):
+        dates = pd.to_datetime(["2020-01-02", "2020-01-03", "2020-01-06"])
+        frame = pd.DataFrame(
+            {
+                "Period": ["Jan 2020", "Jan 2020", "Jan 2020"],
+                "Date": dates,
+                MASTER: [0.01, float("nan"), 0.02],
+                COMPARISON: [0.01, float("nan"), 0.02],
+                INDEX: [0.0, float("nan"), 0.01],
+            }
+        )
+        holidays = pd.DatetimeIndex([dates[1]])
+        narrowed = frame.rename(columns={MASTER: "fund", INDEX: "S&P 500 TR"})[
+            ["Period", "Date", "fund", "S&P 500 TR"]
+        ]
+        check = locate_series_issues(
+            MASTER,
+            "fund",
+            fund_timeseries=narrowed,
+            index_column="S&P 500 TR",
+            flags=("gaps",),
+            exchange_holidays=holidays,
+            spike_return=0.10,
+            reversal_band=0.15,
+            scale_factor=5,
+            scale_window=12,
+            level_jump=0.50,
+            index_gap=0.05,
+            date_gap_days=45,
+        )
+        self.assertFalse(check.months["gap"].any())
 
     def test_missing_return_skipped_month_and_long_gap(self):
         dates = pd.to_datetime(["2010-01-01", "2010-02-01", "2010-03-01", "2010-05-20"])
@@ -168,6 +202,92 @@ class LocateTimeseriesIssuesTest(unittest.TestCase):
         spec = json.dumps(chart.to_dict())
         self.assertIn(ISSUE_SCALE, spec)
         self.assertIn(ISSUE_INDEX, spec)
+
+
+class SelectiveSeriesIssueFlagsTest(unittest.TestCase):
+    def test_resolve_expands_spike_prerequisites(self):
+        self.assertEqual(
+            resolve_series_issue_flags(("spikes",)),
+            frozenset({"spikes", "scale", "level_jump"}),
+        )
+        self.assertEqual(
+            resolve_series_issue_flags(("level_jump",)),
+            frozenset({"level_jump", "scale"}),
+        )
+        self.assertEqual(resolve_series_issue_flags(("gaps",)), frozenset({"gaps"}))
+
+    def test_unknown_flag_raises(self):
+        with self.assertRaisesRegex(ValueError, "Unknown series issue flag"):
+            resolve_series_issue_flags(("gaps", "nope"))
+
+    def test_gaps_only_skips_scale_and_spikes(self):
+        master = [0.01] * 3 + [0.20] * 5
+        periods = [
+            "Jan 2010",
+            "Feb 2010",
+            "Mar 2010",
+            "Apr 2010",
+            "May 2010",
+            "Jun 2010",
+            "Jul 2010",
+            "Aug 2010",
+        ]
+        frame = _frame(master, [0.01] * 8, periods=periods)
+        full = locate_series_issues(
+            "Lipper",
+            MASTER,
+            fund_timeseries=frame,
+            index_column=INDEX,
+            spike_return=0.10,
+            reversal_band=0.15,
+            scale_factor=4,
+            scale_window=3,
+            level_jump=0.50,
+            index_gap=0.05,
+            date_gap_days=45,
+        )
+        gaps_only = locate_series_issues(
+            "Lipper",
+            MASTER,
+            fund_timeseries=frame,
+            index_column=INDEX,
+            spike_return=0.10,
+            reversal_band=0.15,
+            scale_factor=4,
+            scale_window=3,
+            level_jump=0.50,
+            index_gap=0.05,
+            date_gap_days=45,
+            flags=("gaps",),
+        )
+        self.assertEqual(full.scale_at, 3)
+        self.assertIsNone(gaps_only.scale_at)
+        self.assertFalse(gaps_only.months["spike"].any())
+        self.assertFalse(gaps_only.months["wide"].any())
+        self.assertFalse(gaps_only.months["gap"].any())
+
+    def test_spikes_only_matches_full_spike_column(self):
+        master = [0.0, 0.25, -0.1875, 0.0, 0.0, 0.0]
+        frame = _frame(master, [0.0] * 6)
+        kwargs = dict(
+            fund_timeseries=frame,
+            index_column=INDEX,
+            spike_return=0.10,
+            reversal_band=0.15,
+            scale_factor=5,
+            scale_window=12,
+            level_jump=0.50,
+            index_gap=0.05,
+            date_gap_days=45,
+        )
+        full = locate_series_issues("Lipper", MASTER, **kwargs)
+        selective = locate_series_issues("Lipper", MASTER, flags=("spikes",), **kwargs)
+        self.assertEqual(
+            list(full.months.index[full.months["spike"]]),
+            list(selective.months.index[selective.months["spike"]]),
+        )
+        self.assertFalse(selective.months["gap"].any())
+        self.assertFalse(selective.months["wide"].any())
 
 
 class PlotTimeseriesIssuesTest(unittest.TestCase):

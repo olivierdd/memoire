@@ -2653,8 +2653,9 @@ def _(
         5. **No Datastream TR.** Same Yahoo recipe as series-check: fetch
            unadjusted Close (`auto_adjust=False`) into primary `{ISIN} Price` /
            `Price %`, and adjusted Close (`auto_adjust=True`) into `{ISIN} TR` /
-           `TR %`. Align to sheet dates; on S&P-flat holidays carry the prior
-           Yahoo close before `P(t)/P(t-1) - 1`; other missing prints stay blank.
+           `TR %`. Align to sheet dates; on S&P-flat holidays set level and % to
+           NA and recompute the next session’s return; other missing prints stay
+           blank.
            Keep when both series align; otherwise drop.
         6. **Audit sheets.** `No daily total return`; `No matching D-TIMESERIES
            NAME`; `Dropped D-TIMESERIES name gap`; `Dropped no daily total
@@ -2824,7 +2825,7 @@ def _(
                 OpenFIGI market ticker using the **same Price + TR recipe as
                 series-check**: unadjusted Close → `{{ISIN}} Price` / `Price %`;
                 adjusted Close → `{{ISIN}} TR` / `TR %`; align to sheet dates;
-                S&P-flat holiday carry before daily returns; blanks when Yahoo
+                S&P-flat holidays NA (next-session % recomputed); blanks when Yahoo
                 has no print. When both histories exist and align, they are
                 appended to the working D-Timeseries panel.
 

@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from collections.abc import Iterable
 from dataclasses import dataclass
 
 import pandas as pd
@@ -5,12 +8,26 @@ import pandas as pd
 DEFAULT_SPIKE_RETURN = 0.10
 DEFAULT_REVERSAL_BAND = 0.15
 DEFAULT_SCALE_FACTOR = 5
+# Monthly panels: 12 observations ≈ one year of months.
 DEFAULT_SCALE_WINDOW = 12
+# Daily panels: 126 trading days ≈ half a year. A 12-day window (the monthly
+# default reused naively) false-triggers on short volatility regimes.
+DEFAULT_SCALE_WINDOW_DAILY = 126
 DEFAULT_LEVEL_JUMP = 0.50
 DEFAULT_INDEX_GAP = 0.05
 DEFAULT_DATE_GAP_DAYS = 45
 DEFAULT_MASTER_TIMESERIES = "Lipper"
 DEFAULT_COMPARISON_TIMESERIES = "Yahoo"
+
+# Named checks callers may request. Dependencies are expanded automatically.
+SERIES_ISSUE_FLAGS = frozenset({"gaps", "scale", "level_jump", "spikes", "wide"})
+_FLAG_REQUIRES = {
+    "gaps": frozenset(),
+    "scale": frozenset(),
+    "level_jump": frozenset({"scale"}),
+    "spikes": frozenset({"scale", "level_jump"}),
+    "wide": frozenset(),
+}
 
 
 @dataclass
@@ -24,50 +41,86 @@ class SeriesCheck:
     index_gap: float
 
 
-def locate_series_issues(
-    label: str,
-    column: str,
-    *,
-    fund_timeseries: pd.DataFrame,
-    index_column: str,
-    spike_return: float,
-    reversal_band: float,
-    scale_factor: float,
-    scale_window: int,
-    level_jump: float,
-    index_gap: float,
-    date_gap_days: int,
-) -> SeriesCheck:
-    """Flag gaps, spikes, scale changes, and index gaps for one series."""
-    frame = fund_timeseries[["Period", "Date", column, index_column]].reset_index(
-        drop=True
-    )
-    returns = frame[column]
-    market = frame[index_column]
-    usable = returns.notna() & market.notna()
+def resolve_series_issue_flags(flags: Iterable[str] | None = None) -> frozenset[str]:
+    """Return the checks to run, including prerequisites (e.g. spikes → scale)."""
+    if flags is None:
+        return SERIES_ISSUE_FLAGS
+    requested = {str(flag) for flag in flags}
+    unknown = requested - SERIES_ISSUE_FLAGS
+    if unknown:
+        names = ", ".join(sorted(unknown))
+        allowed = ", ".join(sorted(SERIES_ISSUE_FLAGS))
+        raise ValueError(f"Unknown series issue flag(s): {names}. Allowed: {allowed}.")
+    active = set(requested)
+    pending = True
+    while pending:
+        pending = False
+        for flag in tuple(active):
+            needed = _FLAG_REQUIRES[flag] - active
+            if needed:
+                active |= needed
+                pending = True
+    return frozenset(active)
 
-    parsed = pd.to_datetime(frame["Period"], format="%b %Y")
+
+def _false_mask(index: pd.Index) -> pd.Series:
+    return pd.Series(False, index=index, dtype=bool)
+
+
+def _flag_gaps(
+    returns: pd.Series,
+    periods: pd.Series,
+    dates: pd.Series,
+    date_gap_days: int,
+    *,
+    exchange_holidays: pd.DatetimeIndex | None = None,
+) -> tuple[pd.Series, pd.Series, pd.Series, pd.Series]:
+    parsed = pd.to_datetime(periods, format="%b %Y")
     ordinal = parsed.dt.year * 12 + parsed.dt.month
     missing = returns.isna().copy()
     missing.iloc[0] = False
+    if exchange_holidays is not None and len(exchange_holidays):
+        on_holiday = pd.to_datetime(dates).isin(pd.to_datetime(exchange_holidays))
+        missing = missing.mask(on_holiday, False)
     skipped = ordinal.diff().gt(1).fillna(False)
-    long_gap = frame["Date"].diff().dt.days.gt(date_gap_days).fillna(False)
+    long_gap = dates.diff().dt.days.gt(date_gap_days).fillna(False)
     gap_rows = missing | skipped | long_gap
+    return missing, skipped, long_gap, gap_rows
+
+
+def _flag_scale_at(
+    absolute: pd.Series,
+    scale_window: int,
+    scale_factor: float,
+) -> int | None:
+    """Locate the sharpest lasting scale split, or None."""
+    length = len(absolute)
+    last_split = length - scale_window
+    if last_split < scale_window:
+        return None
+    before = absolute.rolling(scale_window, min_periods=scale_window).median()
+    after = (
+        absolute.iloc[::-1]
+        .rolling(scale_window, min_periods=scale_window)
+        .median()
+        .iloc[::-1]
+    )
+    prefix = absolute.expanding(min_periods=1).median()
+    suffix = absolute.iloc[::-1].expanding(min_periods=1).median().iloc[::-1]
 
     scale_at = None
     sharpest = 0.0
-    absolute = returns.abs()
-    last_split = len(frame) - scale_window
     for end in range(scale_window, last_split + 1):
-        before = absolute.iloc[end - scale_window : end].median()
-        after = absolute.iloc[end : end + scale_window].median()
-        prefix = absolute.iloc[:end].median()
-        suffix = absolute.iloc[end:].median()
-        bounds = (before, after, prefix, suffix)
+        bounds = (
+            before.iloc[end - 1],
+            after.iloc[end],
+            prefix.iloc[end - 1],
+            suffix.iloc[end],
+        )
         if any(pd.isna(bound) or bound <= 0 for bound in bounds):
             continue
-        local = after / before
-        ratio = suffix / prefix
+        local = bounds[1] / bounds[0]
+        ratio = bounds[3] / bounds[2]
         stays_up = local >= scale_factor and ratio >= scale_factor
         stays_down = local <= 1 / scale_factor and ratio <= 1 / scale_factor
         if not stays_up and not stays_down:
@@ -76,8 +129,17 @@ def locate_series_issues(
         if strength > sharpest:
             sharpest = float(strength)
             scale_at = end
+    return scale_at
 
-    jumps = []
+
+def _flag_level_jumps(
+    returns: pd.Series,
+    market: pd.Series,
+    *,
+    level_jump: float,
+    scale_at: int | None,
+) -> list[int]:
+    jumps: list[int] = []
     for i in range(len(returns)):
         value = returns.iloc[i]
         index_value = market.iloc[i]
@@ -93,7 +155,19 @@ def locate_series_issues(
         stayed = float((1 + follow).prod() - 1)
         if abs(stayed) >= abs(float(value)) / 2:
             jumps.append(i)
+    return jumps
 
+
+def _flag_spikes(
+    returns: pd.Series,
+    market: pd.Series,
+    usable: pd.Series,
+    *,
+    spike_return: float,
+    reversal_band: float,
+    on_new_scale: pd.Series,
+    level_shift: pd.Series,
+) -> tuple[pd.Series, pd.Series]:
     undone = (1 + returns) * (1 + returns.shift(-1)) - 1
     gave_back = (
         returns.shift(-1).notna()
@@ -113,20 +187,115 @@ def locate_series_issues(
     isolated = (
         usable & returns.abs().ge(spike_return) & distance.ge(returns.abs() / 2)
     ).fillna(False)
-    on_new_scale = pd.Series(False, index=frame.index)
-    if scale_at is not None:
-        on_new_scale.iloc[scale_at:] = True
-    level_shift = pd.Series(False, index=frame.index)
-    if jumps:
-        level_shift.iloc[jumps] = True
     spike = (
         (reversal | isolated)
         & ~on_new_scale
         & ~level_shift
         & ~reversal.shift(1, fill_value=False)
+    ).fillna(False)
+    return reversal, spike
+
+
+def locate_series_issues(
+    label: str,
+    column: str,
+    *,
+    fund_timeseries: pd.DataFrame,
+    index_column: str,
+    spike_return: float,
+    reversal_band: float,
+    scale_factor: float,
+    scale_window: int,
+    level_jump: float,
+    index_gap: float,
+    date_gap_days: int,
+    flags: Iterable[str] | None = None,
+    exchange_holidays: pd.DatetimeIndex | None = None,
+) -> SeriesCheck:
+    """Flag gaps, spikes, scale changes, and index gaps for one series.
+
+    Designed for a single return column aligned to an index return column.
+    Works on monthly or daily rows; choose ``scale_window`` accordingly
+    (``DEFAULT_SCALE_WINDOW`` vs ``DEFAULT_SCALE_WINDOW_DAILY``).
+
+    Pass ``flags`` to run only the named checks (and their prerequisites).
+    ``None`` runs every check. Allowed names: gaps, scale, level_jump, spikes,
+    wide.
+
+    Flags (see implementation for exact predicates):
+
+    - **Gap:** missing return (not on the first row), a skipped calendar month in
+      ``Period``, or more than ``date_gap_days`` between consecutive ``Date``
+      values.
+    - **Scale shift:** median absolute return rises or falls by at least
+      ``scale_factor`` both locally (``scale_window`` rows before vs after a
+      candidate split) and globally (prefix vs suffix medians).
+    - **Level jump:** ``|return| >= level_jump`` and far from the index, with the
+      move persisting over the next sessions (cumulative return stays at least
+      half the jump); ignored from a detected scale split onward.
+    - **Spike (reversal):** ``|return| >= spike_return``, opposite sign next
+      period, two-period compound within ``reversal_band``, and the index does
+      not show the same reversal pattern.
+    - **Spike (isolated):** ``|return| >= spike_return`` and
+      ``|return - index| >= |return| / 2``.
+    - **Wide / far from index:** ``|return - index| >= index_gap`` on usable
+      rows.
+    """
+    active = resolve_series_issue_flags(flags)
+    frame = fund_timeseries[["Period", "Date", column, index_column]].reset_index(
+        drop=True
     )
-    spike = spike.fillna(False)
-    wide = (usable & distance.ge(index_gap)).fillna(False)
+    returns = frame[column]
+    market = frame[index_column]
+    usable = returns.notna() & market.notna()
+    index = frame.index
+
+    if "gaps" in active:
+        missing, skipped, long_gap, gap_rows = _flag_gaps(
+            returns,
+            frame["Period"],
+            frame["Date"],
+            date_gap_days,
+            exchange_holidays=exchange_holidays,
+        )
+    else:
+        missing = skipped = long_gap = gap_rows = _false_mask(index)
+
+    scale_at = None
+    if "scale" in active:
+        scale_at = _flag_scale_at(returns.abs(), scale_window, scale_factor)
+
+    on_new_scale = _false_mask(index)
+    if scale_at is not None:
+        on_new_scale.iloc[scale_at:] = True
+
+    jumps: list[int] = []
+    if "level_jump" in active:
+        jumps = _flag_level_jumps(
+            returns, market, level_jump=level_jump, scale_at=scale_at
+        )
+    level_shift = _false_mask(index)
+    if jumps:
+        level_shift.iloc[jumps] = True
+
+    if "spikes" in active:
+        reversal, spike = _flag_spikes(
+            returns,
+            market,
+            usable,
+            spike_return=spike_return,
+            reversal_band=reversal_band,
+            on_new_scale=on_new_scale,
+            level_shift=level_shift,
+        )
+    else:
+        reversal = spike = _false_mask(index)
+
+    if "wide" in active:
+        distance = (returns - market).abs()
+        wide = (usable & distance.ge(index_gap)).fillna(False)
+    else:
+        wide = _false_mask(index)
 
     months = frame[["Period", "Date"]].copy()
     months["return"] = returns.to_numpy()
@@ -165,6 +334,7 @@ def locate_timeseries_issues(
     level_jump: float = DEFAULT_LEVEL_JUMP,
     index_gap: float = DEFAULT_INDEX_GAP,
     date_gap_days: int = DEFAULT_DATE_GAP_DAYS,
+    flags: Iterable[str] | None = None,
 ) -> list[SeriesCheck]:
     """Flag both series the same way the consistency report does, without printing."""
     kwargs = {
@@ -177,6 +347,7 @@ def locate_timeseries_issues(
         "level_jump": level_jump,
         "index_gap": index_gap,
         "date_gap_days": date_gap_days,
+        "flags": flags,
     }
     return [
         locate_series_issues(label, column, **kwargs)
@@ -316,6 +487,7 @@ def check_timeseries_consistency(
     level_jump: float = DEFAULT_LEVEL_JUMP,
     index_gap: float = DEFAULT_INDEX_GAP,
     date_gap_days: int = DEFAULT_DATE_GAP_DAYS,
+    flags: Iterable[str] | None = None,
 ) -> list[SeriesCheck]:
     """Check gaps, spikes, scale changes, and index divergence for two series."""
     checks = locate_timeseries_issues(
@@ -332,6 +504,7 @@ def check_timeseries_consistency(
         level_jump=level_jump,
         index_gap=index_gap,
         date_gap_days=date_gap_days,
+        flags=flags,
     )
     for check in checks:
         _print_series_check(check)

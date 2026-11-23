@@ -283,7 +283,7 @@ excluded as structural “Other” products. Parallel enrichments attach OpenFIG
 market identifiers, EDGAR CIK/series/class fields, and Datastream (or Yahoo
 total-return) daily paths; **{c['yahoo_filled']:,}** funds without a Datastream
 series were retained after a Yahoo Price + TR backfill (unadjusted Close →
-Price; adjusted Close → TR, with S&P-flat holiday carry).
+Price; adjusted Close → TR; S&P-flat holidays NA with next-session % recomputed).
 
 ### Composition of the final sample
 
