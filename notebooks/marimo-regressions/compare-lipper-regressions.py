@@ -29,13 +29,13 @@ def _(mo):
     mo.md("""
     # Daily regressions vs Lipper
 
-    Load `output-data/v2-funds-normalized.xlsx`. For each fund on the sheet `Funds final`,
-    compound daily total returns to calendar months, regress the fund on its Lipper reference
-    benchmark over 3, 5, and 10 years, and compare alpha, beta, R², and annualized tracking error
-    with Lipper’s precomputed Funds columns.
+    Load `output-data/v2-funds-normalized-cleaned.xlsx` (series-check step 11 export;
+    the input `v2-funds-normalized.xlsx` is left unchanged). For each fund on the sheet
+    `Funds final`, compound daily total returns to calendar months, regress the fund on
+    its Lipper reference benchmark over 3, 5, and 10 years, and compare alpha, beta, R²,
+    and annualized tracking error with Lipper’s precomputed Funds columns.
 
-    The daily series are read from `D-Timeseries final`, the cleaned series written by
-    `load-series-v2.py`.
+    The daily series are read from `D-Timeseries final` in that cleaned workbook.
     """)
     return
 
