@@ -236,7 +236,7 @@ def verification_table(counts: dict[str, int]) -> pd.DataFrame:
                 "Funds": int(counts["cusip_filled"]),
             },
             {
-                "Outcome": "Yahoo total-return series appended (step 7)",
+                "Outcome": "Yahoo Price + TR series appended (step 7)",
                 "Funds": int(counts["yahoo_filled"]),
             },
         ]
@@ -282,7 +282,8 @@ favour of the EDGAR classification, and **{c['drop_other']:,}** funds were
 excluded as structural “Other” products. Parallel enrichments attach OpenFIGI
 market identifiers, EDGAR CIK/series/class fields, and Datastream (or Yahoo
 total-return) daily paths; **{c['yahoo_filled']:,}** funds without a Datastream
-series were retained after a Yahoo dividend-and-split-adjusted backfill.
+series were retained after a Yahoo Price + TR backfill (unadjusted Close →
+Price; adjusted Close → TR, with S&P-flat holiday carry).
 
 ### Composition of the final sample
 

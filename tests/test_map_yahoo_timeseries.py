@@ -7,9 +7,11 @@ from unittest.mock import patch
 import pandas as pd
 
 from helpers.funds_functions.map_yahoo_timeseries import (
-    append_yahoo_total_return_column,
+    append_yahoo_price_and_tr_columns,
     apply_yahoo_timeseries_flags,
+    fetch_yahoo_price_levels,
     fetch_yahoo_total_return_levels,
+    holiday_mask_from_daily_sheet,
     map_yahoo_timeseries,
     refresh_yahoo_timeseries_cache,
     series_bounds,
@@ -108,60 +110,119 @@ class FetchYahooTotalReturnLevelsTests(unittest.TestCase):
         self.assertIsNone(fetch_yahoo_total_return_levels("ZZZZ"))
 
 
-class AppendYahooTotalReturnColumnTests(unittest.TestCase):
+class FetchYahooPriceLevelsTests(unittest.TestCase):
+    @patch("helpers.funds_functions.map_yahoo_timeseries.yf.Ticker")
+    def test_uses_auto_adjust_false(self, mock_ticker):
+        history = pd.DataFrame(
+            {"Close": [50.0, 51.0]},
+            index=pd.to_datetime(["2020-01-02", "2020-01-03"], utc=True),
+        )
+        mock_ticker.return_value.history.return_value = history
+        levels = fetch_yahoo_price_levels("FRDPX")
+        mock_ticker.return_value.history.assert_called_once_with(
+            period="max", auto_adjust=False, repair=False
+        )
+        self.assertEqual(list(levels.values), [50.0, 51.0])
+
+
+class AppendYahooPriceAndTrColumnTests(unittest.TestCase):
     def _sample_daily(self) -> pd.DataFrame:
         # Rows 0–5 labels; row 6+ observations (Datastream layout).
         rows = [
-            ["ISIN", "US0000000001"],
-            ["Name", "Existing Fund - TOT RETURN IND"],
-            ["Category", "Active MF"],
-            ["Fee", 0.5],
-            ["Type", "Total return index, daily"],
-            ["Code", "EXISTING"],
-            [pd.Timestamp("2020-01-02"), 10.0],
-            [pd.Timestamp("2020-01-03"), 10.5],
-            [pd.Timestamp("2020-01-06"), 11.0],
-            [pd.Timestamp("2020-01-07"), 11.2],
+            ["ISIN", "US0000000001", "INDEX"],
+            ["Name", "Existing Fund - TOT RETURN IND", "S&P 500 COMPOSITE - TOT RETURN IND"],
+            ["Category", "Active MF", "Index"],
+            ["Fee", 0.5, None],
+            ["Type", "Total return index, daily", "Total return index, daily"],
+            ["Code", "EXISTING", "S&P 500 TR"],
+            [pd.Timestamp("2020-01-02"), 10.0, 100.0],
+            [pd.Timestamp("2020-01-03"), 10.5, 100.0],  # S&P-flat holiday
+            [pd.Timestamp("2020-01-06"), 11.0, 101.0],
+            [pd.Timestamp("2020-01-07"), 11.2, 102.0],
         ]
         return pd.DataFrame(rows)
 
-    def test_appends_tr_and_daily_return_columns(self):
+    def test_appends_price_and_tr_pairs_with_primary_headers(self):
         daily = self._sample_daily()
-        levels = pd.Series(
+        tr_levels = pd.Series(
             [100.0, 110.0, 121.0],
             index=pd.to_datetime(["2020-01-02", "2020-01-03", "2020-01-06"]),
             name="FRDPX",
         )
+        price_levels = pd.Series(
+            [50.0, 55.0, 60.5],
+            index=pd.to_datetime(["2020-01-02", "2020-01-03", "2020-01-06"]),
+            name="FRDPX",
+        )
+        holiday_mask = holiday_mask_from_daily_sheet(daily)
 
-        out, observations = append_yahoo_total_return_column(
+        out, observations = append_yahoo_price_and_tr_columns(
             daily,
             isin="US3546131018",
             ticker="FRDPX",
             fund_name="Franklin Rising Dividends;A",
-            levels=levels,
+            tr_levels=tr_levels,
+            price_levels=price_levels,
             category="Active MF",
+            holiday_mask=holiday_mask,
         )
 
         self.assertEqual(observations, 3)
-        self.assertEqual(out.shape[1], 4)
-        tr_col = out.iloc[:, 2]
-        ret_col = out.iloc[:, 3]
-        self.assertEqual(tr_col.iloc[0], "US3546131018")
+        self.assertEqual(out.shape[1], 7)  # date + existing + SPX + 4 Yahoo
+        price_col = out.iloc[:, 3]
+        price_ret = out.iloc[:, 4]
+        tr_col = out.iloc[:, 5]
+        tr_ret = out.iloc[:, 6]
+        self.assertEqual(price_col.iloc[0], "US3546131018")
+        self.assertEqual(price_col.iloc[5], "US3546131018 Price")
+        self.assertEqual(price_ret.iloc[5], "US3546131018 Price %")
+        self.assertEqual(tr_col.iloc[5], "US3546131018 TR")
+        self.assertEqual(tr_ret.iloc[5], "US3546131018 TR %")
         self.assertEqual(
             tr_col.iloc[1], "Franklin Rising Dividends;A - TOT RETURN IND"
-        )
-        self.assertEqual(tr_col.iloc[2], "Active MF")
-        self.assertEqual(
-            ret_col.iloc[1],
-            "Franklin Rising Dividends;A - TOT RETURN IND - daily return",
         )
         self.assertAlmostEqual(float(tr_col.iloc[6]), 100.0)
         self.assertAlmostEqual(float(tr_col.iloc[7]), 110.0)
         self.assertAlmostEqual(float(tr_col.iloc[8]), 121.0)
         self.assertTrue(pd.isna(tr_col.iloc[9]))
-        self.assertTrue(pd.isna(ret_col.iloc[6]))
-        self.assertAlmostEqual(float(ret_col.iloc[7]), 0.1)
-        self.assertAlmostEqual(float(ret_col.iloc[8]), 0.1)
+        self.assertAlmostEqual(float(price_col.iloc[6]), 50.0)
+        self.assertAlmostEqual(float(price_ret.iloc[7]), 0.1)
+        self.assertAlmostEqual(float(tr_ret.iloc[7]), 0.1)
+
+    def test_holiday_carry_fills_blank_before_pct_change(self):
+        daily = self._sample_daily()
+        # Yahoo missing on the S&P-flat holiday (2020-01-03).
+        tr_levels = pd.Series(
+            [100.0, 110.0],
+            index=pd.to_datetime(["2020-01-02", "2020-01-06"]),
+            name="FRDPX",
+        )
+        price_levels = pd.Series(
+            [50.0, 55.0],
+            index=pd.to_datetime(["2020-01-02", "2020-01-06"]),
+            name="FRDPX",
+        )
+        holiday_mask = holiday_mask_from_daily_sheet(daily)
+        self.assertTrue(bool(holiday_mask.iloc[1]))
+
+        out, observations = append_yahoo_price_and_tr_columns(
+            daily,
+            isin="US3546131018",
+            ticker="FRDPX",
+            fund_name="Franklin Rising Dividends;A",
+            tr_levels=tr_levels,
+            price_levels=price_levels,
+            holiday_mask=holiday_mask,
+        )
+
+        self.assertEqual(observations, 2)
+        tr_col = out.iloc[:, 5]
+        tr_ret = out.iloc[:, 6]
+        self.assertAlmostEqual(float(tr_col.iloc[6]), 100.0)
+        self.assertAlmostEqual(float(tr_col.iloc[7]), 100.0)  # carried
+        self.assertAlmostEqual(float(tr_col.iloc[8]), 110.0)
+        self.assertAlmostEqual(float(tr_ret.iloc[7]), 0.0)
+        self.assertAlmostEqual(float(tr_ret.iloc[8]), 0.1)
 
     def test_returns_zero_observations_when_no_date_overlap(self):
         daily = self._sample_daily()
@@ -170,12 +231,13 @@ class AppendYahooTotalReturnColumnTests(unittest.TestCase):
             index=pd.to_datetime(["2019-01-02"]),
             name="FRDPX",
         )
-        out, observations = append_yahoo_total_return_column(
+        out, observations = append_yahoo_price_and_tr_columns(
             daily,
             isin="US3546131018",
             ticker="FRDPX",
             fund_name="Franklin Rising Dividends;A",
-            levels=levels,
+            tr_levels=levels,
+            price_levels=levels,
         )
         self.assertEqual(observations, 0)
         self.assertEqual(out.shape[1], daily.shape[1])

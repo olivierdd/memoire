@@ -2397,10 +2397,13 @@ def _(
                 )
             ].copy()
 
-            # No Datastream TR → Yahoo total-return backfill, else drop.
+            # No Datastream TR → Yahoo Price + TR backfill (same recipe as
+            # series-check), else drop.
             from helpers.funds_functions.map_yahoo_timeseries import (
-                append_yahoo_total_return_column,
+                append_yahoo_price_and_tr_columns,
+                fetch_yahoo_price_levels,
                 fetch_yahoo_total_return_levels,
+                holiday_mask_from_daily_sheet,
             )
 
             _missing = _kept.loc[
@@ -2410,6 +2413,7 @@ def _(
             _yahoo_dropped: list[object] = []
             _yahoo_fill_rows: list[dict] = []
             _daily = daily_timeseries.copy()
+            _holiday_mask = holiday_mask_from_daily_sheet(_daily)
             _yahoo_log, _yahoo_redirect = capture_prints()
             with _yahoo_redirect:
                 print(f"{len(_missing)} funds have no Datastream daily total return")
@@ -2437,11 +2441,16 @@ def _(
                         print(f"drop {_isin or _name}: no ticker")
                         continue
                     try:
-                        _levels = fetch_yahoo_total_return_levels(_ticker)
+                        _tr_levels = fetch_yahoo_total_return_levels(_ticker)
                     except Exception as _exc:
-                        _levels = None
+                        _tr_levels = None
                         print(f"Yahoo TR fetch failed for {_ticker}: {_exc}")
-                    if _levels is None or _levels.empty:
+                    try:
+                        _price_levels = fetch_yahoo_price_levels(_ticker)
+                    except Exception as _exc:
+                        _price_levels = None
+                        print(f"Yahoo Price fetch failed for {_ticker}: {_exc}")
+                    if _tr_levels is None or _tr_levels.empty:
                         _yahoo_dropped.append(_idx)
                         _yahoo_fill_rows.append(
                             {
@@ -2454,6 +2463,19 @@ def _(
                         )
                         print(f"drop {_ticker}: no Yahoo TR history")
                         continue
+                    if _price_levels is None or _price_levels.empty:
+                        _yahoo_dropped.append(_idx)
+                        _yahoo_fill_rows.append(
+                            {
+                                "Name": _name,
+                                "ISIN": _isin,
+                                "ticker": _ticker,
+                                "verdict": "Drop — no Yahoo price history",
+                                "yahoo_obs": 0,
+                            }
+                        )
+                        print(f"drop {_ticker}: no Yahoo Price history")
+                        continue
                     _category = "Yahoo TR"
                     if "fund_management_style" in _row.index and pd.notna(
                         _row.get("fund_management_style")
@@ -2461,13 +2483,15 @@ def _(
                         _style = str(_row.get("fund_management_style")).strip()
                         if _style in {"Active", "Passive"}:
                             _category = f"{_style} MF"
-                    _daily, _obs = append_yahoo_total_return_column(
+                    _daily, _obs = append_yahoo_price_and_tr_columns(
                         _daily,
                         isin=_isin or _ticker,
                         ticker=_ticker,
                         fund_name=_name,
-                        levels=_levels,
+                        tr_levels=_tr_levels,
+                        price_levels=_price_levels,
                         category=_category,
+                        holiday_mask=_holiday_mask,
                     )
                     if _obs <= 0:
                         _yahoo_dropped.append(_idx)
@@ -2476,7 +2500,10 @@ def _(
                                 "Name": _name,
                                 "ISIN": _isin,
                                 "ticker": _ticker,
-                                "verdict": "Drop — Yahoo TR did not align to sheet dates",
+                                "verdict": (
+                                    "Drop — Yahoo Price/TR did not align to "
+                                    "sheet dates"
+                                ),
                                 "yahoo_obs": 0,
                             }
                         )
@@ -2493,11 +2520,11 @@ def _(
                             "Name": _name,
                             "ISIN": _isin,
                             "ticker": _ticker,
-                            "verdict": "Keep — Yahoo total-return series appended",
+                            "verdict": "Keep — Yahoo Price + TR series appended",
                             "yahoo_obs": int(_obs),
                         }
                     )
-                    print(f"keep {_ticker}: appended Yahoo TR ({_obs} obs)")
+                    print(f"keep {_ticker}: appended Yahoo Price+TR ({_obs} obs)")
 
             _has_series = _kept["has_daily_total_return"].fillna(False).astype(bool)
             _dropped_no_tr = _kept.loc[~_has_series].copy()
@@ -2623,10 +2650,12 @@ def _(
            not match, compare Yahoo adjusted-close daily returns to the DS
            total-return series on the overlapping window. High correlation → keep
            the fund and its DS series; no ticker or weak correlation → drop.
-        5. **No Datastream TR.** Fetch Yahoo’s dividend-and-split-adjusted close
-           (`auto_adjust=True` — total-return proxy, not raw price). Append a
-           Datastream-shaped TR column when history exists and keep; otherwise
-           drop.
+        5. **No Datastream TR.** Same Yahoo recipe as series-check: fetch
+           unadjusted Close (`auto_adjust=False`) into primary `{ISIN} Price` /
+           `Price %`, and adjusted Close (`auto_adjust=True`) into `{ISIN} TR` /
+           `TR %`. Align to sheet dates; on S&P-flat holidays carry the prior
+           Yahoo close before `P(t)/P(t-1) - 1`; other missing prints stay blank.
+           Keep when both series align; otherwise drop.
         6. **Audit sheets.** `No daily total return`; `No matching D-TIMESERIES
            NAME`; `Dropped D-TIMESERIES name gap`; `Dropped no daily total
            return`. Frame: `funds_with_timeseries` (funds that still have a
@@ -2740,7 +2769,7 @@ def _(
                     f"""
                     In addition, **{len(timeseries_result['missing'])}** funds have
                     no daily total-return timeseries on D-Timeseries at all
-                    (**{_n_yahoo}** later filled from Yahoo TR; **{_n_yahoo_drop}**
+                    (**{_n_yahoo}** later filled from Yahoo Price+TR; **{_n_yahoo_drop}**
                     dropped).
                     """
                 ),
@@ -2792,25 +2821,25 @@ def _(
 
                 For the **{len(timeseries_result['missing'])}** funds with no
                 Datastream TR series at all, Yahoo Finance was queried with the
-                OpenFIGI market ticker. The series fetched is Yahoo’s
-                **dividend-and-split-adjusted** close (`auto_adjust=True`) — a
-                total-return proxy — **not** the raw unadjusted price/NAV series.
-                When history exists, it is appended to the working D-Timeseries
-                panel as a `TOT RETURN IND` column (plus daily-return companion)
-                aligned to the sheet dates.
+                OpenFIGI market ticker using the **same Price + TR recipe as
+                series-check**: unadjusted Close → `{{ISIN}} Price` / `Price %`;
+                adjusted Close → `{{ISIN}} TR` / `TR %`; align to sheet dates;
+                S&P-flat holiday carry before daily returns; blanks when Yahoo
+                has no print. When both histories exist and align, they are
+                appended to the working D-Timeseries panel.
 
-                | Fund | Ticker | Yahoo TR? | Span (live check) | Verdict |
+                | Fund | Ticker | Yahoo Price+TR? | Span (live check) | Verdict |
                 |---|---|---|---|---|
                 | Johnson Disciplined Large-Cap | — | No | — | **Drop** — no OpenFIGI ticker |
                 | Aberdeen US Equity II;A | — | No | — | **Drop** — no OpenFIGI ticker |
-                | Franklin Rising Dividends;A | FRDPX | Yes | 1987-01-14 → 2026-11-20 | **Keep** — append Yahoo TR |
-                | DWS Equity 500 Index;Inst | BTIIX | Yes | 1996-06-20 → 2026-11-20 | **Keep** — append Yahoo TR |
-                | DWS S&P 500 Index;S | SCPIX | Yes | 1997-08-29 → 2026-11-20 | **Keep** — append Yahoo TR |
-                | Victory S&P 500 Index;A | MUXAX | Yes | 1992-12-07 → 2026-11-20 | **Keep** — append Yahoo TR |
-                | Victory MultiCap;Y | MNNYX | Yes | 1996-08-19 → 2026-11-20 | **Keep** — append Yahoo TR |
+                | Franklin Rising Dividends;A | FRDPX | Yes | 1987-01-14 → 2026-11-20 | **Keep** — append Yahoo Price+TR |
+                | DWS Equity 500 Index;Inst | BTIIX | Yes | 1996-06-20 → 2026-11-20 | **Keep** — append Yahoo Price+TR |
+                | DWS S&P 500 Index;S | SCPIX | Yes | 1997-08-29 → 2026-11-20 | **Keep** — append Yahoo Price+TR |
+                | Victory S&P 500 Index;A | MUXAX | Yes | 1992-12-07 → 2026-11-20 | **Keep** — append Yahoo Price+TR |
+                | Victory MultiCap;Y | MNNYX | Yes | 1996-08-19 → 2026-11-20 | **Keep** — append Yahoo Price+TR |
 
-                **Rule.** Yahoo total-return history present → fetch, append, keep.
-                No ticker or no Yahoo TR → drop permanently.
+                **Rule.** Yahoo Price and TR history present → fetch, append, keep.
+                No ticker or missing Price/TR → drop permanently.
 
                 ### Outcome
 
@@ -3057,7 +3086,7 @@ def _(
 
         1. **Arrange** remaining funds into `Funds final` (identifiers, OpenFIGI,
            sheet fields, daily TR flags, style, EDGAR).
-        2. **Filter** the working D-Timeseries panel (including Yahoo TR columns
+        2. **Filter** the working D-Timeseries panel (including Yahoo Price+TR columns
            appended in step 7) to those funds, plus index and risk-free columns.
         3. **Write** every accumulated sheet once to
            `output-data/v2-funds-normalized.xlsx` (`D-Timeseries final` with
@@ -3376,7 +3405,7 @@ def _(
         ],
         enrichments_series=[
             "Datastream daily total-return columns matched by ISIN (and name-checked)",
-            f"Yahoo dividend-and-split-adjusted TR appended for {_n_yahoo_fill} funds",
+            f"Yahoo Price+TR appended for {_n_yahoo_fill} funds",
             (
                 f"Final panel filtered to remaining funds + index + risk-free "
                 f"({_excel_path}: {_series['frame'].shape[1]} columns × "

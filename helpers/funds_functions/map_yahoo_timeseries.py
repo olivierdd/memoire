@@ -63,14 +63,11 @@ def series_bounds(ticker: str) -> dict | None:
     }
 
 
-def fetch_yahoo_total_return_levels(ticker: str) -> pd.Series | None:
-    """Dividend-and-split-adjusted close levels (Yahoo total-return proxy).
-
-    Uses ``auto_adjust=True`` so ``Close`` is adjusted for splits **and**
-    dividends — not the raw NAV/price series. Returns a date-indexed Series, or
-    None when Yahoo has no history.
-    """
-    history = yf.Ticker(ticker).history(period="max", auto_adjust=True, repair=False)
+def _yahoo_close_levels(ticker: str, *, auto_adjust: bool) -> pd.Series | None:
+    """Date-indexed Yahoo Close levels, or None when Yahoo has no history."""
+    history = yf.Ticker(ticker).history(
+        period="max", auto_adjust=auto_adjust, repair=False
+    )
     if history is None or history.empty or "Close" not in history.columns:
         return None
     closes = history["Close"].dropna().copy()
@@ -82,62 +79,208 @@ def fetch_yahoo_total_return_levels(ticker: str) -> pd.Series | None:
     return closes
 
 
-def append_yahoo_total_return_column(
+def fetch_yahoo_total_return_levels(ticker: str) -> pd.Series | None:
+    """Dividend-and-split-adjusted close levels (Yahoo total-return proxy).
+
+    Uses ``auto_adjust=True`` so ``Close`` is adjusted for splits **and**
+    dividends — not the raw NAV/price series. Returns a date-indexed Series, or
+    None when Yahoo has no history.
+    """
+    return _yahoo_close_levels(ticker, auto_adjust=True)
+
+
+def fetch_yahoo_price_levels(ticker: str) -> pd.Series | None:
+    """Unadjusted close levels (Yahoo price/NAV proxy).
+
+    Uses ``auto_adjust=False`` so ``Close`` is the raw price series, not the
+    total-return proxy. Returns a date-indexed Series, or None when Yahoo has
+    no history.
+    """
+    return _yahoo_close_levels(ticker, auto_adjust=False)
+
+
+def align_yahoo_levels_to_index(
+    levels: pd.Series,
+    dates: pd.DatetimeIndex | pd.Index,
+) -> pd.Series:
+    """Map Yahoo levels onto the panel dates; missing Yahoo prints stay blank."""
+    level_map = levels.copy()
+    level_map.index = pd.to_datetime(level_map.index).normalize()
+    level_map = level_map[~level_map.index.duplicated(keep="last")].sort_index()
+    keys = pd.to_datetime(dates, errors="coerce")
+    normalized = keys.normalize()
+    aligned = level_map.reindex(normalized)
+    aligned.index = dates
+    return aligned.astype("float64")
+
+
+def spx_flat_holiday_mask(
+    market_level: pd.Series,
+    *,
+    level_tolerance: float = 1e-6,
+) -> pd.Series:
+    """True on dates where the S&P 500 TR level equals the prior close."""
+    previous = market_level.shift(1)
+    return (
+        market_level.notna()
+        & previous.notna()
+        & (market_level - previous).abs().le(level_tolerance)
+    )
+
+
+def carry_yahoo_levels_on_holidays(
+    levels: pd.Series,
+    holiday_mask: pd.Series,
+) -> pd.Series:
+    """Fill blank Yahoo levels on S&P-flat days by carrying the prior close.
+
+    Naive ``pct_change`` on a holiday hole NaNs both the holiday return and the
+    next session's return. Carrying before ``pct_change`` keeps holiday returns
+    at zero and preserves the next trading day's return.
+    """
+    values = levels.astype("float64").to_numpy(dtype="float64", copy=True)
+    holidays = holiday_mask.reindex(levels.index).fillna(False).to_numpy(dtype=bool)
+    for index in range(1, len(values)):
+        if not holidays[index]:
+            continue
+        current = values[index]
+        if current == current:
+            continue
+        previous = values[index - 1]
+        if previous == previous:
+            values[index] = previous
+    return pd.Series(values, index=levels.index, dtype="float64", name=levels.name)
+
+
+def daily_sheet_observation_dates(daily: pd.DataFrame) -> pd.DatetimeIndex:
+    """Date index for Datastream-shaped D-Timeseries rows 6+."""
+    if len(daily) < 7 or daily.shape[1] < 1:
+        raise ValueError("D-Timeseries has no label/observation rows")
+    return pd.DatetimeIndex(pd.to_datetime(daily.iloc[6:, 0], errors="coerce"))
+
+
+def holiday_mask_from_daily_sheet(
+    daily: pd.DataFrame,
+    *,
+    header: str = "S&P 500 TR",
+    level_tolerance: float = 1e-6,
+) -> pd.Series | None:
+    """S&P-flat holiday mask from a Datastream-shaped daily sheet, or None."""
+    dates = daily_sheet_observation_dates(daily)
+    header_row = daily.iloc[5, 1:]
+    matches = [
+        int(column)
+        for column, value in header_row.items()
+        if str(value).strip() == header
+    ]
+    if not matches:
+        return None
+    market = pd.to_numeric(daily.iloc[6:, matches[0]], errors="coerce")
+    market.index = dates
+    return spx_flat_holiday_mask(market, level_tolerance=level_tolerance)
+
+
+def _append_level_return_pair(
+    daily: pd.DataFrame,
+    *,
+    isin: str,
+    level_name: str,
+    return_name: str,
+    category: str,
+    fee: object,
+    level_note: str,
+    level_header: str,
+    return_header: str,
+    aligned: pd.Series,
+    holiday_mask: pd.Series | None,
+) -> pd.DataFrame:
+    filled = (
+        carry_yahoo_levels_on_holidays(aligned, holiday_mask)
+        if holiday_mask is not None
+        else aligned.astype("float64")
+    )
+    returns = filled.pct_change()
+    level_meta = [isin, level_name, category, fee, level_note, level_header]
+    return_meta = [
+        isin,
+        return_name,
+        category,
+        fee,
+        "Daily simple return = P(t)/P(t-1) - 1",
+        return_header,
+    ]
+    out = daily.copy()
+    level_key = int(out.shape[1])
+    return_key = level_key + 1
+    out[level_key] = pd.Series(
+        list(level_meta) + filled.tolist(), index=daily.index, dtype="object"
+    )
+    out[return_key] = pd.Series(
+        list(return_meta) + returns.tolist(), index=daily.index, dtype="object"
+    )
+    out.columns = range(out.shape[1])
+    return out
+
+
+def append_yahoo_price_and_tr_columns(
     daily: pd.DataFrame,
     *,
     isin: str,
     ticker: str,
     fund_name: str,
-    levels: pd.Series,
+    tr_levels: pd.Series,
+    price_levels: pd.Series,
     category: str = "Yahoo TR",
     fee: object = None,
+    holiday_mask: pd.Series | None = None,
 ) -> tuple[pd.DataFrame, int]:
-    """Append a Datastream-shaped total-return column (and daily-return companion).
+    """Append Yahoo Price + TR pairs using the same recipe as series-check.
 
-    Aligns Yahoo TR levels to the sheet date column (row 6+). Returns the wider
-    frame and the count of non-null TR observations on those dates.
+    - Price / Price % ← unadjusted Close (``auto_adjust=False``)
+    - TR / TR % ← adjusted Close (``auto_adjust=True``)
+    - Align to sheet dates; missing Yahoo prints stay blank
+    - On S&P-flat holidays (when ``holiday_mask`` is provided), carry the prior
+      Yahoo close before ``pct_change``
+    - Headers are primary ``{ISIN} Price`` / ``{ISIN} TR`` (and ``%`` companions)
+
+    Returns the wider frame and the count of non-null TR observations.
     """
-    if len(daily) < 7 or daily.shape[1] < 1:
-        raise ValueError("D-Timeseries has no label/observation rows")
-
-    level_map = levels.copy()
-    level_map.index = pd.to_datetime(level_map.index).normalize()
-    obs_values: list[object] = []
-    for raw in daily.iloc[6:, 0].tolist():
-        stamp = pd.to_datetime(raw, errors="coerce")
-        if pd.isna(stamp):
-            obs_values.append(pd.NA)
-            continue
-        key = pd.Timestamp(stamp).normalize()
-        obs_values.append(level_map[key] if key in level_map.index else pd.NA)
-    aligned = pd.Series(obs_values, dtype="Float64")
-    observations = int(aligned.notna().sum())
-    if observations <= 0:
+    dates = daily_sheet_observation_dates(daily)
+    tr_aligned = align_yahoo_levels_to_index(tr_levels, dates)
+    price_aligned = align_yahoo_levels_to_index(price_levels, dates)
+    tr_observations = int(tr_aligned.notna().sum())
+    price_observations = int(price_aligned.notna().sum())
+    if tr_observations <= 0 or price_observations <= 0:
         return daily, 0
 
     stem = str(fund_name).strip() or ticker
-    tr_name = f"{stem} - TOT RETURN IND"
-    ret_name = f"{stem} - TOT RETURN IND - daily return"
-    returns = aligned.astype("float64").pct_change()
-
-    tr_meta = [isin, tr_name, category, fee, "Total return index, daily", f"{isin} TR (Yahoo)"]
-    ret_meta = [
-        isin,
-        ret_name,
-        category,
-        fee,
-        "Daily simple return = P(t)/P(t-1) - 1",
-        f"{isin} TR % (Yahoo)",
-    ]
-    tr_col = pd.Series(list(tr_meta) + aligned.tolist(), index=daily.index, dtype="object")
-    ret_col = pd.Series(list(ret_meta) + returns.tolist(), index=daily.index, dtype="object")
-    out = daily.copy()
-    tr_key = int(out.shape[1])
-    ret_key = tr_key + 1
-    out[tr_key] = tr_col
-    out[ret_key] = ret_col
-    out.columns = range(out.shape[1])
-    return out, observations
+    out = _append_level_return_pair(
+        daily,
+        isin=isin,
+        level_name=f"{stem} - PRICE",
+        return_name=f"{stem} - PRICE - daily return",
+        category=category,
+        fee=fee,
+        level_note="Price, daily",
+        level_header=f"{isin} Price",
+        return_header=f"{isin} Price %",
+        aligned=price_aligned,
+        holiday_mask=holiday_mask,
+    )
+    out = _append_level_return_pair(
+        out,
+        isin=isin,
+        level_name=f"{stem} - TOT RETURN IND",
+        return_name=f"{stem} - TOT RETURN IND - daily return",
+        category=category,
+        fee=fee,
+        level_note="Total return index, daily",
+        level_header=f"{isin} TR",
+        return_header=f"{isin} TR %",
+        aligned=tr_aligned,
+        holiday_mask=holiday_mask,
+    )
+    return out, tr_observations
 
 
 def _fetch_timeseries_with_retries(ticker: str) -> tuple[dict | None, bool]:

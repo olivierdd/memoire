@@ -408,7 +408,7 @@ def build_funds_v2_report(
             ],
             "result": (
                 f"Name-gap drops {counts['drop_name_gap']:,}; no-TR drops "
-                f"{counts['drop_no_tr']:,}; Yahoo TR backfills {counts['yahoo_filled']:,}. "
+                f"{counts['drop_no_tr']:,}; Yahoo Price+TR backfills {counts['yahoo_filled']:,}. "
                 f"Final timeseries set: {counts['final']:,}."
             ),
             "tables": [
