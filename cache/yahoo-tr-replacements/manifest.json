@@ -1,0 +1,85 @@
+{
+  "download_date": "2026-11-24",
+  "source": "yfinance",
+  "price": "Close with auto_adjust=False (split-adjusted)",
+  "total_return": "Close with auto_adjust=True (distributions reinvested)",
+  "tickers": {
+    "GQEPX": {
+      "isin": "US00774Q8740",
+      "tr_file": "GQEPX_tr.csv",
+      "price_file": "GQEPX_price.csv",
+      "tr_observations": 2047,
+      "price_observations": 2047,
+      "tr_first_date": "2018-10-02",
+      "tr_last_date": "2026-11-23",
+      "price_first_date": "2018-10-02",
+      "price_last_date": "2026-11-23"
+    },
+    "DODGX": {
+      "isin": "US2562191062",
+      "tr_file": "DODGX_tr.csv",
+      "price_file": "DODGX_price.csv",
+      "tr_observations": 11819,
+      "price_observations": 11819,
+      "tr_first_date": "1980-01-02",
+      "tr_last_date": "2026-11-23",
+      "price_first_date": "1980-01-02",
+      "price_last_date": "2026-11-23"
+    },
+    "DSEFX": {
+      "isin": "US2571321007",
+      "tr_file": "DSEFX_tr.csv",
+      "price_file": "DSEFX_price.csv",
+      "tr_observations": 8935,
+      "price_observations": 8935,
+      "tr_first_date": "1991-05-31",
+      "tr_last_date": "2026-11-23",
+      "price_first_date": "1991-05-31",
+      "price_last_date": "2026-11-23"
+    },
+    "FMAGX": {
+      "isin": "US3161841008",
+      "tr_file": "FMAGX_tr.csv",
+      "price_file": "FMAGX_price.csv",
+      "tr_observations": 11820,
+      "price_observations": 11820,
+      "tr_first_date": "1980-01-02",
+      "tr_last_date": "2026-11-23",
+      "price_first_date": "1980-01-02",
+      "price_last_date": "2026-11-23"
+    },
+    "SVSPX": {
+      "isin": "US78472P1093",
+      "tr_file": "SVSPX_tr.csv",
+      "price_file": "SVSPX_price.csv",
+      "tr_observations": 8534,
+      "price_observations": 8534,
+      "tr_first_date": "1992-12-30",
+      "tr_last_date": "2026-11-23",
+      "price_first_date": "1992-12-30",
+      "price_last_date": "2026-11-23"
+    },
+    "SWPPX": {
+      "isin": "US8085098551",
+      "tr_file": "SWPPX_tr.csv",
+      "price_file": "SWPPX_price.csv",
+      "tr_observations": 7425,
+      "price_observations": 7425,
+      "tr_first_date": "1997-05-20",
+      "tr_last_date": "2026-11-23",
+      "price_first_date": "1997-05-20",
+      "price_last_date": "2026-11-23"
+    },
+    "SSEYX": {
+      "isin": "US85749T7569",
+      "tr_file": "SSEYX_tr.csv",
+      "price_file": "SSEYX_price.csv",
+      "tr_observations": 3087,
+      "price_observations": 3087,
+      "tr_first_date": "2014-08-14",
+      "tr_last_date": "2026-11-23",
+      "price_first_date": "2014-08-14",
+      "price_last_date": "2026-11-23"
+    }
+  }
+}
