@@ -125,14 +125,35 @@ def _(mo):
             kind="success",
         )
 
-    def step_header(title: str, button):
-        return mo.vstack([mo.md(title), button])
+    def step_header(title: str, button, apply_switch=None):
+        parts = [mo.md(title)]
+        if apply_switch is not None:
+            parts.append(
+                mo.hstack(
+                    [apply_switch, button],
+                    gap=1.0,
+                    align="center",
+                    justify="start",
+                )
+            )
+        else:
+            parts.append(button)
+        return mo.vstack(parts)
+
+    def skip_notice(payload):
+        if isinstance(payload, dict) and payload.get("skipped"):
+            return mo.md(
+                "_**Step skipped.** Apply was off: the panel was unchanged "
+                "and this step's decisions were not applied._"
+            )
+        return None
 
     return (
         md,
         review_table,
         run_step_button,
         selection_stats,
+        skip_notice,
         stack,
         step_header,
         step_sections,
@@ -150,6 +171,15 @@ def _():
         non_zero_holiday_case_review,
         repair_distribution_day_tr,
         rescale_level_breaks,
+        skip_frozen_step,
+        skip_gap_step,
+        skip_holiday_step,
+        skip_level_jump_step,
+        skip_rebuild_step,
+        skip_scale_step,
+        skip_spike_step,
+        skip_tbill_step,
+        skip_wide_step,
         summarize_level_jumps,
         summarize_tr_consistency,
         thesis_sample_drop_isins,
@@ -164,6 +194,15 @@ def _():
         non_zero_holiday_case_review,
         repair_distribution_day_tr,
         rescale_level_breaks,
+        skip_frozen_step,
+        skip_gap_step,
+        skip_holiday_step,
+        skip_level_jump_step,
+        skip_rebuild_step,
+        skip_scale_step,
+        skip_spike_step,
+        skip_tbill_step,
+        skip_wide_step,
         summarize_level_jumps,
         summarize_tr_consistency,
         thesis_sample_drop_isins,
@@ -304,6 +343,8 @@ def _(mo):
     The steps run in a fixed order. Step 1 runs automatically when the notebook
     opens. Each later step runs on demand, and only after the previous step has
     finished. A step's Result and Decision remain empty until that step has run.
+    Each step (2–11) has an **Apply** switch. Turn it off and click **Run step**
+    to advance without that step's panel changes or sample decisions.
 
     **Sample at exit.** Unchanged. This section describes the data and the
     pipeline and does not modify any series. Step 1 starts from the full raw
@@ -330,6 +371,52 @@ def _(mo):
         ]
     )
     return (enable_scale_shift,)
+
+
+@app.cell
+def _(mo):
+    apply_step_2 = mo.ui.switch(label="Apply step 2 (exchange holidays)", value=True)
+    apply_step_3 = mo.ui.switch(label="Apply step 3 (gaps)", value=True)
+    apply_step_4 = mo.ui.switch(label="Apply step 4 (scale shift)", value=True)
+    apply_step_5 = mo.ui.switch(label="Apply step 5 (level jump)", value=True)
+    apply_step_6 = mo.ui.switch(label="Apply step 6 (Lipper rebuild)", value=True)
+    apply_step_7 = mo.ui.switch(label="Apply step 7 (spikes)", value=True)
+    apply_step_8 = mo.ui.switch(label="Apply step 8 (divergence / sample)", value=True)
+    apply_step_9 = mo.ui.switch(label="Apply step 9 (frozen tails)", value=True)
+    apply_step_10 = mo.ui.switch(label="Apply step 10 (T-Bill fill)", value=True)
+    apply_step_11 = mo.ui.switch(label="Apply step 11 (export workbook)", value=True)
+    mo.vstack(
+        [
+            mo.md(
+                "**Per-step apply switches (steps 2–11).** Each step header "
+                "repeats the switch for that step. Turn **Apply** off and click "
+                "**Run step** to skip that step's repairs and decisions while "
+                "unlocking the next step."
+            ),
+            apply_step_2,
+            apply_step_3,
+            apply_step_4,
+            apply_step_5,
+            apply_step_6,
+            apply_step_7,
+            apply_step_8,
+            apply_step_9,
+            apply_step_10,
+            apply_step_11,
+        ]
+    )
+    return (
+        apply_step_10,
+        apply_step_11,
+        apply_step_2,
+        apply_step_3,
+        apply_step_4,
+        apply_step_5,
+        apply_step_6,
+        apply_step_7,
+        apply_step_8,
+        apply_step_9,
+    )
 
 
 @app.cell(hide_code=True)
@@ -987,32 +1074,37 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(run_step_button, step_header):
+def _(apply_step_2, run_step_button, step_header):
     run_holiday = run_step_button()
-    _header = step_header("## 2. Exchange holidays", run_holiday)
+    _header = step_header("## 2. Exchange holidays", run_holiday, apply_step_2)
     _header
     return (run_holiday,)
 
 
 @app.cell
 def _(
+    apply_step_2,
     carry_holiday_placeholders,
     catalog,
     observations,
     run_holiday,
     set_holiday,
+    skip_holiday_step,
 ):
     if run_holiday.value:
-        _corrected, _correction_log, _holiday_dates = carry_holiday_placeholders(
-            catalog, observations
-        )
-        set_holiday(
-            {
-                "observations": _corrected,
-                "correction_log": _correction_log,
-                "holiday_dates": _holiday_dates,
-            }
-        )
+        if apply_step_2.value:
+            _corrected, _correction_log, _holiday_dates = carry_holiday_placeholders(
+                catalog, observations
+            )
+            set_holiday(
+                {
+                    "observations": _corrected,
+                    "correction_log": _correction_log,
+                    "holiday_dates": _holiday_dates,
+                }
+            )
+        else:
+            set_holiday(skip_holiday_step(catalog, observations))
     return
 
 
@@ -1518,35 +1610,46 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(get_holiday, run_step_button, step_header):
+def _(apply_step_3, get_holiday, run_step_button, step_header):
     _ready = get_holiday() is not None
     run_gap = run_step_button(ready=_ready, tooltip=None if _ready else "Run step 2 first")
-    _header = step_header("## 3. Gap", run_gap)
+    _header = step_header("## 3. Gap", run_gap, apply_step_3)
     _header
     return (run_gap,)
 
 
 @app.cell
-def _(catalog, get_holiday, run_gap, set_gap, summarize_tr_consistency):
+def _(
+    apply_step_3,
+    catalog,
+    get_holiday,
+    run_gap,
+    set_gap,
+    skip_gap_step,
+    summarize_tr_consistency,
+):
     if run_gap.value:
         _holiday = get_holiday()
         if _holiday is None:
             raise ValueError("Gap step requires holiday output")
-        _observations = _holiday["observations"]
-        _controls, _issue_summary, _checks = summarize_tr_consistency(
-            catalog,
-            _observations,
-            flags=("gaps",),
-            exchange_holidays=_holiday["holiday_dates"],
-        )
-        set_gap(
-            {
-                "observations": _observations,
-                "controls": _controls,
-                "issue_summary": _issue_summary,
-                "checks": _checks,
-            }
-        )
+        if apply_step_3.value:
+            _observations = _holiday["observations"]
+            _controls, _issue_summary, _checks = summarize_tr_consistency(
+                catalog,
+                _observations,
+                flags=("gaps",),
+                exchange_holidays=_holiday["holiday_dates"],
+            )
+            set_gap(
+                {
+                    "observations": _observations,
+                    "controls": _controls,
+                    "issue_summary": _issue_summary,
+                    "checks": _checks,
+                }
+            )
+        else:
+            set_gap(skip_gap_step(_holiday))
     return
 
 
@@ -1648,7 +1751,7 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(enable_scale_shift, get_gap, mo, run_step_button, step_header):
+def _(apply_step_4, enable_scale_shift, get_gap, mo, run_step_button, step_header):
     if not enable_scale_shift.value:
         _header = mo.vstack(
             [
@@ -1660,36 +1763,41 @@ def _(enable_scale_shift, get_gap, mo, run_step_button, step_header):
     else:
         _ready = get_gap() is not None
         run_scale = run_step_button(ready=_ready, tooltip=None if _ready else "Run step 3 first")
-        _header = step_header("## 4. Scale shift", run_scale)
+        _header = step_header("## 4. Scale shift", run_scale, apply_step_4)
     _header
     return (run_scale,)
 
 
 @app.cell
 def _(
+    apply_step_4,
     catalog,
     enable_scale_shift,
     get_gap,
     run_scale,
     set_scale,
+    skip_scale_step,
     summarize_tr_consistency,
 ):
     if run_scale is not None and run_scale.value and enable_scale_shift.value:
         _gap = get_gap()
         if _gap is None:
             raise ValueError("Scale step requires gap output")
-        _observations = _gap["observations"]
-        _controls, _issue_summary, _checks = summarize_tr_consistency(
-            catalog, _observations, flags=("scale",)
-        )
-        set_scale(
-            {
-                "observations": _observations,
-                "controls": _controls,
-                "issue_summary": _issue_summary,
-                "checks": _checks,
-            }
-        )
+        if apply_step_4.value:
+            _observations = _gap["observations"]
+            _controls, _issue_summary, _checks = summarize_tr_consistency(
+                catalog, _observations, flags=("scale",)
+            )
+            set_scale(
+                {
+                    "observations": _observations,
+                    "controls": _controls,
+                    "issue_summary": _issue_summary,
+                    "checks": _checks,
+                }
+            )
+        else:
+            set_scale(skip_scale_step(_gap))
     return
 
 
@@ -1842,7 +1950,14 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(enable_scale_shift, get_gap, get_scale, run_step_button, step_header):
+def _(
+    apply_step_5,
+    enable_scale_shift,
+    get_gap,
+    get_scale,
+    run_step_button,
+    step_header,
+):
     if enable_scale_shift.value:
         _ready = get_scale() is not None
         _tip = None if _ready else "Run step 4 first"
@@ -1850,13 +1965,14 @@ def _(enable_scale_shift, get_gap, get_scale, run_step_button, step_header):
         _ready = get_gap() is not None
         _tip = None if _ready else "Run step 3 first"
     run_level_jump = run_step_button(ready=_ready, tooltip=_tip)
-    _header = step_header("## 5. Level jump", run_level_jump)
+    _header = step_header("## 5. Level jump", run_level_jump, apply_step_5)
     _header
     return (run_level_jump,)
 
 
 @app.cell
 def _(
+    apply_step_5,
     catalog,
     enable_scale_shift,
     get_gap,
@@ -1864,6 +1980,7 @@ def _(
     rescale_level_breaks,
     run_level_jump,
     set_level_jump,
+    skip_level_jump_step,
     summarize_level_jumps,
 ):
     if run_level_jump.value:
@@ -1875,25 +1992,28 @@ def _(
             _prior = get_gap()
             if _prior is None:
                 raise ValueError("Level jump step requires gap output")
-        _observations = _prior["observations"]
-        _controls, _issue_summary, _all_breaks, _result_breaks = summarize_level_jumps(
-            catalog,
-            _observations,
-            use_scale=enable_scale_shift.value,
-        )
-        _adjusted, _action_log = rescale_level_breaks(
-            catalog, _observations, breaks=_all_breaks
-        )
-        set_level_jump(
-            {
-                "observations": _adjusted,
-                "controls": _controls,
-                "issue_summary": _issue_summary,
-                "all_breaks": _all_breaks,
-                "result_breaks": _result_breaks,
-                "action_log": _action_log,
-            }
-        )
+        if apply_step_5.value:
+            _observations = _prior["observations"]
+            _controls, _issue_summary, _all_breaks, _result_breaks = summarize_level_jumps(
+                catalog,
+                _observations,
+                use_scale=enable_scale_shift.value,
+            )
+            _adjusted, _action_log = rescale_level_breaks(
+                catalog, _observations, breaks=_all_breaks
+            )
+            set_level_jump(
+                {
+                    "observations": _adjusted,
+                    "controls": _controls,
+                    "issue_summary": _issue_summary,
+                    "all_breaks": _all_breaks,
+                    "result_breaks": _result_breaks,
+                    "action_log": _action_log,
+                }
+            )
+        else:
+            set_level_jump(skip_level_jump_step(_prior))
     return
 
 
@@ -2726,23 +2846,36 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(get_level_jump, run_step_button, step_header):
+def _(apply_step_6, get_level_jump, run_step_button, step_header):
     _ready = get_level_jump() is not None
     run_rebuild = run_step_button(ready=_ready, tooltip=None if _ready else "Run step 5 first")
     _header = step_header(
         "## 6. Consistency with Lipper 3-, 5- and 10-year total returns",
         run_rebuild,
+        apply_step_6,
     )
     _header
     return (run_rebuild,)
 
 
 @app.cell
-def _(catalog, get_level_jump, pd, run_rebuild, set_rebuild, workbook):
+def _(
+    apply_step_6,
+    catalog,
+    get_level_jump,
+    pd,
+    run_rebuild,
+    set_rebuild,
+    skip_rebuild_step,
+    workbook,
+):
     if run_rebuild.value:
         _level_jump = get_level_jump()
         if _level_jump is None:
             raise ValueError("Rebuild step requires level jump output")
+        if not apply_step_6.value:
+            set_rebuild(skip_rebuild_step(_level_jump))
+            return
         _adjusted_observations = _level_jump["observations"]
 
         from pathlib import Path as _Path
@@ -3624,45 +3757,52 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(get_rebuild, run_step_button, step_header):
+def _(apply_step_7, get_rebuild, run_step_button, step_header):
     _ready = get_rebuild() is not None
     run_spike = run_step_button(ready=_ready, tooltip=None if _ready else "Run step 6 first")
-    _header = step_header("## 7. Spike", run_spike)
+    _header = step_header("## 7. Spike", run_spike, apply_step_7)
     _header
     return (run_spike,)
 
 
 @app.cell
 def _(
+    apply_step_7,
     catalog,
     enable_scale_shift,
     get_rebuild,
     repair_distribution_day_tr,
     run_spike,
     set_spike,
+    skip_spike_step,
     summarize_tr_consistency,
 ):
     if run_spike.value:
         _rebuild = get_rebuild()
         if _rebuild is None:
             raise ValueError("Spike step requires rebuild output")
-        _observations = _rebuild["observations"]
-        _controls, _issue_summary, _checks = summarize_tr_consistency(
-            catalog,
-            _observations,
-            flags=("spikes",),
-            use_scale=enable_scale_shift.value,
-        )
-        _repaired, _distribution_log = repair_distribution_day_tr(catalog, _observations)
-        set_spike(
-            {
-                "observations": _repaired,
-                "controls": _controls,
-                "issue_summary": _issue_summary,
-                "checks": _checks,
-                "distribution_log": _distribution_log,
-            }
-        )
+        if apply_step_7.value:
+            _observations = _rebuild["observations"]
+            _controls, _issue_summary, _checks = summarize_tr_consistency(
+                catalog,
+                _observations,
+                flags=("spikes",),
+                use_scale=enable_scale_shift.value,
+            )
+            _repaired, _distribution_log = repair_distribution_day_tr(
+                catalog, _observations
+            )
+            set_spike(
+                {
+                    "observations": _repaired,
+                    "controls": _controls,
+                    "issue_summary": _issue_summary,
+                    "checks": _checks,
+                    "distribution_log": _distribution_log,
+                }
+            )
+        else:
+            set_spike(skip_spike_step(_rebuild))
     return
 
 
@@ -4433,49 +4573,54 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(get_spike, run_step_button, step_header):
+def _(apply_step_8, get_spike, run_step_button, step_header):
     _ready = get_spike() is not None
     run_wide = run_step_button(ready=_ready, tooltip=None if _ready else "Run step 7 first")
-    _header = step_header("## 8. Far from index", run_wide)
+    _header = step_header("## 8. Far from index", run_wide, apply_step_8)
     _header
     return (run_wide,)
 
 
 @app.cell
 def _(
+    apply_step_8,
     catalog,
     drop_identifiers_from_panel,
     get_spike,
     run_wide,
     set_wide,
+    skip_wide_step,
     summarize_tr_consistency,
 ):
     if run_wide.value:
         _spike = get_spike()
         if _spike is None:
             raise ValueError("Wide step requires spike output")
-        _observations = _spike["observations"]
-        _controls, _issue_summary, _checks = summarize_tr_consistency(
-            catalog, _observations, flags=("wide",)
-        )
-        # Score the full entry sample first (Result), then remove thesis
-        # sample drops (Decision) so later steps never see those series.
-        _kept_catalog, _kept_observations, _sample_drop_log = (
-            drop_identifiers_from_panel(catalog, _observations)
-        )
-        set_wide(
-            {
-                "observations": _kept_observations,
-                "catalog": _kept_catalog,
-                "controls": _controls,
-                "issue_summary": _issue_summary,
-                "checks": _checks,
-                "sample_drop_log": _sample_drop_log,
-                "entry_catalog": catalog,
-                "entry_n_ids": int(catalog["id"].nunique()),
-                "entry_n_cols": int(len(catalog)),
-            }
-        )
+        if apply_step_8.value:
+            _observations = _spike["observations"]
+            _controls, _issue_summary, _checks = summarize_tr_consistency(
+                catalog, _observations, flags=("wide",)
+            )
+            # Score the full entry sample first (Result), then remove thesis
+            # sample drops (Decision) so later steps never see those series.
+            _kept_catalog, _kept_observations, _sample_drop_log = (
+                drop_identifiers_from_panel(catalog, _observations)
+            )
+            set_wide(
+                {
+                    "observations": _kept_observations,
+                    "catalog": _kept_catalog,
+                    "controls": _controls,
+                    "issue_summary": _issue_summary,
+                    "checks": _checks,
+                    "sample_drop_log": _sample_drop_log,
+                    "entry_catalog": catalog,
+                    "entry_n_ids": int(catalog["id"].nunique()),
+                    "entry_n_cols": int(len(catalog)),
+                }
+            )
+        else:
+            set_wide(skip_wide_step(catalog, _spike))
     return
 
 
@@ -4887,22 +5032,25 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(get_wide, run_step_button, step_header):
+def _(apply_step_9, get_wide, run_step_button, step_header):
     _ready_frozen = get_wide() is not None
     run_frozen = run_step_button(
         ready=_ready_frozen, tooltip=None if _ready_frozen else "Run step 8 first"
     )
-    _header = step_header("## 9. Blank frozen tails", run_frozen)
+    _header = step_header("## 9. Blank frozen tails", run_frozen, apply_step_9)
     _header
     return (run_frozen,)
 
 
 @app.cell
-def _(catalog, get_wide, pd, run_frozen, set_frozen):
+def _(apply_step_9, catalog, get_wide, pd, run_frozen, set_frozen, skip_frozen_step):
     if run_frozen.value:
         _wide = get_wide()
         if _wide is None:
             raise ValueError("Frozen step requires wide output")
+        if not apply_step_9.value:
+            set_frozen(skip_frozen_step(_wide))
+            return
         _repaired_observations = _wide["observations"]
         _catalog_frozen = _wide.get("catalog", catalog)
 
@@ -5479,20 +5627,31 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(get_frozen, run_step_button, step_header):
+def _(apply_step_10, get_frozen, run_step_button, step_header):
     _ready_tbill = get_frozen() is not None
     run_tbill = run_step_button(ready=_ready_tbill, tooltip=None if _ready_tbill else "Run step 9 first")
-    _header = step_header("## 10. Fill US T-Bill 3M", run_tbill)
+    _header = step_header("## 10. Fill US T-Bill 3M", run_tbill, apply_step_10)
     _header
     return (run_tbill,)
 
 
 @app.cell
-def _(catalog, get_frozen, pd, run_tbill, set_tbill):
+def _(
+    apply_step_10,
+    catalog,
+    get_frozen,
+    pd,
+    run_tbill,
+    set_tbill,
+    skip_tbill_step,
+):
     if run_tbill.value:
         _frozen = get_frozen()
         if _frozen is None:
             raise ValueError("T-Bill step requires frozen output")
+        if not apply_step_10.value:
+            set_tbill(skip_tbill_step(_frozen))
+            return
         _cleaned_observations = _frozen["cleaned_observations"]
         _catalog_tbill = _frozen.get("catalog", catalog)
 
@@ -5753,19 +5912,20 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(get_tbill, run_step_button, step_header):
+def _(apply_step_11, get_tbill, run_step_button, step_header):
     _ready_export = get_tbill() is not None
     run_export = run_step_button(
         ready=_ready_export,
         tooltip=None if _ready_export else "Run step 10 first",
     )
-    _header = step_header("## 11. Export cleaned workbook", run_export)
+    _header = step_header("## 11. Export cleaned workbook", run_export, apply_step_11)
     _header
     return (run_export,)
 
 
 @app.cell
 def _(
+    apply_step_11,
     catalog,
     drop_isins_from_funds_frame,
     enable_scale_shift,
@@ -5791,6 +5951,21 @@ def _(
         _tbill = get_tbill()
         if _tbill is None:
             raise ValueError("Export step requires T-Bill output")
+        if not apply_step_11.value:
+            set_export(
+                {
+                    "skipped": True,
+                    "workbook": None,
+                    "corrected_cells": 0,
+                    "removed_raw_sheet": False,
+                    "funds_final_dropped": 0,
+                    "source_workbook": str(workbook),
+                    "sheet_name": sheet_name,
+                    "catalog": _tbill.get("catalog", catalog),
+                    "run_summary": {},
+                }
+            )
+            return
         _holiday = get_holiday()
         _gap = get_gap()
         if enable_scale_shift.value:
@@ -6122,6 +6297,7 @@ def _(
     get_tbill,
     md,
     mo,
+    skip_notice,
     stack,
     step_sections,
     workbook,
@@ -6223,6 +6399,25 @@ def _(
                     f"**Sample at exit.** {_sample_phrase}. Unchanged until "
                     f"this step has run; the export does not add or remove "
                     f"identifiers."
+                ),
+            ),
+        )
+    elif _export.get("skipped"):
+        _step_view = step_sections(
+            documentation=_documentation,
+            result=mo.md(
+                "_Export skipped — no workbook was written. Re-enable "
+                "**Apply step 11** and run again to publish "
+                f"`{_cleaned_name}`._"
+            ),
+            decision=stack(
+                skip_notice(_export),
+                md(
+                    """
+                    ### §11.6 Decision
+
+                    Export not published (step skipped).
+                    """
                 ),
             ),
         )

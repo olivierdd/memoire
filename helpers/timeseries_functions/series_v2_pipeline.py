@@ -1621,3 +1621,169 @@ def repair_distribution_day_tr(
         )
     distribution_log = pd.DataFrame(rows)
     return repaired, distribution_log
+
+
+def _empty_tr_issue_summary() -> pd.DataFrame:
+    return pd.DataFrame(
+        columns=[
+            "column",
+            "id",
+            "header",
+            "category",
+            "kind",
+            "days",
+            "gaps",
+            "spikes",
+            "level_jumps",
+            "scale_shift",
+            "far_from_index",
+            "issues",
+        ]
+    )
+
+
+def skip_holiday_step(
+    catalog: pd.DataFrame, observations: pd.DataFrame
+) -> dict[str, Any]:
+    """Advance step 2 without blanking holidays (holidays still listed for step 3)."""
+    return {
+        "observations": observations.copy(),
+        "correction_log": pd.DataFrame(
+            columns=[
+                "id",
+                "header",
+                "category",
+                "kind",
+                "holidays_fixed",
+                "cells_changed",
+            ]
+        ),
+        "holiday_dates": exchange_holidays_from_panel(catalog, observations),
+        "skipped": True,
+    }
+
+
+def skip_gap_step(holiday_payload: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "observations": holiday_payload["observations"],
+        "controls": daily_consistency_controls(),
+        "issue_summary": _empty_tr_issue_summary(),
+        "checks": {},
+        "skipped": True,
+    }
+
+
+def skip_scale_step(gap_payload: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "observations": gap_payload["observations"],
+        "controls": daily_consistency_controls(),
+        "issue_summary": _empty_tr_issue_summary(),
+        "checks": {},
+        "skipped": True,
+    }
+
+
+def skip_level_jump_step(prior_payload: dict[str, Any]) -> dict[str, Any]:
+    observations = prior_payload["observations"]
+    return {
+        "observations": observations.copy(),
+        "controls": daily_consistency_controls(),
+        "issue_summary": _empty_tr_issue_summary(),
+        "all_breaks": [],
+        "result_breaks": [],
+        "action_log": pd.DataFrame(
+            columns=[
+                "isin",
+                "fund",
+                "date",
+                "series",
+                "decision",
+                "detected",
+                "adjustment",
+                "return_before",
+                "return_after",
+                "cells",
+                "why",
+            ]
+        ),
+        "skipped": True,
+    }
+
+
+def skip_rebuild_step(prior_payload: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "observations": prior_payload["observations"].copy(),
+        "rebuild_log": pd.DataFrame(),
+        "skipped": True,
+    }
+
+
+def skip_spike_step(prior_payload: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "observations": prior_payload["observations"].copy(),
+        "controls": daily_consistency_controls(),
+        "issue_summary": _empty_tr_issue_summary(),
+        "checks": {},
+        "distribution_log": pd.DataFrame(),
+        "skipped": True,
+    }
+
+
+def skip_wide_step(
+    catalog: pd.DataFrame, prior_payload: dict[str, Any]
+) -> dict[str, Any]:
+    observations = prior_payload["observations"]
+    return {
+        "observations": observations.copy(),
+        "catalog": catalog.copy(),
+        "controls": daily_consistency_controls(),
+        "issue_summary": _empty_tr_issue_summary(),
+        "checks": {},
+        "sample_drop_log": pd.DataFrame(),
+        "entry_catalog": catalog.copy(),
+        "entry_n_ids": int(catalog["id"].nunique()),
+        "entry_n_cols": int(len(catalog)),
+        "skipped": True,
+    }
+
+
+def skip_frozen_step(wide_payload: dict[str, Any]) -> dict[str, Any]:
+    observations = wide_payload["observations"]
+    catalog_frame = wide_payload.get("catalog")
+    return {
+        "cleaned_observations": observations.copy(),
+        "catalog": catalog_frame,
+        "frozen_log": pd.DataFrame(
+            columns=[
+                "isin",
+                "fund",
+                "pattern",
+                "last_real_print",
+                "frozen_from",
+                "frozen_to",
+                "frozen_sessions",
+                "sessions_where_sp500_moved",
+                "frozen_level",
+                "cells",
+            ]
+        ),
+        "skipped": True,
+    }
+
+
+def skip_tbill_step(frozen_payload: dict[str, Any]) -> dict[str, Any]:
+    observations = frozen_payload["cleaned_observations"]
+    catalog_frame = frozen_payload.get("catalog")
+    return {
+        "rated_observations": observations.copy(),
+        "catalog": catalog_frame,
+        "filled": 0,
+        "blank": 0,
+        "first_print": None,
+        "first_value": None,
+        "last_print": None,
+        "last_value": None,
+        "download_date": None,
+        "source_series": None,
+        "skipped": True,
+    }

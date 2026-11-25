@@ -5653,5 +5653,131 @@
         "r_squared": 0.0
       }
     }
+  },
+  "FRDPX": {
+    "source": "yahoo",
+    "symbol": "FRDPX",
+    "horizons": {
+      "5y": {
+        "alpha": -1.93,
+        "beta": 0.78,
+        "r_squared": 81.35
+      },
+      "3y": {
+        "alpha": -1.8,
+        "beta": 0.69,
+        "r_squared": 69.87
+      },
+      "10y": {
+        "alpha": -0.99,
+        "beta": 0.87,
+        "r_squared": 87.79
+      }
+    }
+  },
+  "BTIIX": {
+    "source": "yahoo",
+    "symbol": "BTIIX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.93,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.51,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.66,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "SCPIX": {
+    "source": "yahoo",
+    "symbol": "SCPIX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.84,
+        "beta": 0.98,
+        "r_squared": 99.27
+      },
+      "3y": {
+        "alpha": 0.44,
+        "beta": 0.97,
+        "r_squared": 99.13
+      },
+      "10y": {
+        "alpha": 0.59,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "MUXAX": {
+    "source": "yahoo",
+    "symbol": "MUXAX",
+    "horizons": {
+      "5y": {
+        "alpha": 0.62,
+        "beta": 0.98,
+        "r_squared": 99.28
+      },
+      "3y": {
+        "alpha": 0.29,
+        "beta": 0.97,
+        "r_squared": 99.11
+      },
+      "10y": {
+        "alpha": 0.31,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
+  },
+  "MNNYX": {
+    "source": "yahoo",
+    "symbol": "MNNYX",
+    "horizons": {
+      "5y": {
+        "alpha": 2.37,
+        "beta": 1.0,
+        "r_squared": 94.22
+      },
+      "3y": {
+        "alpha": 2.43,
+        "beta": 0.96,
+        "r_squared": 93.72
+      },
+      "10y": {
+        "alpha": 0.05,
+        "beta": 1.04,
+        "r_squared": 94.84
+      }
+    }
+  },
+  "VOO": {
+    "source": "yahoo",
+    "symbol": "VOO",
+    "horizons": {
+      "5y": {
+        "alpha": 1.1,
+        "beta": 0.98,
+        "r_squared": 99.28
+      },
+      "3y": {
+        "alpha": 0.7,
+        "beta": 0.97,
+        "r_squared": 99.12
+      },
+      "10y": {
+        "alpha": 0.8,
+        "beta": 0.97,
+        "r_squared": 99.26
+      }
+    }
   }
 }
