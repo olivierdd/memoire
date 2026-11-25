@@ -1,8 +1,10 @@
-"""Keep one share class per EDGAR series.
+"""Keep one share class per EDGAR series and fund wrapper.
 
-The kept class is the primary class. A reported AUM wins. When no class in the
-series has an AUM, or the largest AUM is shared, the EDGAR class name decides.
-The smallest class id breaks a remaining tie. A row with no series id stays.
+Within each (series, wrapper) group the kept class is the primary class. A
+reported AUM wins. When no class in the group has an AUM, or the largest AUM is
+shared, the EDGAR class name decides. The smallest class id breaks a remaining
+tie. A row with no series id stays. ETF and mutual-fund classes of the same
+series compete separately, so both wrappers can remain.
 """
 
 from __future__ import annotations
@@ -13,6 +15,7 @@ import re
 import pandas as pd
 
 AUM_COLUMN = "Fund Total Assets under Management"
+WRAPPER_COLUMN = "fund_wrapper"
 RULE_LARGEST_AUM = "largest aum"
 RULE_CLASS_RANK = "class rank"
 RULE_SMALLEST_CLASS_ID = "smallest class id"
@@ -27,6 +30,18 @@ _ADMIRAL = 4
 _INSTITUTIONAL = 5
 _CLASS_Y = 6
 _OTHER = 7
+
+_ETF_ALIASES = frozenset({"etf", "equity etf"})
+_MUTUAL_FUND_ALIASES = frozenset(
+    {
+        "mutual fund",
+        "mutualfund",
+        "mf",
+        "open end fund",
+        "open-end fund",
+        "open ended fund",
+    }
+)
 
 
 def _text(value: object) -> str | None:
@@ -56,6 +71,19 @@ def _tokens(value: object) -> tuple[str, ...]:
 def _class_number(value: object) -> int:
     digits = "".join(character for character in (_text(value) or "") if character.isdigit())
     return int(digits) if digits else 10**12
+
+
+def wrapper_key(value: object) -> str:
+    """Normalise Lipper ``fund_wrapper`` for grouping (ETF vs mutual fund)."""
+    text = _text(value)
+    if text is None:
+        return ""
+    key = " ".join(text.casefold().replace("_", " ").replace("-", " ").split())
+    if key in _ETF_ALIASES:
+        return "etf"
+    if key in _MUTUAL_FUND_ALIASES:
+        return "mutual fund"
+    return key
 
 
 def class_priority(row: pd.Series) -> int:
@@ -107,8 +135,9 @@ def _winner_rule(group: pd.DataFrame) -> tuple[object, str]:
 def select_primary_share_class(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Return the kept funds and the share classes removed as duplicates.
 
-    The kept frame includes ``primary_rule``. The dropped frame includes
-    ``kept_isin`` for the class that was kept in that series.
+    Competition is within each EDGAR series **and** fund wrapper (ETF vs mutual
+    fund). The kept frame includes ``primary_rule``. The dropped frame includes
+    ``kept_isin`` for the class that was kept in that (series, wrapper) group.
     """
     required = ["edgartools_series_id", "edgartools_class_id"]
     missing = [column for column in required if column not in frame.columns]
@@ -118,14 +147,24 @@ def select_primary_share_class(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.Da
     kept_index: list[object] = []
     rules: dict[object, str] = {}
     dropped_kept_isin: dict[object, str | None] = {}
-    grouped: dict[str, list[object]] = {}
+    grouped: dict[tuple[str, str], list[object]] = {}
     alone: list[object] = []
-    for index, series_id in zip(frame.index, frame["edgartools_series_id"].tolist(), strict=True):
+    wrappers = (
+        frame[WRAPPER_COLUMN]
+        if WRAPPER_COLUMN in frame.columns
+        else pd.Series(pd.NA, index=frame.index)
+    )
+    for index, series_id, wrapper in zip(
+        frame.index,
+        frame["edgartools_series_id"].tolist(),
+        wrappers.tolist(),
+        strict=True,
+    ):
         series_key = _text(series_id)
         if series_key is None:
             alone.append(index)
             continue
-        grouped.setdefault(series_key, []).append(index)
+        grouped.setdefault((series_key, wrapper_key(wrapper)), []).append(index)
 
     for index in alone:
         kept_index.append(index)

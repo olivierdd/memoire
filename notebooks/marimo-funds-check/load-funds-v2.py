@@ -38,6 +38,7 @@ def _(mo):
     get_primary, set_primary = mo.state(None)
     get_style, set_style = mo.state(None)
     get_timeseries, set_timeseries = mo.state(None)
+    get_spxtr_screen, set_spxtr_screen = mo.state(None)
     get_final, set_final = mo.state(None)
     get_daily_series, set_daily_series = mo.state(None)
     return (
@@ -48,6 +49,7 @@ def _(mo):
         get_openfigi,
         get_nport_check,
         get_primary,
+        get_spxtr_screen,
         get_style,
         get_timeseries,
         set_cusip_fill,
@@ -57,6 +59,7 @@ def _(mo):
         set_openfigi,
         set_nport_check,
         set_primary,
+        set_spxtr_screen,
         set_style,
         set_timeseries,
     )
@@ -183,9 +186,10 @@ def _(mo):
         "2. Verify there are no double counts or missing data",
         "3. Match with OpenFIGI and enrich with name and market identifier",
         "4. Match with EDGAR and enrich with CIK and series",
-        "5. Keep one primary share class per series",
+        "5. Keep one primary share class per series and wrapper",
         "6. Check Fund Type",
         "7. Check if TR timeseries available",
+        "7b. Restrict Active ETFs to S&P 500 TR",
         "8. Export final Excel",
     ]
     nodes = "\n".join(
@@ -1564,7 +1568,10 @@ def _(get_nport_check, mo, run_step_button, step_header):
         ready=primary_ready,
         tooltip=None if primary_ready else "Run step 5 first",
     )
-    step_header("## 5b. Keep the primary share class", run_step_5b)
+    step_header(
+        "## 5b. Keep the primary share class per series and wrapper",
+        run_step_5b,
+    )
     return (run_step_5b,)
 
 
@@ -1643,31 +1650,37 @@ def _(
     _n_start = series_state["started"]
     _documentation = stack(
         selection_stats(_n_start),
-        mo.md("""
+        mo.md(r"""
         ### What and why
 
-        Performance and style should be measured once per portfolio. Keeping every
-        share class of the same series would overweight large multi-class funds
-        and mix fee-differentiated returns. This step collapses the selection to
-        one primary share class per EDGAR series while leaving singleton and
-        series-less rows untouched.
+        The thesis compares management style **and** distribution wrapper (mutual
+        fund versus ETF). Performance should therefore be measured once per
+        portfolio **within** each wrapper: keeping every fee-differentiated
+        share class of the same series would overweight multi-class families,
+        but collapsing an ETF and a mutual fund that share an EDGAR series into
+        a single row would erase the wrapper dimension of the design. This step
+        retains one primary share class per EDGAR series **and** Lipper
+        `fund_wrapper`, and leaves singleton and series-less rows untouched.
 
         ### How
 
-        **Algorithm — select primary class** among classes of the same
-        `edgartools_series_id` that are still in the selection. The deciding
-        rule is stored in `primary_rule`.
+        **Competition unit.** Classes that remain in the selection compete only
+        when they share the same `edgartools_series_id` **and** the same
+        normalised wrapper (`ETF` versus `mutual fund`). An ETF share class and
+        a mutual-fund share class of one series therefore both survive this
+        step (each as the primary of its own wrapper group). The deciding rule
+        within a group is stored in `primary_rule`.
 
         1. **Largest AUM** (`primary_rule = largest aum`).
-           Compare Lipper Fund Total Assets under Management. Blank AUM is
-           ignored (never treated as zero). If at least one class has a numeric
-           AUM, keep the unique class with the maximum. If several classes share
-           that maximum, fall through to rule 2 on that tied subset. If **no**
-           class in the series has AUM, fall through to rule 2 on the whole
-           series group.
+           Compare Lipper Fund Total Assets under Management inside the
+           (series, wrapper) group. Blank AUM is ignored (never treated as
+           zero). If at least one class has a numeric AUM, keep the unique class
+           with the maximum. If several classes share that maximum, fall through
+           to rule 2 on that tied subset. If **no** class in the group has AUM,
+           fall through to rule 2 on the whole group.
 
         2. **EDGAR class-name preference** (`primary_rule = class rank`).
-           Used only when AUM is missing for every class in the series, or when
+           Used only when AUM is missing for every class in the group, or when
            several classes share the largest AUM. The goal is to keep the class
            that best represents a **retail investor** holding of that portfolio
            (not an institutional, retirement-plan, 529, or advisor-channel
@@ -1687,7 +1700,7 @@ def _(
            | 4 | Admiral | Tokens include `admiral` (e.g. Vanguard Admiral). | Vanguard’s lower-expense retail class for larger account balances — still aimed at individuals, but brand-specific and usually not the only retail option. Prefer Class A / Investor when those exist; prefer Admiral over Institutional when choosing among remaining retail-ish names. |
            | 5 | Institutional / Class I | Tokens include `institutional`, or end with Class I / I shares. | Lower expense ratios, but typically high minimums or institutional eligibility. Useful when no clearer retail class remains, yet not preferred for a thesis sample meant to reflect individual-investor share classes. |
            | 6 | Class Y | Tokens look like Class Y (`y`, `class y`, `y shares`, …). | Often an omnibus / intermediary / platform class rather than a direct retail offering. Kept as a named preference only after Institutional so a Y class can still win over an unlabeled catch-all, but never over clearer retail or institutional labels. |
-           | 7 | Any other class | Everything else (Class C, R, R6, NAV, ETF tickers as class labels, Advisor-only names, 529-A, etc.). | Catch-all for higher-fee retail (e.g. C), retirement-plan (R/R6), NAV, advisor-only, 529, and odd EDGAR labels. These are last because they are channel-specific, fee-distorted, or not the intended open-end retail comparison unit. |
+           | 7 | Any other class | Everything else (Class C, R, R6, NAV, Advisor-only names, 529-A, etc.). | Catch-all for higher-fee retail (e.g. C), retirement-plan (R/R6), NAV, advisor-only, 529, and odd EDGAR labels. These are last because they are channel-specific, fee-distorted, or not the intended open-end retail comparison unit. |
 
            After scoring, keep the unique class with the **best** (lowest)
            priority. If several classes share that best tier, fall through to
@@ -1698,15 +1711,17 @@ def _(
            smallest wins. This is only a final tie-break.
 
         **Scope.** Only classes still in the incoming selection that share a
-        series compete. A fund that is the only selected class of its series
-        stays (`primary_rule = only class`). A fund with no series id stays
-        (`primary_rule = no series`). Classes dropped here leave the working
-        selection permanently — later steps read only `funds_primary`.
+        series **and** wrapper compete. A fund that is the only selected class
+        of its (series, wrapper) group stays (`primary_rule = only class`). A
+        fund with no series id stays (`primary_rule = no series`). Classes
+        dropped here leave the working selection permanently — later steps read
+        only `funds_primary`.
 
         **Outputs.** Kept rows → `funds_primary`. Flags
         `edgar.primary_share_class` / `edgar.primary_rule` on `Funds`; removed
-        classes → sheet `Dropped share classes` with `edgar.kept_isin` (audit
-        only; not re-selected later).
+        classes → sheet `Dropped share classes` with `edgar.kept_isin` (the
+        primary ISIN within the same series–wrapper group; audit only; not
+        re-selected later).
         """),
     )
     if primary_result is None:
@@ -1714,7 +1729,10 @@ def _(
         primary_sheets = None
         _step_view = step_sections(
             documentation=_documentation,
-            result=mo.md("_Click **Run step** to keep one primary share class per series._"),
+            result=mo.md(
+                "_Click **Run step** to keep one primary share class "
+                "per series and wrapper._"
+            ),
             decision=stack(
                 mo.md("_Decision pending until this step has run._"),
                 selection_stats(_n_start, when="end"),
@@ -1739,6 +1757,7 @@ def _(
             "edgar_series_name",
             "edgartools_class_id",
             "edgar_class_name",
+            "fund_wrapper",
             "Name",
             "ISIN",
             "AUM",
@@ -1750,7 +1769,7 @@ def _(
                 mo.md(
                     f"- **{primary_result['started']}** funds entered from the current selection \n"
                     f"- **{len(dropped_classes)}** share classes were removed from **{primary_result['collapsed']}** series (leave permanently) \n"
-                    f"- **{len(funds_primary)}** funds remain in `funds_primary`, one class per series \n"
+                    f"- **{len(funds_primary)}** funds remain in `funds_primary`, one class per series × wrapper \n"
                     f"- Prepared `edgar.primary_share_class` / `edgar.primary_rule` on `Funds` "
                     f"and sheet `Dropped share classes` ({len(dropped_classes)} rows) in memory "
                     f"(written to `{primary_result['export']}` at step 8) \n"
@@ -1766,6 +1785,7 @@ def _(
                             "edgartools_series_id",
                             "edgartools_class_id",
                             "edgar_class_name",
+                            "fund_wrapper",
                             "Name",
                             "ISIN",
                             "Fund Total Assets under Management",
@@ -1780,11 +1800,14 @@ def _(
             decision=stack(
                 mo.md(
                     f"""
-                    Keep one primary share class per series. **{len(dropped_classes)}**
-                    secondary classes leave the working selection permanently.
-                    Later steps (style, timeseries, final export) read only
-                    `funds_primary` ({len(funds_primary):,} funds) — dropped classes
-                    are not reopened.
+                    Keep one primary share class per EDGAR series and fund
+                    wrapper. ETF and mutual-fund classes of the same series both
+                    remain when each is the primary of its wrapper group.
+                    **{len(dropped_classes)}** secondary classes leave the
+                    working selection permanently. Later steps (style,
+                    timeseries, final export) read only `funds_primary`
+                    ({len(funds_primary):,} funds) — dropped classes are not
+                    reopened.
                     """
                 ),
                 selection_stats(len(funds_primary), when="end"),
@@ -2877,10 +2900,284 @@ def _(
 
 @app.cell(hide_code=True)
 def _(get_timeseries, mo, run_step_button, step_header):
-    final_ready = get_timeseries() is not None
+    spxtr_ready = get_timeseries() is not None
+    run_step_7b = run_step_button(
+        ready=spxtr_ready,
+        tooltip=None if spxtr_ready else "Run step 7 first",
+    )
+    step_header(
+        "## 7b. Restrict Active ETFs to S&P 500 TR mandates",
+        run_step_7b,
+    )
+    return (run_step_7b,)
+
+
+@app.cell
+def _(
+    NORMALIZED_XLSX_LABEL,
+    add_prefixed_columns,
+    get_timeseries,
+    pd,
+    run_step_7b,
+    set_spxtr_screen,
+):
+    if run_step_7b.value:
+        _ts_input = get_timeseries()
+        if _ts_input is not None:
+            from helpers.funds_functions.filter_active_etf_spxtr import (
+                filter_active_etf_spxtr,
+                load_trackinsight_objectives,
+            )
+
+            _objectives = load_trackinsight_objectives()
+            _pre_funds = _ts_input["funds"]
+            _kept, _dropped, _review = filter_active_etf_spxtr(
+                _pre_funds,
+                objectives=_objectives,
+            )
+            _in_scope = _review.loc[_review["spxtr_screen_in_scope"]].copy()
+            _normalized = add_prefixed_columns(
+                _ts_input["normalized"],
+                _review,
+                "spxtr.",
+                source_columns=_pre_funds.columns,
+                source_prefix="spxtr_",
+            )
+            # Keep/drop only for Active ETFs this step evaluates; others stay blank.
+            _decision = pd.Series(pd.NA, index=_normalized.index, dtype="object")
+            _decision.loc[_kept.index.intersection(_in_scope.index)] = "Keep"
+            _decision.loc[_dropped.index] = "Drop"
+            _normalized["spxtr.keep_or_drop"] = _decision
+            _sheets = {
+                **_ts_input["sheets"],
+                "Funds": _normalized,
+                "Active ETF SPXTR review": _normalized.loc[_in_scope.index],
+                "Dropped Active ETF non-SPXTR": _normalized.loc[_dropped.index],
+            }
+            set_spxtr_screen(
+                {
+                    "funds": _kept.drop(
+                        columns=["spxtr_screen_in_scope"],
+                        errors="ignore",
+                    ),
+                    "dropped": _dropped,
+                    "review": _in_scope,
+                    "started": len(_pre_funds),
+                    "in_scope": len(_in_scope),
+                    "kept_active": int(_in_scope["spxtr_screen_keep"].sum()),
+                    "dropped_n": len(_dropped),
+                    "daily": _ts_input.get("daily"),
+                    "normalized": _normalized,
+                    "sheets": _sheets,
+                    "export": NORMALIZED_XLSX_LABEL,
+                    "objectives_n": len(_objectives),
+                }
+            )
+    return
+
+
+@app.cell
+def _(
+    get_spxtr_screen,
+    get_timeseries,
+    mo,
+    review_table,
+    selection_stats,
+    stack,
+    step_sections,
+):
+    timeseries_for_screen = get_timeseries()
+    mo.stop(
+        timeseries_for_screen is None,
+        mo.md("Run step 7 first. This step reads `funds_with_timeseries`."),
+    )
+    _n_start_screen = len(timeseries_for_screen["funds"])
+    _documentation_screen = stack(
+        selection_stats(_n_start_screen),
+        mo.md(r"""
+        ### What and why
+
+        The empirical chapters regress fund total returns on the S&P 500 total
+        return. Active ETFs that entered the extract through a loose “mentions
+        S&P 500” screen include many structured-outcome, options-income, hedged,
+        and multi-asset products whose official Lipper benchmark is blank or not
+        `.SPXTR`. Leaving them in the cross-section would confound Active versus
+        Passive performance with product design. This step therefore restricts
+        **Active ETFs** to mandates that are consistent with an S&P 500 total-return
+        (or active-equity-versus-S&P-500) comparison. Passive funds and Active
+        mutual funds are out of scope and are retained unchanged.
+
+        ### Excluded Active ETF product types
+
+        The products removed here are not ordinary active stock-selection
+        vehicles that happen to cite the S&P 500. Their payoffs are reshaped by
+        options, path-dependent rules, alternate weights, hedges, or other asset
+        classes. Daily gaps versus S&P 500 total return are then largely a
+        feature of the payoff, not evidence of Active versus Passive skill.
+
+        **Table 7b.1 — Product types excluded from the Active ETF sample**
+
+        | Product type | Economic design | Why it fails an S&P 500 TR comparison | Typical Lipper signal |
+        |---|---|---|---|
+        | Buffer / defined-outcome | Over a fixed outcome period, upside of an index (often S&P 500 **price**) is tracked up to a **cap**, while a first band of losses is absorbed (the **buffer**). Terms reset at period end. | Path and calendar of the buffer dominate returns; the reference is often price, not total return. | Frequently `.INX`; Lipper `Fund Type` often Alternatives |
+        | Barrier | Payoff depends on whether the index stays above a stated **barrier**; often combined with a premium or income overlay. | Path dependence and income overlay break a one-to-one TR comparison. | Often `.INX` or blank; Alternatives |
+        | Accelerator | Options seek **levered participation** in upside after thresholds (sometimes uncapped above a point). | Embedded leverage and option Greeks, not 1× equity beta to S&P 500 TR. | Alternatives; may still show `.SPXTR` |
+        | Autocall | Coupon-like payoffs that may “call” (end or reset) when the index clears a trigger, with downside conditions. | Structured-note economics rather than equity total return. | Blank or non-equity; Alternatives |
+        | Shield / protection | Marketing for downside cushions (puts, collars, or buffers) around S&P-linked exposure. | Hedge payoff dominates drawdowns and recovery paths. | Blank or `.SPXTR` with protection language |
+        | Options / premium income | Equity (or equity beta) plus **sold options** (covered calls, puts) to harvest premium and pay distributions. | Upside truncated; income and volatility sale drive performance versus SPXTR. | Blank or `.SPXTR`; often Alternatives |
+        | Hedged / VEQTOR-style | Explicit downside hedges or equity–volatility–cash mixes (e.g. Dynamic VEQTOR). | Official benchmark is not S&P 500 TR (e.g. `.SPVQDTR`); large gaps are by design. | `.SPVQDTR` or Mixed Assets / Alternatives |
+        | Equal-weight income | Exposure tied to **S&P 500 Equal Weight**, often with an income overlay. | Cap-weighted `.SPXTR` is the wrong yardstick; equal weight changes sector and factor exposures. | `.SPXEW` |
+        | Multi-asset / bond / tactical futures | Portfolios of Treasuries, gold, bond indices, or equity-index **futures** with tactical overlays; or sector rotation off a non-SPXTR index (e.g. Shiller CAPE sectors). | The investable “market” is not (only) S&P 500 equities. | Bond tickers (e.g. `.BCUSA`), Mixed Assets, Alternatives; sometimes `.SPXTR` with a non-SPXTR strategy |
+
+        Mutual funds in this extract do not exhibit the same concentration of
+        buffer, options-income, or VEQTOR products: retained mutual funds are
+        almost entirely Lipper Equity with `Benchmark Ticker = .SPXTR`. A small
+        number of mutual-fund edge cases (for example dynamic asset-allocation
+        or leveraged “bull” index funds) may still warrant manual review, but
+        they are not the object of this Active ETF screen.
+
+        ### How
+
+        Operates only on `funds_with_timeseries`. For each Active ETF the screen
+        uses Lipper `fund_type`, `fund_wrapper`, `Fund Type`, `Benchmark Ticker`,
+        the fund `Name`, and, when available, the Trackinsight investment
+        objective from the static cache.
+
+        1. **Scope.** Rows that are not Active ETFs receive
+           `spxtr_screen_reason = out of scope` and stay in the selection.
+        2. **Asset class.** Active ETFs whose Lipper `Fund Type` is not **Equity**
+           are dropped (Alternatives, Mixed Assets, Bond, and similar wrappers are
+           treated as non-TR equity mandates; see Table 7b.1).
+        3. **Lipper benchmark.** A non-empty `Benchmark Ticker` other than
+           `.SPXTR` is dropped (including `.INX`, `.SPVQDTR`, `.SPXEW`, and other
+           non-TR tickers in Table 7b.1).
+        4. **Product exclusions.** The concatenated name and Trackinsight
+           objective are screened for the product language in Table 7b.1
+           (structured-outcome / buffer / barrier / accelerator; options or
+           premium-income overlays; hedged or VEQTOR-style designs; equal-weight;
+           Shiller CAPE and similar non-TR strategies). A match implies a drop
+           even when Lipper reports `.SPXTR`.
+        5. **Inclusion.** Remaining Equity Active ETFs are kept if
+           `Benchmark Ticker = .SPXTR`, or if the ticker is blank and the
+           name/objective states an S&P 500 outperform, total-return, full-index
+           reweight, historical-weight, or S&P 500 sector-allocation mandate.
+        6. **Audit.** Every in-scope Active ETF is written to
+           `Active ETF SPXTR review`; permanent drops go to
+           `Dropped Active ETF non-SPXTR`. Decision columns use the prefix
+           `spxtr.` on `Funds` (`spxtr.screen_keep`, `spxtr.screen_reason`,
+           `spxtr.keep_or_drop`).
+
+        ### Outputs
+
+        Kept rows → `funds_spxtr_screen` (input to step 8). Dropped Active ETFs
+        leave the working selection permanently.
+        """),
+    )
+    spxtr_result = get_spxtr_screen()
+    if spxtr_result is None:
+        funds_spxtr_screen = None
+        _step_view_screen = step_sections(
+            documentation=_documentation_screen,
+            result=mo.md(
+                "_Click **Run step** to screen Active ETFs for S&P 500 TR mandates._"
+            ),
+            decision=stack(
+                mo.md("_Decision pending until this step has run._"),
+                selection_stats(_n_start_screen, when="end"),
+            ),
+        )
+    else:
+        funds_spxtr_screen = spxtr_result["funds"]
+        _dropped_screen = spxtr_result["dropped"]
+        _review_screen = spxtr_result["review"]
+        _reason_counts = (
+            _review_screen["spxtr_screen_reason"]
+            .value_counts(dropna=False)
+            .rename_axis("reason")
+            .reset_index(name="funds")
+        )
+        _step_view_screen = step_sections(
+            documentation=_documentation_screen,
+            result=stack(
+                mo.md(
+                    f"- **{spxtr_result['started']}** funds entered from `funds_with_timeseries`\n"
+                    f"- **{spxtr_result['in_scope']}** Active ETFs were in scope "
+                    f"({spxtr_result['kept_active']} kept, "
+                    f"{spxtr_result['dropped_n']} dropped)\n"
+                    f"- Trackinsight objectives loaded for "
+                    f"**{spxtr_result['objectives_n']}** ISINs\n"
+                    f"- **{len(funds_spxtr_screen)}** funds remain for export\n"
+                    f"- Sheets `Active ETF SPXTR review` and "
+                    f"`Dropped Active ETF non-SPXTR` prepared in memory "
+                    f"(written to `{spxtr_result['export']}` at step 8)"
+                ),
+                review_table(
+                    _reason_counts,
+                    ["reason", "funds"],
+                    "Active ETF screen — reasons",
+                ),
+                review_table(
+                    _review_screen.loc[_review_screen["spxtr_screen_keep"]],
+                    [
+                        "Name",
+                        "ISIN",
+                        "Fund Type",
+                        "Benchmark Ticker",
+                        "spxtr_screen_reason",
+                    ],
+                    f"Active ETFs kept ({spxtr_result['kept_active']})",
+                ),
+                (
+                    review_table(
+                        _dropped_screen,
+                        [
+                            "Name",
+                            "ISIN",
+                            "Fund Type",
+                            "Benchmark Ticker",
+                            "spxtr_screen_reason",
+                        ],
+                        f"Active ETFs dropped ({spxtr_result['dropped_n']})",
+                    )
+                    if spxtr_result["dropped_n"]
+                    else None
+                ),
+            ),
+            decision=stack(
+                mo.md(
+                    f"""
+                    ### Decision
+
+                    **Principle.** Only Active ETFs whose Lipper fields and
+                    product description are consistent with an S&P 500
+                    total-return comparison remain in the thesis sample.
+                    The product types in Table 7b.1 (buffers and defined
+                    outcomes, barriers, accelerators, autocalls, shield
+                    designs, options or premium income, hedged or VEQTOR-style
+                    overlays, equal-weight income, and multi-asset or tactical
+                    non-equity strategies) are removed as **sample selection**,
+                    not as data repairs: their gaps versus S&P 500 TR are
+                    expected by construction.
+
+                    **Outcome.** **{spxtr_result['dropped_n']}** Active ETFs leave
+                    permanently; **{spxtr_result['kept_active']}** Active ETFs and
+                    all out-of-scope rows remain. Step 8 exports
+                    `funds_spxtr_screen` (**{len(funds_spxtr_screen):,}** funds).
+                    """
+                ),
+                selection_stats(len(funds_spxtr_screen), when="end"),
+            ),
+        )
+    _step_view_screen
+    return (funds_spxtr_screen,)
+
+
+@app.cell(hide_code=True)
+def _(get_spxtr_screen, mo, run_step_button, step_header):
+    final_ready = get_spxtr_screen() is not None
     run_step_8 = run_step_button(
         ready=final_ready,
-        tooltip=None if final_ready else "Run step 7 first",
+        tooltip=None if final_ready else "Run step 7b first",
     )
     step_header("## 8. Export the final fund set and timeseries", run_step_8)
     return (run_step_8,)
@@ -2890,7 +3187,7 @@ def _(get_timeseries, mo, run_step_button, step_header):
 def _(
     NORMALIZED_XLSX,
     NORMALIZED_XLSX_LABEL,
-    get_timeseries,
+    get_spxtr_screen,
     pd,
     run_step_8,
     selected_funds,
@@ -2993,14 +3290,22 @@ def _(
         return arranged, groups
 
     if run_step_8.value:
-        final_input = get_timeseries()
+        final_input = get_spxtr_screen()
         if final_input is not None:
             from helpers.funds_functions.filter_daily_timeseries import (
                 filter_daily_timeseries,
             )
 
+            _funds_export = final_input["funds"].drop(
+                columns=[
+                    "spxtr_screen_keep",
+                    "spxtr_screen_reason",
+                    "spxtr_screen_in_scope",
+                ],
+                errors="ignore",
+            )
             _funds_final, column_groups = _arrange_final_funds(
-                final_input["funds"],
+                _funds_export,
                 list(selected_funds.columns),
             )
             _daily = final_input.get("daily")
@@ -3056,7 +3361,7 @@ def _(
 def _(
     get_daily_series,
     get_final,
-    get_timeseries,
+    get_spxtr_screen,
     mo,
     pd,
     review_table,
@@ -3064,12 +3369,12 @@ def _(
     stack,
     step_sections,
 ):
-    timeseries_state = get_timeseries()
+    spxtr_state = get_spxtr_screen()
     mo.stop(
-        timeseries_state is None,
-        mo.md("Run step 7 first. This step reads `funds_with_timeseries`."),
+        spxtr_state is None,
+        mo.md("Run step 7b first. This step reads `funds_spxtr_screen`."),
     )
-    _n_start = len(timeseries_state["funds"])
+    _n_start = len(spxtr_state["funds"])
     _documentation = stack(
         selection_stats(_n_start),
         mo.md("""
@@ -3077,12 +3382,12 @@ def _(
 
         Downstream series QA and Lipper-aligned regressions need one readable
         cross-section and a timeseries panel limited to funds that survived the
-        filters. This step freezes that sample and writes the normalized workbook
-        once.
+        filters, including the Active-ETF S&P 500 TR screen. This step freezes
+        that sample and writes the normalized workbook once.
 
         ### How
 
-        Operates only on `funds_with_timeseries`. No funds are added back from
+        Operates only on `funds_spxtr_screen`. No funds are added back from
         earlier drops; the fund count is unchanged.
 
         1. **Arrange** remaining funds into `Funds final` (identifiers, OpenFIGI,
@@ -3201,6 +3506,7 @@ def _(
     get_final,
     get_openfigi,
     get_primary,
+    get_spxtr_screen,
     get_style,
     get_timeseries,
     md,
@@ -3227,6 +3533,7 @@ def _(
     _primary = get_primary()
     _style = get_style()
     _ts = get_timeseries()
+    _spxtr = get_spxtr_screen()
     _cusip = get_cusip_fill()
 
     _n_loaded = len(funds)
@@ -3234,6 +3541,7 @@ def _(
     _n_after_openfigi = len(_openfigi["funds"]) if _openfigi else _n_selected
     _n_after_primary = len(_primary["funds"]) if _primary else _n_after_openfigi
     _n_after_style = len(_style["funds"]) if _style else _n_after_primary
+    _n_after_ts = len(_ts["funds"]) if _ts else _n_after_style
     _n_final = len(_final)
 
     def _n_drop(state, key, default=0):
@@ -3259,6 +3567,7 @@ def _(
     _drop_other = _n_after_primary - _n_after_style
     _drop_name_gap = _n_drop(_ts, "dropped_name_gap")
     _drop_no_tr = _n_drop(_ts, "dropped_no_tr")
+    _drop_spxtr = int((_spxtr or {}).get("dropped_n") or (_n_after_ts - _n_final))
     _n_yahoo_fill = int((_ts or {}).get("yahoo_filled_n") or 0)
 
     _reclass = 0
@@ -3328,10 +3637,12 @@ def _(
         "drop_other": _drop_other,
         "drop_name_gap": _drop_name_gap,
         "drop_no_tr": _drop_no_tr,
+        "drop_spxtr": _drop_spxtr,
         "yahoo_filled": _n_yahoo_fill,
         "cusip_filled": _cusip_filled,
         "confirmed": _confirmed,
         "reclassified": _reclass,
+        "after_timeseries": _n_after_ts,
     }
     _stages = [
         ("Loaded extract", _n_loaded),
@@ -3339,7 +3650,8 @@ def _(
         ("After OpenFIGI drop", _n_after_openfigi),
         ("After primary share class", _n_after_primary),
         ("After style Other drop", _n_after_style),
-        ("Final (daily TR)", _n_final),
+        ("After daily TR (step 7)", _n_after_ts),
+        ("Final (Active ETF SPXTR screen)", _n_final),
     ]
     _attrition_tbl = attrition_table(_stages)
     _verification_tbl = verification_table(_counts_payload)
@@ -3389,8 +3701,13 @@ def _(
             ],
             [
                 "After timeseries decisions (step 7)",
-                f"{_n_final:,}",
+                f"{_n_after_ts:,}",
                 f"−{_drop_name_gap:,} name-gap; −{_drop_no_tr:,} no TR",
+            ],
+            [
+                "After Active ETF SPXTR screen (step 7b)",
+                f"{_n_final:,}",
+                f"−{_drop_spxtr:,} Active ETFs without S&P 500 TR mandate",
             ],
             ["Final selection", f"{_n_final:,}", "written in step 8"],
         ],
@@ -3400,9 +3717,10 @@ def _(
             f"Missing US CUSIPs filled from ISIN ({_cusip_filled} filled in step 2)",
             "OpenFIGI: market ticker, FIGI name, ISIN/CUSIP/name match flags",
             "EDGAR: CIK, series id/name, class id/name, match status",
-            "One primary share class per series (primary_rule)",
+            "One primary share class per series × wrapper (primary_rule)",
             "Management style fields (fund_management_style*) and updated working fund_type",
             "Daily TR match fields (has_daily_total_return, daily_tr_name*, observations)",
+            "Active ETF S&P 500 TR screen (spxtr.screen_*)",
         ],
         enrichments_series=[
             "Datastream daily total-return columns matched by ISIN (and name-checked)",
@@ -3428,6 +3746,7 @@ def _(
             "yahoo_fill_rows": _rows((_ts or {}).get("yahoo_fill")),
             "dropped_name_gap_rows": _rows((_ts or {}).get("dropped_name_gap")),
             "dropped_no_tr_rows": _rows((_ts or {}).get("dropped_no_tr")),
+            "dropped_spxtr_rows": _rows((_spxtr or {}).get("dropped")),
             "column_order_rows": len(_final.columns),
             "market_rows": None,
             "step7_decision_tables": [

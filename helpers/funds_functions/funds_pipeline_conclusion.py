@@ -267,10 +267,13 @@ share classes (**{retention:.1f}%** of the initial extract) and is written once 
 
 Figure 1 and Table 1 summarise attrition. The largest reductions arise from
 (i) restricting to rows with a non-empty asset-class `fund_type`,
-(ii) retaining a single primary share class per EDGAR series, and
-(iii) requiring a usable daily total-return path. Closed or merged funds without
-an OpenFIGI match, and series classified as EDGAR “Other”, are removed
-permanently and are not reconsidered in later steps.
+(ii) retaining a single primary share class per EDGAR series and fund wrapper
+(so an ETF and a mutual fund that share a series can both remain),
+(iii) requiring a usable daily total-return path, and (iv) restricting Active
+ETFs to S&P 500 total-return mandates (structured-outcome, options-income, and
+non-`.SPXTR` Active ETFs leave the sample). Closed or merged funds without an
+OpenFIGI match, and series classified as EDGAR “Other”, are removed permanently
+and are not reconsidered in later steps.
 
 ### Classification and enrichment
 

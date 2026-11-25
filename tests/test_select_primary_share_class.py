@@ -2,7 +2,10 @@ import unittest
 
 import pandas as pd
 
-from helpers.funds_functions.select_primary_share_class import select_primary_share_class
+from helpers.funds_functions.select_primary_share_class import (
+    select_primary_share_class,
+    wrapper_key,
+)
 
 
 def _row(
@@ -14,6 +17,7 @@ def _row(
     company: str = "Example Trust",
     aum: float | None = None,
     isin: str = "US0000000000",
+    fund_wrapper: str | None = "mutual fund",
 ) -> dict:
     return {
         "edgartools_series_id": series_id,
@@ -23,6 +27,7 @@ def _row(
         "edgar_company_name": company,
         "Fund Total Assets under Management": aum,
         "ISIN": isin,
+        "fund_wrapper": fund_wrapper,
         "edgartools_cik": "0000000001",
     }
 
@@ -32,7 +37,7 @@ class PrimaryShareClassTests(unittest.TestCase):
         frame = pd.DataFrame(
             [
                 _row("S1", "C1", class_name="Investor Shares", aum=1, isin="US1"),
-                _row("S1", "C2", class_name="ETF Shares", aum=10, isin="US2"),
+                _row("S1", "C2", class_name="Admiral Shares", aum=10, isin="US2"),
             ]
         )
         kept, dropped = select_primary_share_class(frame)
@@ -40,11 +45,51 @@ class PrimaryShareClassTests(unittest.TestCase):
         self.assertEqual(kept["primary_rule"].iloc[0], "largest aum")
         self.assertEqual(dropped["kept_isin"].tolist(), ["US2"])
 
+    def test_etf_and_mutual_fund_of_same_series_both_stay(self):
+        frame = pd.DataFrame(
+            [
+                _row(
+                    "S1",
+                    "C1",
+                    class_name="Investor Shares",
+                    aum=1_755e9,
+                    isin="US9229081081",
+                    fund_wrapper="mutual fund",
+                ),
+                _row(
+                    "S1",
+                    "C2",
+                    class_name="Admiral Shares",
+                    aum=None,
+                    isin="US9229087104",
+                    fund_wrapper="mutual fund",
+                ),
+                _row(
+                    "S1",
+                    "C3",
+                    class_name="ETF Shares",
+                    aum=1_053e9,
+                    isin="US9229083632",
+                    fund_wrapper="ETF",
+                ),
+            ]
+        )
+        kept, dropped = select_primary_share_class(frame)
+        self.assertEqual(set(kept["ISIN"]), {"US9229081081", "US9229083632"})
+        self.assertEqual(dropped["ISIN"].tolist(), ["US9229087104"])
+        self.assertEqual(dropped["kept_isin"].tolist(), ["US9229081081"])
+
+    def test_wrapper_key_normalises_aliases(self):
+        self.assertEqual(wrapper_key("ETF"), "etf")
+        self.assertEqual(wrapper_key("mutual fund"), "mutual fund")
+        self.assertEqual(wrapper_key("Mutual Fund"), "mutual fund")
+        self.assertEqual(wrapper_key(None), "")
+
     def test_blank_aum_does_not_count_as_zero(self):
         frame = pd.DataFrame(
             [
                 _row("S1", "C1", class_name="Admiral Shares", aum=None, isin="US1"),
-                _row("S1", "C2", class_name="ETF Shares", aum=5, isin="US2"),
+                _row("S1", "C2", class_name="Investor Shares", aum=5, isin="US2"),
             ]
         )
         kept, _dropped = select_primary_share_class(frame)

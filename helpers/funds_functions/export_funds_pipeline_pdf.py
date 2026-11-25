@@ -87,8 +87,8 @@ def build_pipeline_report_html(report: dict[str, Any]) -> str:
                 _p(
                     "Goal: produce a clean fund cross-section for the thesis, "
                     "enriched with OpenFIGI / EDGAR identifiers, one primary share "
-                    "class per series, Active/Passive verification, and a usable "
-                    "daily total-return path."
+                    "class per series and wrapper, Active/Passive verification, "
+                    "and a usable daily total-return path."
                 ),
                 _li(
                     [
@@ -337,11 +337,12 @@ def build_funds_v2_report(
             "title": "5 / 5b. Primary share class",
             "what_why": (
                 "Collapse multi-class series to one comparable retail share class "
+                "per wrapper (ETF and mutual fund of the same series both remain) "
                 "for the cross-section."
             ),
             "how": [
                 "Flag shared CIK/series groups and missing class ids",
-                "Select one primary class per series using the documented priority rules",
+                "Select one primary class per series and wrapper using the documented priority rules",
                 "Drop secondary classes permanently",
             ],
             "result": (
@@ -359,8 +360,9 @@ def build_funds_v2_report(
                 },
             ],
             "decision": (
-                "Keep one primary share class per series. Dropped classes leave "
-                "the working selection permanently."
+                "Keep one primary share class per series and wrapper (ETF and "
+                "mutual fund of the same series can both remain). Dropped classes "
+                "leave the working selection permanently."
             ),
             "outcome": [f"Selection remaining: {counts['after_primary']:,} funds"],
         },
@@ -438,6 +440,38 @@ def build_funds_v2_report(
                 "No Datastream TR: append Yahoo total return when available; else drop."
             ),
             "decision_tables": extras.get("step7_decision_tables", []),
+            "outcome": [
+                f"Selection remaining after timeseries: "
+                f"{counts.get('after_timeseries', counts['final']):,} funds"
+            ],
+        },
+        {
+            "title": "7b. Restrict Active ETFs to S&P 500 TR mandates",
+            "what_why": (
+                "Remove Active ETFs whose Lipper benchmark or product design is "
+                "inconsistent with an S&P 500 total-return comparison "
+                "(buffers, options income, hedged overlays, non-.SPXTR tickers)."
+            ),
+            "how": [
+                "Scope: Active ETFs only; Passive funds and mutual funds stay",
+                "Require Equity asset class; drop non-.SPXTR Lipper tickers",
+                "Exclude structured / options / hedged / CAPE-style products by name and Trackinsight objective",
+                "Keep .SPXTR Equity actives, or blank-bench Equity with an S&P 500 outperform/reweight mandate",
+            ],
+            "result": (
+                f"Dropped {counts.get('drop_spxtr', 0):,} Active ETFs without an "
+                f"S&P 500 TR mandate; {counts['final']:,} funds remain."
+            ),
+            "tables": [
+                {
+                    "label": "Dropped Active ETF non-SPXTR",
+                    "rows": extras.get("dropped_spxtr_rows"),
+                }
+            ],
+            "decision": (
+                "Permanent sample drop for Active ETFs that fail the S&P 500 TR "
+                "mandate screen; out-of-scope rows unchanged."
+            ),
             "outcome": [f"Selection remaining: {counts['final']:,} funds"],
         },
         {
