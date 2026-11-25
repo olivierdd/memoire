@@ -9,15 +9,20 @@ import pandas as pd
 
 from helpers.funds_functions.map_yahoo_timeseries import (
     align_yahoo_levels_to_index,
-    fetch_yahoo_price_levels,
-    fetch_yahoo_total_return_levels,
     levels_and_returns_with_holiday_na,
     spx_flat_holiday_mask,
 )
+from helpers.timeseries_functions.yahoo_tr_freeze import (
+    fetch_yahoo_price_levels_prefer_freeze,
+    fetch_yahoo_total_return_levels_prefer_freeze,
+    yahoo_tr_freeze_download_date,
+)
 
-# Lipper/Datastream level-jump cases where Yahoo is clean under the same
-# daily consistency checks. CFIMX (US1888501012) is intentionally omitted —
-# Yahoo still shows a level jump there.
+# Curated offline list: Lipper/Datastream series with persistent level breaks
+# whose Yahoo Price+TR showed no lasting break under the rule later formalised
+# in §5.3 and matched Lipper 3Y/5Y/10Y performance. CFIMX (US1888501012) is
+# intentionally omitted — Yahoo still shows a level jump there. The map is
+# fixed at load time; Step 1 does not re-run the Step 5 screen.
 YAHOO_TR_REPLACEMENTS: dict[str, str] = {
     "US00774Q8740": "GQEPX",
     "US2562191062": "DODGX",
@@ -30,12 +35,29 @@ YAHOO_TR_REPLACEMENTS: dict[str, str] = {
 
 YAHOO_TR_REPLACE_ISINS: frozenset[str] = frozenset(YAHOO_TR_REPLACEMENTS)
 
+SOURCE_LIPPER = "Lipper"
+SOURCE_YAHOO = "Yahoo"
+
+FUND_CATEGORIES: frozenset[str] = frozenset(
+    {"Active MF", "Active ETF", "Passive MF", "Passive ETF", "To Check MF"}
+)
+
 
 def _column_id(catalog: pd.DataFrame, header: str) -> int | None:
     match = catalog.loc[catalog["header"].eq(header), "column"]
     if match.empty:
         return None
     return int(match.iloc[0])
+
+
+def _ensure_source_column(catalog: pd.DataFrame) -> pd.DataFrame:
+    """Keep fund-type ``category`` intact; track origin in ``source``."""
+    out = catalog.copy()
+    if "source" not in out.columns:
+        out["source"] = SOURCE_LIPPER
+    else:
+        out["source"] = out["source"].fillna(SOURCE_LIPPER).astype("string")
+    return out
 
 
 def _refresh_coverage(catalog: pd.DataFrame, observations: pd.DataFrame) -> pd.DataFrame:
@@ -66,6 +88,59 @@ def _refresh_coverage(catalog: pd.DataFrame, observations: pd.DataFrame) -> pd.D
     return out
 
 
+def lipper_fund_sample_end(catalog: pd.DataFrame) -> pd.Timestamp | None:
+    """Modal last date of Lipper fund total-return *level* series.
+
+    Datastream fund extracts typically stop on the last trading day of the
+    latest completed month. That date is the common sample end for every
+    series in the working panel (funds, indices and the risk-free rate).
+    Yahoo-replaced funds are excluded so a longer Yahoo history cannot pull
+    the endpoint forward.
+    """
+    header = catalog["header"].astype("string")
+    category = catalog["category"].astype("string")
+    mask = category.isin(FUND_CATEGORIES) & header.str.endswith(" TR")
+    if "source" in catalog.columns:
+        mask = mask & catalog["source"].fillna(SOURCE_LIPPER).ne(SOURCE_YAHOO)
+    if "id" in catalog.columns:
+        mask = mask & ~catalog["id"].astype("string").isin(YAHOO_TR_REPLACE_ISINS)
+    lasts = pd.to_datetime(catalog.loc[mask, "last_date"], errors="coerce").dropna()
+    if lasts.empty:
+        return None
+    return pd.Timestamp(lasts.mode().iloc[0]).normalize()
+
+
+def truncate_panel_to_sample_end(
+    catalog: pd.DataFrame,
+    observations: pd.DataFrame,
+    end_date: pd.Timestamp | None = None,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.Timestamp | None]:
+    """Drop observation rows after the common fund sample end.
+
+    When ``end_date`` is omitted, it is taken from
+    :func:`lipper_fund_sample_end`. Rows with a missing date index are kept.
+    Catalog coverage columns are refreshed. If no endpoint can be determined,
+    the inputs are returned unchanged.
+    """
+    endpoint = (
+        pd.Timestamp(end_date).normalize()
+        if end_date is not None
+        else lipper_fund_sample_end(catalog)
+    )
+    if endpoint is None or pd.isna(endpoint):
+        return catalog, observations, None
+
+    index = pd.to_datetime(observations.index, errors="coerce")
+    keep = index.isna() | (index <= endpoint)
+    if bool(keep.all()):
+        refreshed = _refresh_coverage(catalog, observations)
+        return refreshed, observations, endpoint
+
+    truncated = observations.loc[keep].copy()
+    refreshed = _refresh_coverage(catalog, truncated)
+    return refreshed, truncated, endpoint
+
+
 def _write_level_pair(
     catalog: pd.DataFrame,
     observations: pd.DataFrame,
@@ -73,18 +148,17 @@ def _write_level_pair(
     level_id: int,
     return_id: int,
     aligned: pd.Series,
-    category: str,
     level_note: str,
     holiday_mask: pd.Series | None = None,
 ) -> pd.Series:
-    """Write Yahoo levels and session returns (holidays NA when mask provided)."""
+    """Write Yahoo levels and session returns; keep category, set source=Yahoo."""
     filled, returns = levels_and_returns_with_holiday_na(aligned, holiday_mask)
     observations[level_id] = filled
     observations[return_id] = returns
     level_mask = catalog["column"].eq(level_id)
     return_mask = catalog["column"].eq(return_id)
-    catalog.loc[level_mask, "category"] = category
-    catalog.loc[return_mask, "category"] = category
+    catalog.loc[level_mask, "source"] = SOURCE_YAHOO
+    catalog.loc[return_mask, "source"] = SOURCE_YAHOO
     catalog.loc[level_mask, "note"] = level_note
     catalog.loc[return_mask, "note"] = "Daily simple return = P(t)/P(t-1) - 1"
     return filled
@@ -95,26 +169,35 @@ def replace_datastream_tr_with_yahoo(
     observations: pd.DataFrame,
     *,
     replacements: dict[str, str] | None = None,
-    fetch_tr_levels: Callable[[str], pd.Series | None] = fetch_yahoo_total_return_levels,
-    fetch_price_levels: Callable[[str], pd.Series | None] = fetch_yahoo_price_levels,
+    fetch_tr_levels: Callable[
+        [str], pd.Series | None
+    ] = fetch_yahoo_total_return_levels_prefer_freeze,
+    fetch_price_levels: Callable[
+        [str], pd.Series | None
+    ] = fetch_yahoo_price_levels_prefer_freeze,
     # Backward-compatible alias used by older tests/callers.
     fetch_levels: Callable[[str], pd.Series | None] | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Overwrite main TR/Price columns (and %) with Yahoo for configured ISINs.
 
-    - ``{ISIN} TR`` / ``{ISIN} TR %`` ← adjusted Close (``auto_adjust=True``)
-    - ``{ISIN} Price`` / ``{ISIN} Price %`` ← unadjusted Close (``auto_adjust=False``)
+    - ``{ISIN} TR`` / ``{ISIN} TR %`` ← distribution-adjusted Close (``auto_adjust=True``)
+    - ``{ISIN} Price`` / ``{ISIN} Price %`` ← split-adjusted Close (``auto_adjust=False``)
 
-    Headers stay the primary Datastream names so later steps still treat them as
-    the fund's main series.     Dates without a Yahoo print stay blank. S&P-flat exchange holidays are
-    left NA (level and %) and the next session’s return is recomputed; step 2
-    also normalises the full panel on the market calendar.
+    Levels are read from the frozen extract in ``cache/yahoo-tr-replacements/``
+    when present (see ``yahoo_tr_freeze``); otherwise a live Yahoo download is
+    used. Fund-type ``category`` (Active MF, Passive MF, …) is preserved. Origin
+    is recorded in ``source`` (``Lipper`` by default, ``Yahoo`` after
+    replacement). Headers stay the primary Datastream names so later steps
+    still treat them as the fund's main series. Dates without a Yahoo print
+    stay blank. S&P-flat exchange holidays are left NA (level and %) and the
+    next session’s return is recomputed; step 2 also normalises the full panel
+    on the market calendar.
 
     Returns ``(catalog, observations, replacement_log)``.
     """
     mapping = dict(replacements if replacements is not None else YAHOO_TR_REPLACEMENTS)
     tr_fetch = fetch_levels if fetch_levels is not None else fetch_tr_levels
-    updated_catalog = catalog.copy()
+    updated_catalog = _ensure_source_column(catalog)
     updated_observations = observations.copy()
     rows: list[dict[str, Any]] = []
 
@@ -174,7 +257,6 @@ def replace_datastream_tr_with_yahoo(
             level_id=tr_id,
             return_id=tr_ret_id,
             aligned=tr_aligned,
-            category="Yahoo TR",
             level_note="Total return index, daily",
             holiday_mask=holiday_mask,
         )
@@ -184,7 +266,6 @@ def replace_datastream_tr_with_yahoo(
             level_id=price_id,
             return_id=price_ret_id,
             aligned=price_aligned,
-            category="Yahoo Price",
             level_note="Price, daily",
             holiday_mask=holiday_mask,
         )

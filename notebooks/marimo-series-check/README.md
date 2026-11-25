@@ -55,12 +55,12 @@ input.
 1. Load daily series (auto); replace Yahoo Price+TR for seven Lipper level-jump funds
 2. Holiday calendar — NA on levels and % for exchange closures
 3. Gap — score remaining calendar holes on the post-holiday panel; diagnostic Decision
-4. Scale shift — re-check; policy-only Decision
+4. Scale shift — optional (off by default at notebook top); when on, re-check; policy-only Decision
 5. Level jump — re-check; Decision rescales level breaks (Yahoo-replaced ISINs skipped)
-6. Rebuild TR from distributions (Lipper gate)
+6. Consistency with Lipper 3-, 5- and 10-year total returns
 7. Spike — re-check; Decision repairs distribution-day TR
-8. Far from index — re-check; residual-risk Decision
+8. Far from index — re-check; residual-risk Decision; drop non-`.SPXTR` sample (PHDG)
 9. Blank frozen tails
-10. Fill US T-Bill 3M (`^IRX`)
+10. Fill US T-Bill 3M (FRED `DTB3`)
 11. Export cleaned workbook
 12. Conclusion

@@ -64,6 +64,9 @@ __all__ = [
     "recompute_tr_level",
     "resolve_distributions_cache_path",
     "save_distributions_cache",
+    "annotate_rebuild_log_lipper_status",
+    "summarize_lipper_gap_distribution",
+    "summarize_lipper_tolerance_sensitivity",
     "summarize_rebuild_gate_transparency",
     "total_return_percent_from_price",
 ]
@@ -242,14 +245,20 @@ def total_return_percent_from_price(
     price: pd.Series,
     distributions: pd.Series,
 ) -> pd.Series:
-    """Daily simple return with cash reinvested on ex-dates."""
+    """Daily simple return with cash reinvested on ex-dates.
+
+    The prior close is the last non-missing price (``ffill`` then ``shift``),
+    not a raw one-row lag. After Step 2 blanks exchange holidays to NA, a raw
+    lag would make the first session after each holiday NA and drop that day's
+    return from the compounded path, which systematically biases the rebuild
+    away from Lipper. Holiday rows themselves stay NA via ``where(price.notna())``.
+    """
     price = price.astype(float)
-    prior = price.shift(1)
+    prior = price.ffill().shift(1)
     payout = distributions.reindex(price.index).fillna(0.0)
-    numer = price + payout
-    returns = numer / prior - 1.0
+    returns = (price + payout) / prior - 1.0
     returns.iloc[0] = np.nan
-    return returns
+    return returns.where(price.notna())
 
 
 def recompute_tr_level(
@@ -377,16 +386,22 @@ def lipper_gate_should_adopt(
     *,
     close_pp: float = LIPPER_CLOSE_PP,
 ) -> bool:
-    """Adopt rebuilt TR when the primary Lipper gap is close or improves.
+    """Adopt rebuilt TR only when it passes Lipper and improves on Datastream.
 
-    Primary horizon is the longest available on the rebuild side (10y → 5y →
-    3y). If that gap is already within ``close_pp``, adopt. Otherwise compare
-    shared horizons from longest to shortest: adopt on improvement; on a tie,
-    try the next shorter horizon; on a worse gap, keep Datastream.
+    Both conditions are required (**pass-and-improve**):
+
+    1. **Pass.** On the rebuild's primary horizon (longest available of
+       10y → 5y → 3y), ``|gap_after| ≤ close_pp``.
+    2. **Improve.** On shared horizons from longest to shortest, the rebuild's
+       absolute gap is strictly smaller than Datastream's. Ties fall through to
+       the next shorter horizon; a worse gap on the first comparable horizon
+       refuses adoption. If no shared horizon exists, refuse.
     """
     primary_after = primary_lipper_horizon(gap_after)
-    if primary_after is not None and abs(float(gap_after[primary_after])) <= close_pp:
-        return True
+    if primary_after is None:
+        return False
+    if abs(float(gap_after[primary_after])) > close_pp:
+        return False
 
     for horizon in LIPPER_TEST_HORIZONS:
         before = gap_before.get(horizon)
@@ -409,11 +424,11 @@ def lipper_gate_should_adopt_only_if_pass(
     *,
     close_pp: float = LIPPER_CLOSE_PP,
 ) -> bool:
-    """Stricter counterfactual gate: adopt only when the rebuild already passes.
+    """Looser counterfactual: adopt when the rebuild passes, even if it does not improve.
 
-    Unlike ``lipper_gate_should_adopt``, improvement that remains outside
-    ``close_pp`` does **not** trigger adoption. ``gap_before`` is unused and
-    kept only so callers can swap gate functions with a matching signature.
+    Unlike ``lipper_gate_should_adopt``, Datastream need not be farther from
+    Lipper. ``gap_before`` is unused and kept only so callers can swap gate
+    functions with a matching signature.
     """
     del gap_before  # Signature parity with ``lipper_gate_should_adopt``.
     status, _ = lipper_test_status(gap_after, close_pp=close_pp)
@@ -427,20 +442,175 @@ def _gaps_from_rebuild_log_row(row: pd.Series, *, side: str) -> dict[str, float]
     }
 
 
+def summarize_lipper_gap_distribution(rebuild_log: pd.DataFrame) -> pd.DataFrame:
+    """Gap to Lipper (computed minus published, pp) by series and horizon.
+
+    Returns one row per Datastream / rebuild candidate and 3y / 5y / 10y with
+    counts and sample quantiles (median, p10, p25, p75, p90). Unscored gaps
+    (NaN) are omitted from each block.
+    """
+    rows: list[dict[str, Any]] = []
+    if rebuild_log is None or len(rebuild_log) == 0:
+        return pd.DataFrame(
+            columns=[
+                "Series",
+                "Horizon",
+                "n",
+                "median",
+                "p10",
+                "p25",
+                "p75",
+                "p90",
+            ]
+        )
+    for series_label, side in (
+        ("Datastream TR", "before"),
+        ("Distribution rebuild", "after"),
+    ):
+        for horizon in LIPPER_TEST_HORIZONS:
+            col = f"gap_{horizon}_{side}"
+            if col not in rebuild_log.columns:
+                continue
+            values = pd.to_numeric(rebuild_log[col], errors="coerce").dropna()
+            if len(values) == 0:
+                continue
+            rows.append(
+                {
+                    "Series": series_label,
+                    "Horizon": horizon,
+                    "n": int(len(values)),
+                    "median": float(values.median()),
+                    "p10": float(values.quantile(0.10)),
+                    "p25": float(values.quantile(0.25)),
+                    "p75": float(values.quantile(0.75)),
+                    "p90": float(values.quantile(0.90)),
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def annotate_rebuild_log_lipper_status(
+    rebuild_log: pd.DataFrame,
+    *,
+    close_pp: float = LIPPER_CLOSE_PP,
+) -> pd.DataFrame:
+    """Add Lipper pass/fail labels and post-Decision panel status to ``rebuild_log``."""
+    if rebuild_log is None or len(rebuild_log) == 0:
+        return rebuild_log.copy() if rebuild_log is not None else pd.DataFrame()
+    out = rebuild_log.copy()
+    ds_status: list[str] = []
+    ds_horizon: list[object] = []
+    rb_status: list[str] = []
+    rb_horizon: list[object] = []
+    status_after: list[str] = []
+    horizon_after: list[object] = []
+    gap_after_pp: list[float] = []
+    fail_after: list[bool] = []
+    dual_fail: list[bool] = []
+    for row in out.itertuples(index=False):
+        series = pd.Series(row._asdict())
+        gap_before = _gaps_from_rebuild_log_row(series, side="before")
+        gap_after = _gaps_from_rebuild_log_row(series, side="after")
+        before_status, before_hz = lipper_test_status(gap_before, close_pp=close_pp)
+        after_status, after_hz = lipper_test_status(gap_after, close_pp=close_pp)
+        ds_status.append(before_status)
+        ds_horizon.append(before_hz if before_hz is not None else pd.NA)
+        rb_status.append(after_status)
+        rb_horizon.append(after_hz if after_hz is not None else pd.NA)
+        adopted = str(series.get("decision", "")).strip() == "adopted"
+        if adopted:
+            active_status, active_hz = after_status, after_hz
+            active_gaps = gap_after
+        else:
+            active_status, active_hz = before_status, before_hz
+            active_gaps = gap_before
+        status_after.append(active_status)
+        horizon_after.append(active_hz if active_hz is not None else pd.NA)
+        if active_hz is not None and pd.notna(active_gaps.get(active_hz)):
+            gap_after_pp.append(float(active_gaps[active_hz]))
+        else:
+            gap_after_pp.append(float("nan"))
+        fail_after.append(active_status == "fail")
+        dual_fail.append(before_status == "fail" and after_status == "fail")
+    out["datastream_vs_lipper"] = pd.Series(ds_status, dtype="string")
+    out["datastream_lipper_horizon"] = pd.Series(ds_horizon, dtype="string")
+    out["rebuild_vs_lipper"] = pd.Series(rb_status, dtype="string")
+    out["rebuild_lipper_horizon"] = pd.Series(rb_horizon, dtype="string")
+    out["lipper_status_after"] = pd.Series(status_after, dtype="string")
+    out["lipper_horizon_after"] = pd.Series(horizon_after, dtype="string")
+    out["lipper_gap_after_pp"] = gap_after_pp
+    out["lipper_fail_after"] = fail_after
+    out["lipper_dual_fail"] = dual_fail
+    return out
+
+
+def summarize_lipper_tolerance_sensitivity(
+    rebuild_log: pd.DataFrame,
+    *,
+    close_pp_values: tuple[float, ...] = (0.25, 0.5, 1.0),
+) -> pd.DataFrame:
+    """Pass and pass-and-improve adopt counts at alternate Lipper tolerances.
+
+    Production decisions are not changed. Each row of the returned table is one
+    candidate ``τ`` (pp): Datastream and rebuild pass counts on the primary
+    horizon, and how many funds the production gate would adopt at that ``τ``.
+    """
+    rows: list[dict[str, Any]] = []
+    if rebuild_log is None or len(rebuild_log) == 0:
+        return pd.DataFrame(
+            columns=[
+                "tau_pp",
+                "datastream_pass",
+                "rebuild_pass",
+                "would_adopt",
+                "n_funds",
+            ]
+        )
+    n_funds = int(len(rebuild_log))
+    for tau in close_pp_values:
+        ds_pass = 0
+        rb_pass = 0
+        would_adopt = 0
+        for row in rebuild_log.itertuples(index=False):
+            series = pd.Series(row._asdict())
+            gap_before = _gaps_from_rebuild_log_row(series, side="before")
+            gap_after = _gaps_from_rebuild_log_row(series, side="after")
+            before_status, _ = lipper_test_status(gap_before, close_pp=float(tau))
+            after_status, _ = lipper_test_status(gap_after, close_pp=float(tau))
+            if before_status == "pass":
+                ds_pass += 1
+            if after_status == "pass":
+                rb_pass += 1
+            if lipper_gate_should_adopt(
+                gap_before, gap_after, close_pp=float(tau)
+            ):
+                would_adopt += 1
+        rows.append(
+            {
+                "tau_pp": float(tau),
+                "datastream_pass": ds_pass,
+                "rebuild_pass": rb_pass,
+                "would_adopt": would_adopt,
+                "n_funds": n_funds,
+            }
+        )
+    return pd.DataFrame(rows)
+
+
 def summarize_rebuild_gate_transparency(
     rebuild_log: pd.DataFrame,
     *,
     close_pp: float = LIPPER_CLOSE_PP,
 ) -> tuple[dict[str, Any], pd.DataFrame]:
-    """Post-adopt Lipper status and adopt-only-if-pass sensitivity.
+    """Post-adopt Lipper status and pass-only (looser) sensitivity.
 
     Production decisions stay those already recorded in ``rebuild_log``
     (``decision`` = ``adopted`` / ``kept_legacy``). This helper does not change
     which series were written; it reports:
 
     - among production adopts, how many rebuild candidates still fail Lipper;
-    - how many funds the stricter adopt-only-if-pass rule would have adopted;
-    - which production adopts the stricter rule would have refused.
+    - how many funds the looser pass-only rule would have adopted;
+    - how many of those extras production refuses (pass but no improvement).
 
     Returns ``(summary, adopted_still_fail_table)``.
     """
@@ -506,12 +676,17 @@ def summarize_rebuild_gate_transparency(
     adopted_pass = int((adopted["rebuild_vs_lipper"] == "pass").sum())
     adopted_fail = int((adopted["rebuild_vs_lipper"] == "fail").sum())
     adopted_unscored = int((adopted["rebuild_vs_lipper"] == "unscored").sum())
-    strict_would_adopt = int(detail["strict_would_adopt"].sum())
+    # ``strict_would_adopt`` column / field name retained for callers: it now
+    # means the looser pass-only counterfactual (pass without requiring improve).
+    pass_only_would_adopt = int(detail["strict_would_adopt"].sum())
     adopted_under_both = int(
         (detail["production_adopted"] & detail["strict_would_adopt"]).sum()
     )
     adopted_only_under_production = int(
         (detail["production_adopted"] & ~detail["strict_would_adopt"]).sum()
+    )
+    pass_only_extra = int(
+        (~detail["production_adopted"] & detail["strict_would_adopt"]).sum()
     )
     summary = {
         "n_funds": int(len(detail)),
@@ -520,10 +695,11 @@ def summarize_rebuild_gate_transparency(
         "adopted_pass": adopted_pass,
         "adopted_fail": adopted_fail,
         "adopted_unscored": adopted_unscored,
-        "strict_would_adopt": strict_would_adopt,
-        "strict_would_keep": int(len(detail) - strict_would_adopt),
+        "strict_would_adopt": pass_only_would_adopt,
+        "strict_would_keep": int(len(detail) - pass_only_would_adopt),
         "adopted_under_both": adopted_under_both,
         "adopted_only_under_production": adopted_only_under_production,
+        "pass_only_extra": pass_only_extra,
         "close_pp": float(close_pp),
     }
     fail_table = (
@@ -763,5 +939,5 @@ def rebuild_tr_panel(
         )
 
     save_distributions_cache(cache)
-    log = pd.DataFrame(rows)
+    log = annotate_rebuild_log_lipper_status(pd.DataFrame(rows))
     return result, log

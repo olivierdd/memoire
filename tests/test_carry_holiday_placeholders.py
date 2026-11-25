@@ -6,6 +6,9 @@ import pandas as pd
 
 from helpers.timeseries_functions.series_v2_pipeline import (
     carry_holiday_placeholders,
+    holiday_calendar_diagnostic,
+    non_zero_holiday_case_review,
+    non_zero_holiday_returns,
     summarize_tr_consistency,
 )
 
@@ -131,6 +134,44 @@ class CarryHolidayPlaceholdersTests(unittest.TestCase):
         )
         self.assertEqual(gaps_without, len(holidays))
         self.assertEqual(gaps_with, 0)
+
+    def test_non_zero_holiday_returns_lists_pre_treatment_prints(self):
+        catalog, observations = self._panel()
+        observations.loc[pd.Timestamp("2020-01-03"), 4] = 0.01
+        _, _, holidays = carry_holiday_placeholders(catalog, observations)
+        frame = non_zero_holiday_returns(catalog, observations, holidays)
+        self.assertEqual(len(frame), 1)
+        self.assertEqual(frame.loc[0, "header"], "US8085098551 TR %")
+        self.assertAlmostEqual(float(frame.loc[0, "return"]), 0.01)
+
+    def test_holiday_calendar_diagnostic_flags_nyse_match(self):
+        holidays = pd.DatetimeIndex([pd.Timestamp("2020-01-01")])  # New Year's Day
+        panel = pd.DatetimeIndex(
+            pd.bdate_range("2019-12-30", "2020-01-06")
+        )
+        # Ensure New Year's Day is in the panel weekdays even if bdate_range skips it
+        panel = panel.union(holidays).sort_values()
+        table, nyse_only = holiday_calendar_diagnostic(holidays, panel)
+        self.assertEqual(len(table), 1)
+        self.assertTrue(bool(table.loc[0, "nyse_holiday"]))
+        self.assertFalse(holidays[0].normalize() in set(nyse_only["date"]))
+
+    def test_case_review_flags_move_booked_on_holiday(self):
+        catalog, observations = self._panel()
+        # Holiday level moves; next session flat at the holiday level.
+        observations.loc[pd.Timestamp("2020-01-03"), 3] = 50.5
+        observations.loc[pd.Timestamp("2020-01-03"), 4] = 0.01
+        observations.loc[pd.Timestamp("2020-01-06"), 3] = 50.5
+        observations.loc[pd.Timestamp("2020-01-06"), 4] = 0.0
+        corrected, log, holidays = carry_holiday_placeholders(catalog, observations)
+        summary, detail = non_zero_holiday_case_review(
+            catalog, observations, holidays, log
+        )
+        self.assertEqual(len(detail), 1)
+        self.assertEqual(len(summary), 1)
+        self.assertIn("booked on the holiday", summary.loc[0, "finding"])
+        self.assertGreaterEqual(int(summary.loc[0, "max_cells_changed"]), 1)
+        _ = corrected
 
 
 if __name__ == "__main__":

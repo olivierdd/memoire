@@ -282,8 +282,9 @@ favour of the EDGAR classification, and **{c['drop_other']:,}** funds were
 excluded as structural “Other” products. Parallel enrichments attach OpenFIGI
 market identifiers, EDGAR CIK/series/class fields, and Datastream (or Yahoo
 total-return) daily paths; **{c['yahoo_filled']:,}** funds without a Datastream
-series were retained after a Yahoo Price + TR backfill (unadjusted Close →
-Price; adjusted Close → TR; S&P-flat holidays NA with next-session % recomputed).
+series were retained after a Yahoo Price + TR backfill (split-adjusted Close →
+Price; distribution-adjusted Close → TR; S&P-flat holidays NA with next-session
+% recomputed).
 
 ### Composition of the final sample
 

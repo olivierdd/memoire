@@ -14,6 +14,7 @@ dependencies = [
     "openpyxl>=3.1.5",
     "python-pptx>=1.0.2",
     "pandas>=3.0.6",
+    "pyarrow>=26.0.0",
     "pymupdf>=2.0",
     "scikit-learn>=1.9.1",
     "trackinsight-data-python>=0.1.10",
@@ -21,6 +22,7 @@ dependencies = [
     "yfinance>=1.7.0",
     "statsmodels>=0.15.0",
     "marimo>=0.25.2",
+    "exchange-calendars>=4.13.3",
 ]
 
 [dependency-groups]

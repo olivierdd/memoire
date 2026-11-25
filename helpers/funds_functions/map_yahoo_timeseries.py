@@ -90,11 +90,11 @@ def fetch_yahoo_total_return_levels(ticker: str) -> pd.Series | None:
 
 
 def fetch_yahoo_price_levels(ticker: str) -> pd.Series | None:
-    """Unadjusted close levels (Yahoo price/NAV proxy).
+    """Split-adjusted close levels (Yahoo price/NAV proxy).
 
-    Uses ``auto_adjust=False`` so ``Close`` is the raw price series, not the
-    total-return proxy. Returns a date-indexed Series, or None when Yahoo has
-    no history.
+    Uses ``auto_adjust=False`` so ``Close`` is adjusted for splits but not for
+    distributions (Yahoo's OHLC with a separate dividend-inclusive Adj Close).
+    Returns a date-indexed Series, or None when Yahoo has no history.
     """
     return _yahoo_close_levels(ticker, auto_adjust=False)
 
@@ -230,8 +230,8 @@ def append_yahoo_price_and_tr_columns(
 ) -> tuple[pd.DataFrame, int]:
     """Append Yahoo Price + TR pairs using the same recipe as series-check.
 
-    - Price / Price % ← unadjusted Close (``auto_adjust=False``)
-    - TR / TR % ← adjusted Close (``auto_adjust=True``)
+    - Price / Price % ← split-adjusted Close (``auto_adjust=False``)
+    - TR / TR % ← distribution-adjusted Close (``auto_adjust=True``)
     - Align to sheet dates; missing Yahoo prints stay blank
     - On S&P-flat holidays (when ``holiday_mask`` is provided), level and % are
       left NA and the next session’s return is recomputed from the prior close

@@ -216,6 +216,16 @@ class SelectiveSeriesIssueFlagsTest(unittest.TestCase):
         )
         self.assertEqual(resolve_series_issue_flags(("gaps",)), frozenset({"gaps"}))
 
+    def test_resolve_without_scale_skips_scale_prerequisites(self):
+        self.assertEqual(
+            resolve_series_issue_flags(("spikes",), use_scale=False),
+            frozenset({"spikes", "level_jump"}),
+        )
+        self.assertEqual(
+            resolve_series_issue_flags(("level_jump",), use_scale=False),
+            frozenset({"level_jump"}),
+        )
+
     def test_unknown_flag_raises(self):
         with self.assertRaisesRegex(ValueError, "Unknown series issue flag"):
             resolve_series_issue_flags(("gaps", "nope"))

@@ -2651,9 +2651,9 @@ def _(
            total-return series on the overlapping window. High correlation → keep
            the fund and its DS series; no ticker or weak correlation → drop.
         5. **No Datastream TR.** Same Yahoo recipe as series-check: fetch
-           unadjusted Close (`auto_adjust=False`) into primary `{ISIN} Price` /
-           `Price %`, and adjusted Close (`auto_adjust=True`) into `{ISIN} TR` /
-           `TR %`. Align to sheet dates; on S&P-flat holidays set level and % to
+           split-adjusted Close (`auto_adjust=False`) into primary `{ISIN} Price` /
+           `Price %`, and distribution-adjusted Close (`auto_adjust=True`) into
+           `{ISIN} TR` / `TR %`. Align to sheet dates; on S&P-flat holidays set level and % to
            NA and recompute the next session’s return; other missing prints stay
            blank.
            Keep when both series align; otherwise drop.
@@ -2823,8 +2823,8 @@ def _(
                 For the **{len(timeseries_result['missing'])}** funds with no
                 Datastream TR series at all, Yahoo Finance was queried with the
                 OpenFIGI market ticker using the **same Price + TR recipe as
-                series-check**: unadjusted Close → `{{ISIN}} Price` / `Price %`;
-                adjusted Close → `{{ISIN}} TR` / `TR %`; align to sheet dates;
+                series-check**: split-adjusted Close → `{{ISIN}} Price` / `Price %`;
+                distribution-adjusted Close → `{{ISIN}} TR` / `TR %`; align to sheet dates;
                 S&P-flat holidays NA (next-session % recomputed); blanks when Yahoo
                 has no print. When both histories exist and align, they are
                 appended to the working D-Timeseries panel.

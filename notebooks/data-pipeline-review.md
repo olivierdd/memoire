@@ -23,7 +23,7 @@ load-funds-v2.py
         │
         ▼
 load-series-v2.py
-  QA → holidays → split/level fixes → rebuild TR (Lipper gate)
+  QA → holidays → split/level fixes → Lipper 3Y/5Y/10Y consistency
   → distribution-day repairs → blank frozen tails → ^IRX
   → drop 4 closed funds → rewrite D-Timeseries final
         │
@@ -212,8 +212,8 @@ Live re-run: **3** breaks still detected across 10 funds; **0** new rescales; **
 
 #### 9. Risk-free rate
 
-- Fill empty Datastream `US T-Bill 3M` from Yahoo `^IRX` (annualised %).
-- Live: **2,765** sessions filled, **106** blank; first 0.06% (2015-11-03), last 4.03% (2026-11-03).
+- Fill empty Datastream `US T-Bill 3M` from frozen FRED `DTB3` (annualised bank discount %).
+- Freeze: `cache/fred-dtb3/DTB3.csv` (download date in `manifest.json`).
 
 #### 10. Drop four closed funds (auto-write)
 

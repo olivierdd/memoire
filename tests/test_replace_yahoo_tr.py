@@ -13,7 +13,16 @@ from helpers.timeseries_functions.replace_yahoo_tr import (
     YAHOO_TR_REPLACEMENTS,
     YAHOO_TR_REPLACE_ISINS,
     align_yahoo_levels_to_index,
+    lipper_fund_sample_end,
     replace_datastream_tr_with_yahoo,
+    truncate_panel_to_sample_end,
+)
+from helpers.timeseries_functions.yahoo_tr_freeze import (
+    fetch_yahoo_total_return_levels_prefer_freeze,
+    freeze_yahoo_tr_replacements,
+    load_frozen_yahoo_price_levels,
+    load_frozen_yahoo_total_return_levels,
+    yahoo_tr_freeze_download_date,
 )
 from helpers.timeseries_functions.series_v2_pipeline import (
     rescale_level_breaks,
@@ -68,6 +77,136 @@ class FetchYahooPriceLevelsTests(unittest.TestCase):
             period="max", auto_adjust=True, repair=False
         )
         self.assertEqual(list(levels.values), [100.0, 110.0])
+
+
+class YahooTrFreezeTests(unittest.TestCase):
+    def test_freeze_roundtrip_and_prefer_freeze_over_live(self):
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+
+        tr_levels = pd.Series(
+            [100.0, 110.0],
+            index=pd.to_datetime(["2020-01-02", "2020-01-03"]),
+            name="SWPPX",
+        )
+        price_levels = pd.Series(
+            [50.0, 55.0],
+            index=pd.to_datetime(["2020-01-02", "2020-01-03"]),
+            name="SWPPX",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            freeze_dir = Path(tmp)
+            manifest = freeze_yahoo_tr_replacements(
+                freeze_dir=freeze_dir,
+                replacements={"US8085098551": "SWPPX"},
+                download_date="2026-11-24",
+                fetch_tr_levels=lambda _t: tr_levels,
+                fetch_price_levels=lambda _t: price_levels,
+            )
+            self.assertEqual(manifest["download_date"], "2026-11-24")
+            self.assertEqual(
+                yahoo_tr_freeze_download_date(freeze_dir), "2026-11-24"
+            )
+            loaded_tr = load_frozen_yahoo_total_return_levels(
+                "SWPPX", freeze_dir=freeze_dir
+            )
+            loaded_price = load_frozen_yahoo_price_levels(
+                "SWPPX", freeze_dir=freeze_dir
+            )
+            self.assertEqual(list(loaded_tr.values), [100.0, 110.0])
+            self.assertEqual(list(loaded_price.values), [50.0, 55.0])
+
+            with patch(
+                "helpers.timeseries_functions.yahoo_tr_freeze.fetch_yahoo_total_return_levels"
+            ) as live_tr:
+                live_tr.side_effect = AssertionError("live fetch should not run")
+                preferred = fetch_yahoo_total_return_levels_prefer_freeze(
+                    "SWPPX", freeze_dir=freeze_dir
+                )
+            self.assertEqual(list(preferred.values), [100.0, 110.0])
+            live_tr.assert_not_called()
+
+
+class TruncatePanelToSampleEndTests(unittest.TestCase):
+    def test_uses_modal_lipper_fund_tr_last_date_and_drops_later_rows(self):
+        dates = pd.to_datetime(
+            ["2026-10-29", "2026-10-30", "2026-11-02", "2026-11-03"]
+        )
+        catalog = pd.DataFrame(
+            {
+                "column": [1, 2, 3, 4],
+                "id": ["US111", "US222", "S&P", "US00774Q8740"],
+                "name": ["A", "B", "S&P", "Yahoo fund"],
+                "category": ["Active MF", "Passive MF", "Index", "Active MF"],
+                "header": [
+                    "US111 TR",
+                    "US222 TR",
+                    "S&P 500 TR",
+                    "US00774Q8740 TR",
+                ],
+                "source": ["Lipper", "Lipper", "Lipper", "Yahoo"],
+                "observations": [2, 2, 4, 4],
+                "first_date": [dates[0], dates[0], dates[0], dates[0]],
+                "last_date": [dates[1], dates[1], dates[3], dates[3]],
+            }
+        )
+        observations = pd.DataFrame(
+            {
+                1: [1.0, 1.1, 1.2, 1.3],
+                2: [2.0, 2.1, 2.2, 2.3],
+                3: [100.0, 101.0, 102.0, 103.0],
+                4: [10.0, 11.0, 12.0, 13.0],
+            },
+            index=pd.Index(dates, name="date"),
+        )
+
+        self.assertEqual(
+            lipper_fund_sample_end(catalog), pd.Timestamp("2026-10-30")
+        )
+        out_catalog, out_obs, end = truncate_panel_to_sample_end(
+            catalog, observations
+        )
+        self.assertEqual(end, pd.Timestamp("2026-10-30"))
+        self.assertEqual(list(out_obs.index), list(dates[:2]))
+        self.assertEqual(int(out_catalog.loc[out_catalog["column"].eq(3), "observations"].iloc[0]), 2)
+        self.assertEqual(
+            pd.Timestamp(
+                out_catalog.loc[out_catalog["column"].eq(3), "last_date"].iloc[0]
+            ),
+            pd.Timestamp("2026-10-30"),
+        )
+        # Yahoo-replaced last_date must not set the endpoint.
+        self.assertEqual(
+            pd.Timestamp(
+                out_catalog.loc[out_catalog["column"].eq(4), "last_date"].iloc[0]
+            ),
+            pd.Timestamp("2026-10-30"),
+        )
+
+    def test_noop_when_panel_already_ends_on_sample_end(self):
+        dates = pd.to_datetime(["2026-10-29", "2026-10-30"])
+        catalog = pd.DataFrame(
+            {
+                "column": [1],
+                "id": ["US111"],
+                "name": ["A"],
+                "category": ["Active MF"],
+                "header": ["US111 TR"],
+                "observations": [2],
+                "first_date": [dates[0]],
+                "last_date": [dates[1]],
+            }
+        )
+        observations = pd.DataFrame(
+            {1: [1.0, 1.1]}, index=pd.Index(dates, name="date")
+        )
+        out_catalog, out_obs, end = truncate_panel_to_sample_end(
+            catalog, observations
+        )
+        self.assertEqual(end, pd.Timestamp("2026-10-30"))
+        self.assertEqual(len(out_obs), 2)
+        self.assertEqual(int(out_catalog.loc[0, "observations"]), 2)
 
 
 class ReplaceDatastreamWithYahooTests(unittest.TestCase):
@@ -166,20 +305,31 @@ class ReplaceDatastreamWithYahooTests(unittest.TestCase):
         self.assertAlmostEqual(float(out_obs.loc[observations.index[0], 1]), 100.0)
         self.assertAlmostEqual(float(out_obs.loc[observations.index[1], 1]), 110.0)
         self.assertAlmostEqual(float(out_obs.loc[observations.index[1], 2]), 0.1)
-        # Price from unadjusted Close (different levels)
+        # Price from split-adjusted Close (different levels)
         self.assertAlmostEqual(float(out_obs.loc[observations.index[0], 3]), 50.0)
         self.assertAlmostEqual(float(out_obs.loc[observations.index[1], 3]), 55.0)
         self.assertAlmostEqual(float(out_obs.loc[observations.index[1], 4]), 0.1)
         self.assertTrue(pd.isna(out_obs.loc[observations.index[3], 1]))
         self.assertTrue(pd.isna(out_obs.loc[observations.index[3], 3]))
+        # Fund-type category is preserved; origin moves to source.
         self.assertTrue(
             out_catalog.loc[out_catalog["header"].eq("US8085098551 TR"), "category"]
-            .eq("Yahoo TR")
+            .eq("Index")
             .all()
         )
         self.assertTrue(
             out_catalog.loc[out_catalog["header"].eq("US8085098551 Price"), "category"]
-            .eq("Yahoo Price")
+            .eq("Index")
+            .all()
+        )
+        self.assertTrue(
+            out_catalog.loc[out_catalog["header"].eq("US8085098551 TR"), "source"]
+            .eq("Yahoo")
+            .all()
+        )
+        self.assertTrue(
+            out_catalog.loc[out_catalog["header"].eq("US8085098551 Price"), "source"]
+            .eq("Yahoo")
             .all()
         )
         self.assertEqual(list(out_obs.columns), [1, 2, 3, 4])

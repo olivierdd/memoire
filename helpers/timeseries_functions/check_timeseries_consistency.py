@@ -41,25 +41,39 @@ class SeriesCheck:
     index_gap: float
 
 
-def resolve_series_issue_flags(flags: Iterable[str] | None = None) -> frozenset[str]:
-    """Return the checks to run, including prerequisites (e.g. spikes → scale)."""
+def resolve_series_issue_flags(
+    flags: Iterable[str] | None = None,
+    *,
+    use_scale: bool = True,
+) -> frozenset[str]:
+    """Return the checks to run, including prerequisites (e.g. spikes → scale).
+
+    When ``use_scale`` is false, scale is not expanded as a prerequisite for
+    level_jump or spikes (those checks still run; post-split suppression is off).
+    """
     if flags is None:
-        return SERIES_ISSUE_FLAGS
-    requested = {str(flag) for flag in flags}
-    unknown = requested - SERIES_ISSUE_FLAGS
-    if unknown:
-        names = ", ".join(sorted(unknown))
-        allowed = ", ".join(sorted(SERIES_ISSUE_FLAGS))
-        raise ValueError(f"Unknown series issue flag(s): {names}. Allowed: {allowed}.")
-    active = set(requested)
+        active = set(SERIES_ISSUE_FLAGS)
+    else:
+        requested = {str(flag) for flag in flags}
+        unknown = requested - SERIES_ISSUE_FLAGS
+        if unknown:
+            names = ", ".join(sorted(unknown))
+            allowed = ", ".join(sorted(SERIES_ISSUE_FLAGS))
+            raise ValueError(f"Unknown series issue flag(s): {names}. Allowed: {allowed}.")
+        active = set(requested)
+    requires = _FLAG_REQUIRES if use_scale else {
+        name: deps - {"scale"} for name, deps in _FLAG_REQUIRES.items()
+    }
     pending = True
     while pending:
         pending = False
         for flag in tuple(active):
-            needed = _FLAG_REQUIRES[flag] - active
+            needed = requires[flag] - active
             if needed:
                 active |= needed
                 pending = True
+    if not use_scale:
+        active -= {"scale"}
     return frozenset(active)
 
 
@@ -153,7 +167,9 @@ def _flag_level_jumps(
         if len(follow) < 2:
             continue
         stayed = float((1 + follow).prod() - 1)
-        if abs(stayed) >= abs(float(value)) / 2:
+        jump = float(value)
+        # Same sign as the break-day return, and at least half of it remains.
+        if stayed / jump >= 0.5:
             jumps.append(i)
     return jumps
 
@@ -211,6 +227,7 @@ def locate_series_issues(
     date_gap_days: int,
     flags: Iterable[str] | None = None,
     exchange_holidays: pd.DatetimeIndex | None = None,
+    use_scale: bool = True,
 ) -> SeriesCheck:
     """Flag gaps, spikes, scale changes, and index gaps for one series.
 
@@ -231,8 +248,8 @@ def locate_series_issues(
       ``scale_factor`` both locally (``scale_window`` rows before vs after a
       candidate split) and globally (prefix vs suffix medians).
     - **Level jump:** ``|return| >= level_jump`` and far from the index, with the
-      move persisting over the next sessions (cumulative return stays at least
-      half the jump); ignored from a detected scale split onward.
+      move persisting over the next sessions (compounded follow-through ``s``
+      satisfies ``s / r >= 1/2``); ignored from a detected scale split onward.
     - **Spike (reversal):** ``|return| >= spike_return``, opposite sign next
       period, two-period compound within ``reversal_band``, and the index does
       not show the same reversal pattern.
@@ -241,7 +258,7 @@ def locate_series_issues(
     - **Wide / far from index:** ``|return - index| >= index_gap`` on usable
       rows.
     """
-    active = resolve_series_issue_flags(flags)
+    active = resolve_series_issue_flags(flags, use_scale=use_scale)
     frame = fund_timeseries[["Period", "Date", column, index_column]].reset_index(
         drop=True
     )
