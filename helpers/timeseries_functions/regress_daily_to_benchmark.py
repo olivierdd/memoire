@@ -9,10 +9,6 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
-from helpers.timeseries_functions.compare_regression_to_lipper_funds import (
-    _lipper_horizon_columns,
-)
-
 LABEL_ROWS = 6
 # Cleaned sibling written by load-series-v2 step 11 (input left immutable).
 DEFAULT_WORKBOOK_FILENAME = "v2-funds-normalized-cleaned.xlsx"
@@ -278,6 +274,10 @@ def _parse_lipper_number(value: object) -> float:
 
 
 def _lipper_value(row: pd.Series, years: int, key: str) -> float:
+    from helpers.timeseries_functions.compare_regression_to_lipper_funds import (
+        _lipper_horizon_columns,
+    )
+
     col = _lipper_horizon_columns(years)[key]
     return _parse_lipper_number(row.get(col))
 

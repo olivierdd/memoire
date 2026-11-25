@@ -1,4 +1,17 @@
-# Daily regressions vs Lipper
+# Marimo regressions
+
+## Daily consolidation regressions
+
+`consolidate-daily-regressions.py` runs **daily** OLS of each fund on the benchmark over the Consolidation analysis window (default: 30 Sep 2016 – 30 Sep 2026), shows one row per fund, then **Consolidated statistics by group** (Active/Passive, MF/ETF). Same formulas as the Consolidation tab in the formatted reference workbook.
+
+```bash
+uv run marimo edit notebooks/marimo-regressions/consolidate-daily-regressions.py
+uv run marimo run notebooks/marimo-regressions/consolidate-daily-regressions.py
+```
+
+Pick a workbook from `output-data/` (default `v2-funds-normalized-cleaned.xlsx`), adjust analysis-period overrides if needed, click **Run regressions**, then scroll the per-fund and consolidated tables.
+
+## Daily regressions vs Lipper
 
 `compare-lipper-regressions.py` compounds each fund’s daily total return to calendar months, regresses the fund on its Lipper benchmark over 3, 5, and 10 years, and compares alpha, beta, R², and tracking error with the Lipper columns on the funds sheet. The comparison runs as soon as the notebook opens.
 
