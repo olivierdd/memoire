@@ -164,6 +164,7 @@ class AppendYahooPriceAndTrColumnTests(unittest.TestCase):
             tr_levels=tr_levels,
             price_levels=price_levels,
             category="Active MF",
+            fee=0.82,
             holiday_mask=holiday_mask,
         )
 
@@ -174,6 +175,8 @@ class AppendYahooPriceAndTrColumnTests(unittest.TestCase):
         tr_col = out.iloc[:, 5]
         tr_ret = out.iloc[:, 6]
         self.assertEqual(price_col.iloc[0], "US3546131018")
+        self.assertEqual(price_col.iloc[3], 0.82)
+        self.assertEqual(tr_col.iloc[3], 0.82)
         self.assertEqual(price_col.iloc[5], "US3546131018 Price")
         self.assertEqual(price_ret.iloc[5], "US3546131018 Price %")
         self.assertEqual(tr_col.iloc[5], "US3546131018 TR")

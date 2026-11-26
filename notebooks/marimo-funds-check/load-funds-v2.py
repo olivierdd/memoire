@@ -2422,6 +2422,9 @@ def _(
 
             # No Datastream TR → Yahoo Price + TR backfill (same recipe as
             # series-check), else drop.
+            from helpers.funds_functions.filter_daily_timeseries import (
+                fee_from_fund_row,
+            )
             from helpers.funds_functions.map_yahoo_timeseries import (
                 append_yahoo_price_and_tr_columns,
                 fetch_yahoo_price_levels,
@@ -2514,6 +2517,7 @@ def _(
                         tr_levels=_tr_levels,
                         price_levels=_price_levels,
                         category=_category,
+                        fee=fee_from_fund_row(_row),
                         holiday_mask=_holiday_mask,
                     )
                     if _obs <= 0:
@@ -3293,6 +3297,7 @@ def _(
         final_input = get_spxtr_screen()
         if final_input is not None:
             from helpers.funds_functions.filter_daily_timeseries import (
+                backfill_fees_from_funds,
                 filter_daily_timeseries,
             )
 
@@ -3324,6 +3329,12 @@ def _(
                     if "daily_tr_name" in _funds_final.columns
                     else None
                 ),
+            )
+            # Yahoo-appended series (and any Datastream blanks) inherit TER
+            # from Funds final so D-Timeseries final fees are complete.
+            _daily_timeseries_final, _ = backfill_fees_from_funds(
+                _daily_timeseries_final,
+                _funds_final,
             )
             _all_sheets = {
                 **final_input["sheets"],
